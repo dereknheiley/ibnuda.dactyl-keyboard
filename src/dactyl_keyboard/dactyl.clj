@@ -42,6 +42,10 @@
 ; this parameter as true
 (def use-trrs? true)
 
+; if you want to use small usb hole, set
+; this parameter as true
+(def use-promicro-usb-hole? true)
+
 (defn column-offset [column] (cond
                                (= column 2) [0 2.82 -4.5]
                                (>= column 4) [0 -12 5.64]            ; original [0 -5.8 5.64]
@@ -625,7 +629,7 @@
 (def trrs-usb-holder-space  (translate (map + trrs-usb-holder-position [0 (* -1 wall-thickness) 1]) trrs-usb-holder-cube))
 (def trrs-usb-holder-holder (translate trrs-usb-holder-position (cube 19 12 4)))
 
-(def usb-jack (translate (map + usb-holder-position [0 10 3]) (cube 8.1 20 3.1)))
+(def trrs-usb-jack (translate (map + trrs-usb-holder-position [0 10 3]) (cube 8.1 20 3.1)))
 
 (def trrs-holder-size [6.2 10 2]) ; trrs jack PJ-320A
 (def trrs-holder-hole-size [6.2 10 6]) ; trrs jack PJ-320A
@@ -648,6 +652,29 @@
   ; rectangular trrs holder
    (->> (apply cube trrs-holder-hole-size) (translate [(first trrs-holder-position) (+ (/ trrs-holder-thickness -2) (second trrs-holder-position)) (+ (/ (last trrs-holder-hole-size) 2) trrs-holder-thickness)]))))
 
+(def pro-micro-position (map + (key-position 0 1 (wall-locate3 -1 0)) [-6 2 -15]))
+(def pro-micro-space-size [4 10 12]) ; z has no wall;
+(def pro-micro-wall-thickness 2)
+(def pro-micro-holder-size
+  [(+ pro-micro-wall-thickness (first pro-micro-space-size))
+   (+ pro-micro-wall-thickness (second pro-micro-space-size))
+   (last pro-micro-space-size)])
+(def pro-micro-space
+  (->> (cube (first pro-micro-space-size)
+             (second pro-micro-space-size)
+             (last pro-micro-space-size))
+       (translate [(- (first pro-micro-position) (/ pro-micro-wall-thickness 2))
+                   (- (second pro-micro-position) (/ pro-micro-wall-thickness 2))
+                   (last pro-micro-position)])))
+(def pro-micro-holder
+  (difference
+   (->> (cube (first pro-micro-holder-size)
+              (second pro-micro-holder-size)
+              (last pro-micro-holder-size))
+        (translate [(first pro-micro-position)
+                    (second pro-micro-position)
+                    (last pro-micro-position)]))
+   pro-micro-space))
 
 (def teensy-width 20)
 (def teensy-height 12)
@@ -743,11 +770,16 @@
                    thumb-connectors
                    (difference (union case-walls
                                       screw-insert-outers
-                                      teensy-holder
-                                      (if use-trrs? trrs-holder)
-                                      usb-holder)
+                                      (if use-promicro-usb-hole?
+                                        (union pro-micro-holder
+                                               trrs-usb-holder-holder)
+                                        (union teensy-holder usb-holder))
+                                      (if use-trrs? trrs-holder))
+                               (if use-promicro-usb-hole?
+                                 (union trrs-usb-holder-space
+                                        trrs-usb-jack)
+                                 usb-holder-hole)
                                (if use-trrs? trrs-holder-hole rj9-space)
-                               usb-holder-hole
                                screw-insert-holes)
                    (if-not use-trrs? rj9-holder)
                    (if use-wire-post? wire-posts))
