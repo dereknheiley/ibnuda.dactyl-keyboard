@@ -27,7 +27,7 @@
 ; if you don't want two outer-most thumb keys, set this
 ; parameter as true.
 ; otherwise, set it as false.
-(def circumcise? true)
+(def circumcise? false)
 
 ; if you don't want the side nubs, set this
 ; parameter as false.
@@ -37,6 +37,10 @@
 ; if you want to have wire posts, set this
 ; parameter as true.
 (def use-wire-post? false)
+
+; if you want to use trrs instead of rj9, set
+; this parameter as true
+(def use-trrs? true)
 
 (defn column-offset [column] (cond
                                (= column 2) [0 2.82 -4.5]
@@ -613,6 +617,38 @@
   (->> (apply cube usb-holder-size)
        (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))
 
+
+(def trrs-usb-holder-ref (key-position 0 0 (map - (wall-locate2  0  -1) [0 (/ mount-height 2) 0])))
+
+(def trrs-usb-holder-position (map + [17 19.3 0] [(first trrs-usb-holder-ref) (second trrs-usb-holder-ref) 2]))
+(def trrs-usb-holder-cube   (cube 15 12 2))
+(def trrs-usb-holder-space  (translate (map + trrs-usb-holder-position [0 (* -1 wall-thickness) 1]) trrs-usb-holder-cube))
+(def trrs-usb-holder-holder (translate trrs-usb-holder-position (cube 19 12 4)))
+
+(def usb-jack (translate (map + usb-holder-position [0 10 3]) (cube 8.1 20 3.1)))
+
+(def trrs-holder-size [6.2 10 2]) ; trrs jack PJ-320A
+(def trrs-holder-hole-size [6.2 10 6]) ; trrs jack PJ-320A
+(def trrs-holder-position  (map + trrs-usb-holder-position [-13.6 0 0]))
+(def trrs-holder-thickness 2)
+(def trrs-holder-thickness-2x (* 2 trrs-holder-thickness))
+(def trrs-holder
+  (union
+   (->> (cube (+ (first trrs-holder-size) trrs-holder-thickness-2x) (+ trrs-holder-thickness (second trrs-holder-size)) (+ (last trrs-holder-size) trrs-holder-thickness))
+        (translate [(first trrs-holder-position) (second trrs-holder-position) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)]))))
+(def trrs-holder-hole
+  (union
+
+  ; circle trrs hole
+   (->>
+    (->> (binding [*fn* 30] (cylinder 2.55 20))) ; 5mm trrs jack
+    (rotate (deg2rad  90) [1 0 0])
+    (translate [(first trrs-holder-position) (+ (second trrs-holder-position) (/ (+ (second trrs-holder-size) trrs-holder-thickness) 2)) (+ 3 (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2))])) ;1.5 padding
+
+  ; rectangular trrs holder
+   (->> (apply cube trrs-holder-hole-size) (translate [(first trrs-holder-position) (+ (/ trrs-holder-thickness -2) (second trrs-holder-position)) (+ (/ (last trrs-holder-hole-size) 2) trrs-holder-thickness)]))))
+
+
 (def teensy-width 20)
 (def teensy-height 12)
 (def teensy-length 33)
@@ -708,11 +744,12 @@
                    (difference (union case-walls
                                       screw-insert-outers
                                       teensy-holder
+                                      (if use-trrs? trrs-holder)
                                       usb-holder)
-                               rj9-space
+                               (if use-trrs? trrs-holder-hole rj9-space)
                                usb-holder-hole
                                screw-insert-holes)
-                   rj9-holder
+                   (if-not use-trrs? rj9-holder)
                    (if use-wire-post? wire-posts))
                   (translate [0 0 -20] (cube 350 350 40))))
 
