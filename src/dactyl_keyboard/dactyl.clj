@@ -19,8 +19,8 @@
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
-(def centercol 3)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
+(def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
+(def tenting-angle (/ π 7))            ; or, change this for more precise tenting control
 (def column-style
   (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 
@@ -40,11 +40,11 @@
 
 ; if you want to use trrs instead of rj9, set
 ; this parameter as true
-(def use-trrs? true)
+(def use-trrs? false)
 
 ; if you want to use small usb hole, set
 ; this parameter as true
-(def use-promicro-usb-hole? true)
+(def use-promicro-usb-hole? false)
 
 (defn column-offset [column] (cond
                                (= column 2) [0 2.82 -4.5]
@@ -349,12 +349,13 @@
        (translate thumborigin)
        (translate [-37.8 -55.3 -25.3])))
 (defn thumb-bl-place [shape]
+  (def mid-left (if circumcise? [-38.90 -51.20 -22.50] [-56.3 -43.3 -23.5]))
   (->> shape
        (rotate (deg2rad  -4) [1 0 0])
        (rotate (deg2rad -35) [0 1 0])
        (rotate (deg2rad  52) [0 0 1])
        (translate thumborigin)
-       (translate [-56.3 -43.3 -23.5])))
+       (translate mid-left)))
 
 (defn thumb-1x-layout [shape]
   (if circumcise?
