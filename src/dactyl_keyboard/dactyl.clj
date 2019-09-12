@@ -20,14 +20,15 @@
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 7))            ; or, change this for more precise tenting control
-(def column-style
-  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
+(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
+;(def column-style
+;  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
+(def column-style :orthographic)
 
 ; if you don't want two outer-most thumb keys, set this
 ; parameter as true.
 ; otherwise, set it as false.
-(def circumcise? false)
+(def circumcise? true)
 
 ; if you don't want the side nubs, set this
 ; parameter as false.
@@ -46,9 +47,14 @@
 ; this parameter as true
 (def use-promicro-usb-hole? false)
 
+;(defn column-offset [column] (cond
+;                               (= column 2) [0 2.82 -4.5]
+;                               (>= column 4) [0 -12 5.64]            ; original [0 -5.8 5.64]
+;                               :else [0 0 0]))
+
 (defn column-offset [column] (cond
-                               (= column 2) [0 2.82 -4.5]
-                               (>= column 4) [0 -12 5.64]            ; original [0 -5.8 5.64]
+                               (= column 2) [0 0 -4.5]
+                               (>= column 4) [0 0 6]
                                :else [0 0 0]))
 
 (def thumb-offsets [6 -3 7])
@@ -236,8 +242,7 @@
   (apply union
          (for [column columns
                row rows
-               :when (or (.contains [2 3] column)
-                         (not= row lastrow))]
+               :when (not= row lastrow)]
            (->> single-plate
                 (key-place column row)))))
 
@@ -245,8 +250,7 @@
   (apply union
          (for [column columns
                row rows
-               :when (or (.contains [2 3] column)
-                         (not= row lastrow))]
+               :when (not= row lastrow)]
            (->> (sa-cap (if (= column 5) 1 1))
                 (key-place column row)))))
 
@@ -444,19 +448,8 @@
     (key-place 1 cornerrow web-post-bl)
     (thumb-tr-place thumb-post-tr)
     (key-place 1 cornerrow web-post-br)
-    (key-place 2 lastrow web-post-tl)
-    (key-place 2 lastrow web-post-bl)
-    (thumb-tr-place thumb-post-tr)
-    (key-place 2 lastrow web-post-bl)
     (thumb-tr-place thumb-post-br)
-    (key-place 2 lastrow web-post-br)
-    (key-place 3 lastrow web-post-bl)
-    (key-place 2 lastrow web-post-tr)
-    (key-place 3 lastrow web-post-tl)
-    (key-place 3 cornerrow web-post-bl)
-    (key-place 3 lastrow web-post-tr)
-    (key-place 3 cornerrow web-post-br)
-    (key-place 4 cornerrow web-post-bl))
+    (key-place 3 cornerrow web-post-bl))
    (triangle-hulls
     (key-place 1 cornerrow web-post-br)
     (key-place 2 lastrow web-post-tl)
@@ -466,9 +459,10 @@
     (key-place 3 cornerrow web-post-bl))
    (triangle-hulls
     (key-place 3 lastrow web-post-tr)
-    (key-place 3 lastrow web-post-br)
-    (key-place 3 lastrow web-post-tr)
-    (key-place 4 cornerrow web-post-bl))))
+    ;(key-place 3 lastrow web-post-br)
+    ;(key-place 3 lastrow web-post-tr)
+    (key-place 4 cornerrow web-post-bl)
+    )))
 
 ;;;;;;;;;;
 ;; Case ;;
@@ -490,7 +484,6 @@
 
 (defn left-key-place [row direction shape]
   (translate (left-key-position row direction) shape))
-
 
 (defn wall-locate1 [dx dy] [(* dx wall-thickness) (* dy wall-thickness) -1])
 (defn wall-locate2 [dx dy] [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
@@ -541,9 +534,13 @@
    (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
    (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)
    ; front wall
-   (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
-   (key-wall-brace 3 lastrow   0 -1 web-post-bl 3 lastrow 0.5 -1 web-post-br)
-   (key-wall-brace 3 lastrow 0.5 -1 web-post-br 4 cornerrow 1 -1 web-post-bl)
+   ;(key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
+   ;(key-wall-brace 3 lastrow   0 -1 web-post-bl 3 lastrow 0.5 -1 web-post-br)
+   ;(key-wall-brace 3 lastrow 0.5 -1 web-post-br 4 cornerrow 1 -1 web-post-bl)
+   ;(key-wall-brace 2 cornerrow 0   -1 web-post-bl 2 cornerrow 0.5 -1 web-post-br)
+   ;(key-wall-brace 2 cornerrow 0.5 -1 web-post-br 3 cornerrow 0 -1 web-post-bl)
+   (key-wall-brace 3 cornerrow 0   -1 web-post-bl 3 cornerrow 0.5 -1 web-post-br)
+   (key-wall-brace 3 cornerrow 0.5 -1 web-post-br 4 cornerrow 0 -1 web-post-bl)
    (for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br))
    (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
    ; thumb walls
@@ -570,7 +567,8 @@
             (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tr)
             (wall-brace thumb-bl-place -1  0 web-post-bl thumb-br-place -1  0 web-post-tl)))
    ; thumb tweeners
-   (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)
+   ;(wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)
+   (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 cornerrow)  0 -1 web-post-bl)
    ; clunky bit on the top left thumb connection  (normal connectors don't work well)
    (bottom-hull
     (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
