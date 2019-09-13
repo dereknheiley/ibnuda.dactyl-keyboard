@@ -13,22 +13,17 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 3)
-(def ncols 6)
+(def nrows 4)
+(def ncols 5)
 
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 7))            ; or, change this for more precise tenting control
+(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 ;(def column-style
 ;  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def column-style :orthographic)
-
-; if you don't want two outer-most thumb keys, set this
-; parameter as true.
-; otherwise, set it as false.
-(def circumcise? true)
 
 ; if you don't want the side nubs, set this
 ; parameter as false.
@@ -47,18 +42,13 @@
 ; this parameter as true
 (def use-promicro-usb-hole? false)
 
-;(defn column-offset [column] (cond
-;                               (= column 2) [0 2.82 -4.5]
-;                               (>= column 4) [0 -12 5.64]            ; original [0 -5.8 5.64]
-;                               :else [0 0 0]))
-
 (defn column-offset [column] (cond
                                (= column 0) [0 -3 0]
                                (= column 1) [0 0 0]
                                (= column 2) [0 3 -6.5]
                                (= column 3) [0 -5 0]
-                               (= column 4) [0 -15 8]
-                               (>= column 5) [0 -18 8]
+                               (= column 4) [0 -15 6]
+                               (>= column 5) [0 -18 6]
                                :else [0 0 0]))
 
 (def thumb-offsets [6 -3 7])
@@ -357,7 +347,7 @@
        (translate thumborigin)
        (translate [-37.8 -55.3 -25.3])))
 (defn thumb-bl-place [shape]
-  (def mid-left (if circumcise? [-38.90 -51.20 -22.50] [-56.3 -43.3 -23.5]))
+  (def mid-left [-38.90 -51.20 -22.50])
   (->> shape
        (rotate (deg2rad  -4) [1 0 0])
        (rotate (deg2rad -35) [0 1 0])
@@ -366,16 +356,8 @@
        (translate mid-left)))
 
 (defn thumb-1x-layout [shape]
-  (if circumcise?
-    (union
-     ;(thumb-mr-place shape)
-     (thumb-ml-place shape))
-    (union
-     (thumb-br-place shape)
-     (thumb-bl-place shape)
-     (thumb-mr-place shape)
-     (thumb-ml-place shape))))
-
+  (union (thumb-ml-place shape)))
+    
 (defn thumb-15x-layout [shape]
   (union
    (thumb-tr-place shape)
@@ -411,40 +393,11 @@
     (thumb-tl-place thumb-post-br)
     (thumb-tr-place thumb-post-tl)
     (thumb-tr-place thumb-post-bl))
-   (if-not circumcise?
-     (triangle-hulls    ; bottom two on the right
-      (thumb-br-place web-post-tr)
-      (thumb-br-place web-post-br)
-      (thumb-mr-place web-post-tl)
-      (thumb-mr-place web-post-bl)))
-   (if-not circumcise?
-     (triangle-hulls    ; bottom two on the left
-      (thumb-bl-place web-post-tr)
-      (thumb-bl-place web-post-br)
-      (thumb-ml-place web-post-tl)
-      (thumb-ml-place web-post-bl)))
-   (triangle-hulls    ; centers of the bottom four
-    (if-not circumcise?
-      (union (thumb-br-place web-post-tl)
-             (thumb-bl-place web-post-bl)
-             (thumb-br-place web-post-tr)))
-    ;(thumb-bl-place web-post-br)
-    ;(thumb-mr-place web-post-tl)
-    ;(thumb-ml-place web-post-bl)
-    ;(thumb-mr-place web-post-tr)
-    ;(thumb-ml-place web-post-br)
-    )
    (triangle-hulls    ; top two to the middle two, starting on the left
     (thumb-tl-place thumb-post-tl)
     (thumb-ml-place web-post-tr)
     (thumb-tl-place thumb-post-bl)
-    (thumb-ml-place web-post-br)
-    ;(thumb-tl-place thumb-post-br)
-    ;(thumb-mr-place web-post-tr)
-    ;(thumb-tr-place thumb-post-bl)
-    ;(thumb-mr-place web-post-br)
-    ;(thumb-tr-place thumb-post-br)
-    )
+    (thumb-ml-place web-post-br))
    (triangle-hulls    ; top two to the main keyboard, starting on the left
     (thumb-tl-place thumb-post-tl)
     (key-place 0 cornerrow web-post-bl)
@@ -458,6 +411,10 @@
     (key-place 2 lastrow web-post-tr)
     (key-place 3 cornerrow web-post-bl))
    (triangle-hulls
+    (thumb-tl-place thumb-post-bl)
+    (thumb-ml-place web-post-br)
+    (thumb-ml-place web-post-bl))
+   (triangle-hulls
     (key-place 1 cornerrow web-post-br)
     (key-place 2 lastrow web-post-tl)
     (key-place 2 cornerrow web-post-bl)
@@ -466,10 +423,7 @@
     (key-place 3 cornerrow web-post-bl))
    (triangle-hulls
     (key-place 3 lastrow web-post-tr)
-    ;(key-place 3 lastrow web-post-br)
-    ;(key-place 3 lastrow web-post-tr)
-    (key-place 4 cornerrow web-post-bl)
-    )))
+    (key-place 4 cornerrow web-post-bl))))
 
 ;;;;;;;;;;
 ;; Case ;;
@@ -541,54 +495,21 @@
    (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
    (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)
    ; front wall
-   ;(key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
-   ;(key-wall-brace 3 lastrow   0 -1 web-post-bl 3 lastrow 0.5 -1 web-post-br)
-   ;(key-wall-brace 3 lastrow 0.5 -1 web-post-br 4 cornerrow 1 -1 web-post-bl)
-   ;(key-wall-brace 2 cornerrow 0   -1 web-post-bl 2 cornerrow 0.5 -1 web-post-br)
-   ;(key-wall-brace 2 cornerrow 0.5 -1 web-post-br 3 cornerrow 0 -1 web-post-bl)
    (key-wall-brace 3 cornerrow 0   -1 web-post-bl 3 cornerrow 0.5 -1 web-post-br)
    (key-wall-brace 3 cornerrow 0.5 -1 web-post-br 4 cornerrow 0 -1 web-post-bl)
    (for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br))
    (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
    ; thumb walls
-   ;(wall-brace thumb-mr-place  0 -1 web-post-br thumb-tr-place  0 -1 thumb-post-br)
-   ;(wall-brace thumb-mr-place  0 -1 web-post-br thumb-mr-place  0 -1 web-post-bl)
-   ;(wall-brace thumb-ml-place -0.3 1 web-post-tr thumb-ml-place  0  1 web-post-tl)
-   ;(wall-brace thumb-ml-place  0  -3 web-post-br thumb-tl-place  0 -1 thumb-post-br)
-   (wall-brace thumb-ml-place  0  -3 web-post-br thumb-tr-place  0 -1 thumb-post-br)
-   (wall-brace thumb-ml-place  0  -3 web-post-br thumb-ml-place  0 -1 web-post-bl)
    (wall-brace thumb-ml-place -0.3 1 web-post-tr thumb-ml-place  0  1 web-post-tl)
-   ;(wall-brace thumb-tr-place  0  -2 web-post-bl thumb-tr-place  0 -2 web-post-br)
-   ;(wall-brace thumb-tr-place -1  -3 web-post-bl thumb-tr-place  0 -1 web-post-br)
-   ;(wall-brace thumb-tr-place  0  -1 web-post-bl thumb-tr-place  0 -1 thumb-post-br)
-   
-   ; unused
-   ;(wall-brace thumb-tl-place  0 -1 web-post-bl thumb-tl-place  0 -1 thumb-post-br)
-   ;(wall-brace thumb-ml-place  0 -1 web-post-br thumb-ml-place  0 -1 web-post-bl)
-   ;(wall-brace thumb-ml-place -0.3 1 web-post-tr thumb-ml-place  0  1 web-post-tl)
-
-   (if-not circumcise?
-     (union (wall-brace thumb-mr-place -1  0 web-post-bl thumb-mr-place  0 -1 web-post-bl) ;; corners
-            (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place  0  1 web-post-tl)
-            (wall-brace thumb-br-place  0 -1 web-post-br thumb-br-place  0 -1 web-post-bl)
-            (wall-brace thumb-bl-place  0  1 web-post-tr thumb-bl-place  0  1 web-post-tl)
-            (wall-brace thumb-br-place -1  0 web-post-tl thumb-br-place -1  0 web-post-bl)
-            (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place -1  0 web-post-bl)))
+   (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place 0 -2 thumb-post-bl)
+   (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place 0 -2 thumb-post-br)
+   (wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place 0 -2 thumb-post-bl)
+   (wall-brace thumb-tl-place 0 -2 thumb-post-bl thumb-ml-place -1 -1 web-post-bl)
    ; thumb corners
-   (if circumcise?
-     (union ;(wall-brace thumb-mr-place -1  0 web-post-bl thumb-ml-place -1  0 web-post-bl)
-            ;(wall-brace thumb-mr-place -1  0 web-post-tl thumb-mr-place -1  0 web-post-bl)
-            (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place -1  0 web-post-bl)
-            ;(wall-brace thumb-mr-place -1  0 web-post-bl thumb-mr-place  0 -1 web-post-bl)
-            (wall-brace thumb-ml-place -1  0 web-post-bl thumb-ml-place  0 -1 web-post-bl)
-            (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place  0  1 web-post-tl))
-     (union (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)
-            (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place  0  1 web-post-tl)
-            (wall-brace thumb-mr-place  0 -1 web-post-bl thumb-br-place  0 -1 web-post-br)
-            (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tr)
-            (wall-brace thumb-bl-place -1  0 web-post-bl thumb-br-place -1  0 web-post-tl)))
+   (union (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place -1  0 web-post-bl)
+         (wall-brace thumb-ml-place -1  0 web-post-bl thumb-ml-place -1 -1 web-post-bl)
+         (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place  0  1 web-post-tl))
    ; thumb tweeners
-   ;(wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)
    (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 cornerrow)  0 -1 web-post-bl)
    ; clunky bit on the top left thumb connection  (normal connectors don't work well)
    (bottom-hull
@@ -793,7 +714,6 @@
                                       (if use-promicro-usb-hole?
                                         (union pro-micro-holder
                                                trrs-usb-holder-holder)
-                                        ;(union teensy-holder usb-holder)
                                         usb-holder)
                                       (if use-trrs? trrs-holder))
                                (if use-promicro-usb-hole?
@@ -824,7 +744,7 @@
         caps
         teensy-holder
         rj9-holder
-        usb-holder-hole
+        usb-holder-hole)))
                     ; usb-holder-hole
                     ; ; teensy-holder-hole
                     ;             screw-insert-outers 
@@ -833,7 +753,7 @@
                     ;             usb-cutout 
                     ;             rj9-space 
                                 ; wire-posts
-        )))
+        
 
 (spit "things/right-plate.scad"
       (write-scad
