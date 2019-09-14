@@ -20,7 +20,7 @@
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
+(def tenting-angle (/ π 9))            ; or, change this for more precise tenting control
 ;(def column-style
 ;  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def column-style :orthographic)
@@ -248,9 +248,6 @@
            (->> (sa-cap (if (= column 5) 1 1))
                 (key-place column row)))))
 
-; (pr (rotate-around-y π [10 0 1]))
-; (pr (key-position 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0]))
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Web Connectors ;;
 ;;;;;;;;;;;;;;;;;;;;
@@ -309,7 +306,6 @@
 (def thumborigin
   (map + (key-position 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0])
        thumb-offsets))
-; (pr thumborigin)
 
 (defn thumb-tr-place [shape]
   (->> shape
@@ -398,24 +394,25 @@
     (thumb-ml-place web-post-tr)
     (thumb-tl-place thumb-post-bl)
     (thumb-ml-place web-post-br))
-   (triangle-hulls    ; top two to the main keyboard, starting on the left
-    (thumb-tl-place thumb-post-tl)
-    (key-place 0 cornerrow web-post-bl)
-    (thumb-tl-place thumb-post-tr)
-    (key-place 0 cornerrow web-post-br)
-    (thumb-tr-place thumb-post-tl)
-    (key-place 1 cornerrow web-post-bl)
-    (thumb-tr-place thumb-post-tr)
-    (key-place 1 cornerrow web-post-br)
-    (thumb-tr-place thumb-post-br)
-    (key-place 2 lastrow web-post-tr)
-    (key-place 3 cornerrow web-post-bl))
+  (triangle-hulls    ; top two to the main keyboard, starting on the left
+   (thumb-tl-place thumb-post-tl)
+   (key-place 0 cornerrow web-post-bl)
+   (thumb-tl-place thumb-post-tr)
+   (key-place 0 cornerrow web-post-br)
+   (thumb-tr-place thumb-post-tl)
+   (key-place 1 cornerrow web-post-bl)
+   (thumb-tr-place thumb-post-tr)
+   (key-place 1 cornerrow web-post-br)
+   (thumb-tr-place thumb-post-br)
+   (key-place 2 cornerrow web-post-bl)
+   (key-place 2 cornerrow web-post-br)
+   (thumb-tr-place thumb-post-br)
+   (key-place 3 cornerrow web-post-bl))
    (triangle-hulls
     (thumb-tl-place thumb-post-bl)
     (thumb-ml-place web-post-br)
     (thumb-ml-place web-post-bl))
    (triangle-hulls
-    (key-place 1 cornerrow web-post-br)
     (key-place 2 lastrow web-post-tl)
     (key-place 2 cornerrow web-post-bl)
     (key-place 2 lastrow web-post-tr)
@@ -668,11 +665,11 @@
          (translate [(first position) (second position) (/ height 2)]))))
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
-  (union (screw-insert 0       0               bottom-radius top-radius height)
-         (screw-insert 0       (- lastrow 0.6) bottom-radius top-radius height)
-         (screw-insert 2       lastrow         bottom-radius top-radius height)
-         (screw-insert 3       0               bottom-radius top-radius height)
-         (screw-insert lastcol 1               bottom-radius top-radius height)))
+  (union (screw-insert 0               0               bottom-radius top-radius height)
+         (screw-insert 0               (- lastrow 0.8) bottom-radius top-radius height)
+         (screw-insert 2               (+ lastrow 0.2) bottom-radius top-radius height)
+         (screw-insert 3               0               bottom-radius top-radius height)
+         (screw-insert (+ lastcol 0.1) 1.5             bottom-radius top-radius height)))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
 (def screw-insert-top-radius (/ 5.1 2))
@@ -745,15 +742,6 @@
         teensy-holder
         rj9-holder
         usb-holder-hole)))
-                    ; usb-holder-hole
-                    ; ; teensy-holder-hole
-                    ;             screw-insert-outers 
-                    ;             teensy-screw-insert-holes
-                    ;             teensy-screw-insert-outers
-                    ;             usb-cutout 
-                    ;             rj9-space 
-                                ; wire-posts
-        
 
 (spit "things/right-plate.scad"
       (write-scad
@@ -768,7 +756,5 @@
 (spit "things/test.scad"
       (write-scad
        (difference usb-holder usb-holder-hole)))
-
-
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
