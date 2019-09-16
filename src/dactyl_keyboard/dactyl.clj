@@ -13,14 +13,14 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 4)
-(def ncols 5)
+(def nrows 3)
+(def ncols 6)
 
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
-(def centerrow (- nrows 3))             ; controls front-back tilt
+(def centerrow (- nrows 2.5))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 9))            ; or, change this for more precise tenting control
+(def tenting-angle (/ π 10))            ; or, change this for more precise tenting control
 ;(def column-style
 ;  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def column-style :orthographic)
@@ -47,8 +47,7 @@
                                (= column 1) [0 0 0]
                                (= column 2) [0 3 -6.5]
                                (= column 3) [0 -5 0]
-                               (= column 4) [0 -15 6]
-                               (>= column 5) [0 -18 6]
+                               (>= column 4) [0 -15 6]
                                :else [0 0 0]))
 
 (def thumb-offsets [6 -3 7])
@@ -89,7 +88,7 @@
 
 (def sa-profile-key-height 12.7)
 
-(def plate-thickness 4)
+(def plate-thickness 2)
 (def mount-width (+ keyswitch-width 3))
 (def mount-height (+ keyswitch-height 3))
 
@@ -252,7 +251,7 @@
 ;; Web Connectors ;;
 ;;;;;;;;;;;;;;;;;;;;
 
-(def web-thickness 3.5)
+(def web-thickness 2)
 (def post-size 0.1)
 (def web-post (->> (cube post-size post-size web-thickness)
                    (translate [0 0 (+ (/ web-thickness -2)
@@ -320,7 +319,7 @@
        (rotate (deg2rad -23) [0 1 0])
        (rotate (deg2rad  10) [0 0 1])
        (translate thumborigin)
-       (translate [-32 -15 -2])))
+       (translate [-32 -20 -2])))
 (defn thumb-mr-place [shape]
   (->> shape
        (rotate (deg2rad  -6) [1 0 0])
@@ -330,11 +329,11 @@
        (translate [-29 -40 -13])))
 (defn thumb-ml-place [shape]
   (->> shape
-       (rotate (deg2rad   6) [1 0 0])
-       (rotate (deg2rad -34) [0 1 0])
-       (rotate (deg2rad  40) [0 0 1])
+       (rotate (deg2rad  10) [1 0 0])
+       (rotate (deg2rad -23) [0 1 0])
+       (rotate (deg2rad  10) [0 0 1])
        (translate thumborigin)
-       (translate [-51 -25 -12])))
+       (translate [-51 -25 -10])))
 (defn thumb-br-place [shape]
   (->> shape
        (rotate (deg2rad -16) [1 0 0])
@@ -551,7 +550,7 @@
 
 (def usb-holder-position (key-position 1 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
 (def usb-holder-size [6.5 10.0 13.6])
-(def usb-holder-thickness 4)
+(def usb-holder-thickness 2)
 (def usb-holder
   (->> (cube (+ (first usb-holder-size) usb-holder-thickness) (second usb-holder-size) (+ (last usb-holder-size) usb-holder-thickness))
        (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))
@@ -668,8 +667,8 @@
   (union (screw-insert 0               0               bottom-radius top-radius height)
          (screw-insert 0               (- lastrow 0.8) bottom-radius top-radius height)
          (screw-insert 2               (+ lastrow 0.2) bottom-radius top-radius height)
-         (screw-insert 3               0               bottom-radius top-radius height)
-         (screw-insert (+ lastcol 0.1) 1.5             bottom-radius top-radius height)))
+         (screw-insert 3               0               bottom-radius top-radius height)))
+         ;(screw-insert (+ lastcol 0.1) 1.5             bottom-radius top-radius height)))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
 (def screw-insert-top-radius (/ 5.1 2))
