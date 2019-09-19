@@ -20,7 +20,7 @@
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 9))            ; or, change this for more precise tenting control
+(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 ;(def column-style
 ;  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def column-style :orthographic)
@@ -38,17 +38,23 @@
 ; this parameter as true
 (def use-trrs? false)
 
+; if you want to create a "rental car", set this parameter as true
+(def rental-car? true)
+
 ; if you want to use small usb hole, set
 ; this parameter as true
 (def use-promicro-usb-hole? false)
 
-(defn column-offset [column] (cond
-                               (= column 0) [0 -3 0]
-                               (= column 1) [0 0 0]
-                               (= column 2) [0 3 -6.5]
-                               (= column 3) [0 -5 0]
-                               (>= column 4) [0 -15 6]
-                               :else [0 0 0]))
+(defn column-offset [column]
+  (if rental-car?
+    (cond (= column 2)  [0 0 -6.5]
+          (>= column 4) [0 0  6]
+          :else         [0 0  0])
+    (cond (= column 0)  [0  -3   0]
+          (= column 2)  [0   3  -6.5]
+          (= column 3)  [0  -5   0]
+          (>= column 4) [0  -15  6]
+          :else         [0   0   0])))
 
 (def thumb-offsets [6 -3 7])
 
@@ -496,15 +502,15 @@
    (for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br))
    (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
    ; thumb walls
-   (wall-brace thumb-ml-place -0.3 1 web-post-tr thumb-ml-place  0  1 web-post-tl)
-   (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place 0 -2 thumb-post-bl)
-   (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place 0 -2 thumb-post-br)
-   (wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place 0 -2 thumb-post-bl)
+   (wall-brace thumb-ml-place 1  1 web-post-tr   thumb-ml-place  0  1 web-post-tl)
+   (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place  0 -2 thumb-post-bl)
+   (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-br)
+   (wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place  0 -2 thumb-post-bl)
    (wall-brace thumb-tl-place 0 -2 thumb-post-bl thumb-ml-place -1 -1 web-post-bl)
    ; thumb corners
    (union (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place -1  0 web-post-bl)
-         (wall-brace thumb-ml-place -1  0 web-post-bl thumb-ml-place -1 -1 web-post-bl)
-         (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place  0  1 web-post-tl))
+          (wall-brace thumb-ml-place -1  0 web-post-bl thumb-ml-place -1 -1 web-post-bl)
+          (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place  0  1 web-post-tl))
    ; thumb tweeners
    (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 cornerrow)  0 -1 web-post-bl)
    ; clunky bit on the top left thumb connection  (normal connectors don't work well)
@@ -668,7 +674,7 @@
          (screw-insert 0               (- lastrow 0.8) bottom-radius top-radius height)
          (screw-insert 2               (+ lastrow 0.2) bottom-radius top-radius height)
          (screw-insert 3               0               bottom-radius top-radius height)
-         (screw-insert (+ lastcol 0.1) 1.5             bottom-radius top-radius height)))
+         (screw-insert (+ lastcol 0.1) 1               bottom-radius top-radius height)))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
 (def screw-insert-top-radius (/ 5.1 2))
