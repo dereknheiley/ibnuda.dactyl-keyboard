@@ -20,7 +20,7 @@
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
+(def tenting-angle (/ π 7))            ; or, change this for more precise tenting control
 ;(def column-style
 ;  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def column-style :orthographic)
@@ -39,7 +39,7 @@
 (def use-trrs? false)
 
 ; if you want to create a "rental car", set this parameter as true
-(def rental-car? true)
+(def rental-car? false)
 
 ; if you want to use small usb hole, set
 ; this parameter as true
@@ -321,11 +321,11 @@
        (translate [-12 -16 3])))
 (defn thumb-tl-place [shape]
   (->> shape
-       (rotate (deg2rad  10) [1 0 0])
+       (rotate (deg2rad   6) [1 0 0])
        (rotate (deg2rad -23) [0 1 0])
-       (rotate (deg2rad  10) [0 0 1])
+       (rotate (deg2rad  25) [0 0 1])
        (translate thumborigin)
-       (translate [-32 -15 -2])))
+       (translate [-32 -20 -5])))
 (defn thumb-mr-place [shape]
   (->> shape
        (rotate (deg2rad  -6) [1 0 0])
@@ -335,11 +335,11 @@
        (translate [-29 -40 -13])))
 (defn thumb-ml-place [shape]
   (->> shape
-       (rotate (deg2rad   6) [1 0 0])
-       (rotate (deg2rad -34) [0 1 0])
+       (rotate (deg2rad  -2) [1 0 0])
+       (rotate (deg2rad -26) [0 1 0])
        (rotate (deg2rad  40) [0 0 1])
        (translate thumborigin)
-       (translate [-51 -25 -12])))
+       (translate [-51 -25 -14])))
 (defn thumb-br-place [shape]
   (->> shape
        (rotate (deg2rad -16) [1 0 0])
@@ -502,7 +502,7 @@
    (for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br))
    (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
    ; thumb walls
-   (wall-brace thumb-ml-place 1  1 web-post-tr   thumb-ml-place  0  1 web-post-tl)
+   (wall-brace thumb-ml-place 0  1 web-post-tr   thumb-ml-place  0  1 web-post-tl)
    (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place  0 -2 thumb-post-bl)
    (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-br)
    (wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place  0 -2 thumb-post-bl)
