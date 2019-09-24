@@ -14,16 +14,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (def nrows 4)
-(def ncols 5)
+(def ncols 6)
 
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 7))            ; or, change this for more precise tenting control
-;(def column-style
-;  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
-(def column-style :orthographic)
+(def tenting-angle (/ π 9))             ; or, change this for more precise tenting control
+(def column-style :standard)            ; options include :standard, :orthographic, and :fixed
 
 ; if you don't want the side nubs, set this
 ; parameter as false.
@@ -39,11 +37,18 @@
 (def use-trrs? false)
 
 ; if you want to create a "rental car", set this parameter as true
-(def rental-car? false)
+(def rental-car? true)
 
 ; if you want to use small usb hole, set
 ; this parameter as true
 (def use-promicro-usb-hole? false)
+
+; wide pinky, 1.5u.
+(def use-wide-pinky? true)
+
+; show caps on the right.scad file. set it true if you want to see the result.
+; set it false when you want to actually print it.
+(def show-caps? false)
 
 (defn column-offset [column]
   (if rental-car?
@@ -180,10 +185,13 @@
 (def column-x-delta (+ -1 (- (* column-radius (Math/sin β)))))
 (def column-base-angle (* β (- centercol 2)))
 
+(defn offset-for-column [col]
+  (if (and use-wide-pinky? (= col lastcol)) 5.5 0))
+
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
   (let [column-angle (* β (- centercol column))
         placed-shape (->> shape
-                          (translate-fn [0 0 (- row-radius)])
+                          (translate-fn [(offset-for-column column) 0 (- row-radius)])
                           (rotate-x-fn  (* α (- centerrow row)))
                           (translate-fn [0 0 row-radius])
                           (translate-fn [0 0 (- column-radius)])
@@ -250,7 +258,7 @@
          (for [column columns
                row rows
                :when (not= row lastrow)]
-           (->> (sa-cap (if (= column 5) 1 1))
+           (->> (sa-cap (if (and use-wide-pinky? (= column lastcol)) 1.5 1))
                 (key-place column row)))))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -268,6 +276,16 @@
 (def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
 (def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 (def web-post-br (translate [(- (/ mount-width 2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
+
+(if use-wide-pinky?
+  (do (def wide-post-tr (translate [(- (/ mount-width  1.2) post-adj) (- (/ mount-height  2) post-adj) 0] web-post))
+      (def wide-post-tl (translate [(+ (/ mount-width -1.2) post-adj) (- (/ mount-height  2) post-adj) 0] web-post))
+      (def wide-post-bl (translate [(+ (/ mount-width -1.2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
+      (def wide-post-br (translate [(- (/ mount-width  1.2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post)))
+  (do (def wide-post-tr web-post-tr)
+      (def wide-post-tl web-post-tl)
+      (def wide-post-br web-post-br)
+      (def wide-post-bl web-post-bl)))
 
 (defn triangle-hulls [& shapes]
   (apply union
@@ -473,6 +491,40 @@
   (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
 
+;(def right-wall
+;  (let [tr (if use-wide-pinky? wide-post-tr web-post-tr)
+;        br (if use-wide-pinky? wide-post-br web-post-br)]
+;    (union (key-wall-brace lastcol 0 0 1 tr lastcol 0 1 0 tr)
+;          (for [y (range 0 lastrow)] (key-wall-brace lastcol      y  1 0 tr lastcol y 1 0 br))
+;          (for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 br lastcol y 1 0 tr))
+;          (key-wall-brace lastcol cornerrow 0 -1 br lastcol cornerrow 1 0 br))))
+(def right-wall
+  (union (key-wall-brace lastcol 0 0 1 wide-post-tr lastcol 0 1 0 wide-post-tr)
+         (for [y (range 0 lastrow)] (key-wall-brace lastcol      y  1 0 wide-post-tr lastcol y 1 0 wide-post-br))
+         (for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 wide-post-br lastcol y 1 0 wide-post-tr))
+         (key-wall-brace lastcol cornerrow 0 -1 wide-post-br lastcol cornerrow 1 0 wide-post-br)))
+
+(def pinky-connectors
+  (apply union
+         (concat
+          (for [row (range 0 lastrow)]
+            (triangle-hulls
+             (key-place lastcol row web-post-tr)
+             (key-place lastcol row wide-post-tr)
+             (key-place lastcol row web-post-br)
+             (key-place lastcol row wide-post-br)))
+          (for [row (range 0 cornerrow)]
+            (triangle-hulls
+             (key-place lastcol row web-post-br)
+             (key-place lastcol row wide-post-br)
+             (key-place lastcol (inc row) web-post-tr)
+             (key-place lastcol (inc row) wide-post-tr))))))
+
+(def pinky-walls
+  (union
+   (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow 0 -1 wide-post-br)
+   (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 0 1 wide-post-tr)))
+
 (def case-walls
   (union
    ; back wall
@@ -480,9 +532,10 @@
    (for [x (range 1 ncols)] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
    (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
    ; right wall
-   (for [y (range 0 lastrow)] (key-wall-brace lastcol y 1 0 web-post-tr lastcol y       1 0 web-post-br))
-   (for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 web-post-br lastcol y 1 0 web-post-tr))
-   (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow 1 0 web-post-br)
+   right-wall
+   ;(for [y (range 0 lastrow)] (key-wall-brace lastcol y 1 0 web-post-tr lastcol y       1 0 web-post-br))
+   ;(for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 web-post-br lastcol y 1 0 web-post-tr))
+   ;(key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow 1 0 web-post-br)
    ; left wall
    (for [y (range 0 lastrow)] (union (wall-brace (partial left-key-place y 1)       -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
                                      (hull (key-place 0 y web-post-tl)
@@ -704,10 +757,12 @@
       (key-place column row (translate [0 0 0] (wire-post -1 6)))
       (key-place column row (translate [5 0 0] (wire-post  1 0)))))))
 
-
 (def model-right (difference
                   (union
                    key-holes
+                   (if show-caps? caps)
+                   pinky-connectors
+                   pinky-walls
                    connectors
                    thumb
                    thumb-connectors
