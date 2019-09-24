@@ -13,8 +13,8 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 4)
-(def ncols 5)
+(def nrows 5)
+(def ncols 6)
 
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
@@ -44,7 +44,13 @@
 (def use-promicro-usb-hole? false)
 
 ; wide pinky, 1.5u.
-(def use-wide-pinky? false)
+(def use-wide-pinky? true)
+
+; inner column like a weird dude.
+(def use-inner-column? true)
+
+; should be used with `use-wide-pinky` and `use-inner-column` for ergodox like thingy.
+(def use-last-rows? false)
 
 ; show caps on the right.scad file. set it true if you want to see the result.
 ; set it false when you want to actually print it.
@@ -185,13 +191,13 @@
 (def column-x-delta (+ -1 (- (* column-radius (Math/sin β)))))
 (def column-base-angle (* β (- centercol 2)))
 
-(defn offset-for-column [col]
-  (if (and use-wide-pinky? (= col lastcol)) 5.5 0))
+(defn offset-for-column [col row]
+  (if (and use-wide-pinky? (and (not= row lastrow) (= col lastcol))) 5.5 0))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
   (let [column-angle (* β (- centercol column))
         placed-shape (->> shape
-                          (translate-fn [(offset-for-column column) 0 (- row-radius)])
+                          (translate-fn [(offset-for-column column row) 0 (- row-radius)])
                           (rotate-x-fn  (* α (- centerrow row)))
                           (translate-fn [0 0 row-radius])
                           (translate-fn [0 0 (- column-radius)])
@@ -249,7 +255,9 @@
   (apply union
          (for [column columns
                row rows
-               :when (not= row lastrow)]
+               :when (if use-last-rows?
+                       (or (not (.contains [0 1] column)) (not= row lastrow))
+                       (not= row lastrow))]
            (->> single-plate
                 (key-place column row)))))
 
@@ -257,7 +265,9 @@
   (apply union
          (for [column columns
                row rows
-               :when (not= row lastrow)]
+               :when (if use-last-rows?
+                       (or (not (.contains [0 1] column)) (not= row lastrow))
+                       (not= lastrow lastrow))]
            (->> (sa-cap (if (and use-wide-pinky? (= column lastcol)) 1.5 1))
                 (key-place column row)))))
 
@@ -493,20 +503,24 @@
 
 (def right-wall
   (union (key-wall-brace lastcol 0 0 1 wide-post-tr lastcol 0 1 0 wide-post-tr)
-         (for [y (range 0 lastrow)] (key-wall-brace lastcol      y  1 0 wide-post-tr lastcol y 1 0 wide-post-br))
-         (for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 wide-post-br lastcol y 1 0 wide-post-tr))
-         (key-wall-brace lastcol cornerrow 0 -1 wide-post-br lastcol cornerrow 1 0 wide-post-br)))
+         (for [y (range 0 lastrow)] (key-wall-brace lastcol y 1 0 wide-post-tr lastcol y 1 0 wide-post-br))
+         (if use-last-rows? (key-wall-brace lastcol lastrow 1 0 wide-post-tr lastcol lastrow 1 0 wide-post-br))
+         (for [y (range 1 lastrow)]
+           (key-wall-brace lastcol (dec y) 1 0 wide-post-br lastcol y 1 0 wide-post-tr))
+         ;(if use-last-rows? (key-wall-brace lastcol lastrow 1 0 wide-post-br lastcol lastrow 1 0 wide-post-tr))
+         (key-wall-brace lastcol (if use-last-rows? lastrow cornerrow) 0 -1 wide-post-br
+                         lastcol (if use-last-rows? lastrow cornerrow) 1 0 wide-post-br)))
 
 (def pinky-connectors
   (apply union
          (concat
-          (for [row (range 0 lastrow)]
+          (for [row (range 0 (if use-last-rows? (inc lastrow) lastrow))]
             (triangle-hulls
              (key-place lastcol row web-post-tr)
              (key-place lastcol row wide-post-tr)
              (key-place lastcol row web-post-br)
              (key-place lastcol row wide-post-br)))
-          (for [row (range 0 cornerrow)]
+          (for [row (range 0 (if use-last-rows? lastrow cornerrow))]
             (triangle-hulls
              (key-place lastcol row web-post-br)
              (key-place lastcol row wide-post-br)
@@ -515,7 +529,8 @@
 
 (def pinky-walls
   (union
-   (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow 0 -1 wide-post-br)
+   (key-wall-brace lastcol (if use-last-rows? lastrow cornerrow) 0 -1 web-post-br
+                   lastcol (if use-last-rows? lastrow cornerrow) 0 -1 wide-post-br)
    (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 0 1 wide-post-tr)))
 
 (def case-walls
@@ -527,16 +542,18 @@
    ; right wall
    right-wall
    ; left wall
-   (for [y (range 0 lastrow)] (union (wall-brace (partial left-key-place y 1)       -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
-                                     (hull (key-place 0 y web-post-tl)
-                                           (key-place 0 y web-post-bl)
-                                           (left-key-place y  1 web-post)
-                                           (left-key-place y -1 web-post))))
-   (for [y (range 1 lastrow)] (union (wall-brace (partial left-key-place (dec y) -1) -1 0 web-post (partial left-key-place y  1) -1 0 web-post)
-                                     (hull (key-place 0 y       web-post-tl)
-                                           (key-place 0 (dec y) web-post-bl)
-                                           (left-key-place y        1 web-post)
-                                           (left-key-place (dec y) -1 web-post))))
+   (for [y (range 0 lastrow)]
+     (union (wall-brace (partial left-key-place y 1) -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
+            (hull (key-place 0 y web-post-tl)
+                  (key-place 0 y web-post-bl)
+                  (left-key-place y  1 web-post)
+                  (left-key-place y -1 web-post))))
+   (for [y (range 1 lastrow)]
+     (union (wall-brace (partial left-key-place (dec y) -1) -1 0 web-post (partial left-key-place y  1) -1 0 web-post)
+            (hull (key-place 0 y       web-post-tl)
+                  (key-place 0 (dec y) web-post-bl)
+                  (left-key-place y        1 web-post)
+                  (left-key-place (dec y) -1 web-post))))
    (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
    (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)
    ; front wall
