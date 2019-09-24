@@ -14,7 +14,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (def nrows 4)
-(def ncols 6)
+(def ncols 5)
 
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
@@ -37,14 +37,14 @@
 (def use-trrs? false)
 
 ; if you want to create a "rental car", set this parameter as true
-(def rental-car? true)
+(def rental-car? false)
 
 ; if you want to use small usb hole, set
 ; this parameter as true
 (def use-promicro-usb-hole? false)
 
 ; wide pinky, 1.5u.
-(def use-wide-pinky? true)
+(def use-wide-pinky? false)
 
 ; show caps on the right.scad file. set it true if you want to see the result.
 ; set it false when you want to actually print it.
@@ -491,13 +491,6 @@
   (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
 
-;(def right-wall
-;  (let [tr (if use-wide-pinky? wide-post-tr web-post-tr)
-;        br (if use-wide-pinky? wide-post-br web-post-br)]
-;    (union (key-wall-brace lastcol 0 0 1 tr lastcol 0 1 0 tr)
-;          (for [y (range 0 lastrow)] (key-wall-brace lastcol      y  1 0 tr lastcol y 1 0 br))
-;          (for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 br lastcol y 1 0 tr))
-;          (key-wall-brace lastcol cornerrow 0 -1 br lastcol cornerrow 1 0 br))))
 (def right-wall
   (union (key-wall-brace lastcol 0 0 1 wide-post-tr lastcol 0 1 0 wide-post-tr)
          (for [y (range 0 lastrow)] (key-wall-brace lastcol      y  1 0 wide-post-tr lastcol y 1 0 wide-post-br))
@@ -533,9 +526,6 @@
    (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
    ; right wall
    right-wall
-   ;(for [y (range 0 lastrow)] (key-wall-brace lastcol y 1 0 web-post-tr lastcol y       1 0 web-post-br))
-   ;(for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 web-post-br lastcol y 1 0 web-post-tr))
-   ;(key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow 1 0 web-post-br)
    ; left wall
    (for [y (range 0 lastrow)] (union (wall-brace (partial left-key-place y 1)       -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
                                      (hull (key-place 0 y web-post-tl)
@@ -723,11 +713,12 @@
          (translate [(first position) (second position) (/ height 2)]))))
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
-  (union (screw-insert 0               0               bottom-radius top-radius height)
-         (screw-insert 0               (- lastrow 0.8) bottom-radius top-radius height)
-         (screw-insert 2               (+ lastrow 0.2) bottom-radius top-radius height)
-         (screw-insert 3               0               bottom-radius top-radius height)
-         (screw-insert (+ lastcol 0.1) 1               bottom-radius top-radius height)))
+  (let [lastloc (if-not use-wide-pinky? (+ lastcol 0.1) (+ lastcol 0.5))]
+    (union (screw-insert 0       0               bottom-radius top-radius height)
+           (screw-insert 0       (- lastrow 0.8) bottom-radius top-radius height)
+           (screw-insert 2       (+ lastrow 0.2) bottom-radius top-radius height)
+           (screw-insert 3       0               bottom-radius top-radius height)
+           (screw-insert lastloc 1               bottom-radius top-radius height))))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
 (def screw-insert-top-radius (/ 5.1 2))
