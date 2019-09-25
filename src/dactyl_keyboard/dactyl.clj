@@ -13,7 +13,7 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 5)
+(def nrows 4)
 (def ncols 6)
 
 (def α (/ π 12))                        ; curvature of the columns
@@ -50,7 +50,7 @@
 (def use-inner-column? true)
 
 ; should be used with `use-wide-pinky` and `use-inner-column` for ergodox like thingy.
-(def use-last-rows? false)
+(def use-last-rows? true)
 
 ; show caps on the right.scad file. set it true if you want to see the result.
 ; set it false when you want to actually print it.
@@ -307,7 +307,11 @@
          (concat
           ;; Row connections
           (for [column (range 0 (dec ncols))
-                row (range 0 lastrow)]
+                row (range 0 (if use-last-rows? (inc lastrow) lastrow))
+                :when (if use-last-rows?
+                        (not (and (= row lastrow)
+                                  (.contains [0 1] column)))
+                        true)]
             (triangle-hulls
              (key-place (inc column) row web-post-tl)
              (key-place column row web-post-tr)
@@ -316,7 +320,11 @@
 
           ;; Column connections
           (for [column columns
-                row (range 0 cornerrow)]
+                row (range 0 (if use-last-rows? lastrow cornerrow))
+                :when (if use-last-rows?
+                        (not (and (= row cornerrow)
+                                  (.contains [0 1] column)))
+                        true)]
             (triangle-hulls
              (key-place column row web-post-bl)
              (key-place column row web-post-br)
@@ -325,7 +333,11 @@
 
           ;; Diagonal connections
           (for [column (range 0 (dec ncols))
-                row (range 0 cornerrow)]
+                row (range 0 (if use-last-rows? lastrow cornerrow))
+                :when (if use-last-rows?
+                        (not (and (= row lastrow)
+                                  (.contains [0 1] column)))
+                        true)]
             (triangle-hulls
              (key-place column row web-post-br)
              (key-place column (inc row) web-post-tr)
@@ -507,7 +519,7 @@
          (if use-last-rows? (key-wall-brace lastcol lastrow 1 0 wide-post-tr lastcol lastrow 1 0 wide-post-br))
          (for [y (range 1 lastrow)]
            (key-wall-brace lastcol (dec y) 1 0 wide-post-br lastcol y 1 0 wide-post-tr))
-         ;(if use-last-rows? (key-wall-brace lastcol lastrow 1 0 wide-post-br lastcol lastrow 1 0 wide-post-tr))
+         (if use-last-rows? (key-wall-brace lastcol (dec lastrow) 1 0 wide-post-br lastcol lastrow 1 0 wide-post-tr))
          (key-wall-brace lastcol (if use-last-rows? lastrow cornerrow) 0 -1 wide-post-br
                          lastcol (if use-last-rows? lastrow cornerrow) 1 0 wide-post-br)))
 
@@ -557,10 +569,14 @@
    (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
    (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)
    ; front wall
-   (key-wall-brace 3 cornerrow 0   -1 web-post-bl 3 cornerrow 0.5 -1 web-post-br)
-   (key-wall-brace 3 cornerrow 0.5 -1 web-post-br 4 cornerrow 0 -1 web-post-bl)
-   (for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br))
-   (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
+   (key-wall-brace 3 (if use-last-rows? lastrow cornerrow) 0   -1 web-post-bl
+                   3 (if use-last-rows? lastrow cornerrow) 0.5 -1 web-post-br)
+   (key-wall-brace 3 (if use-last-rows? lastrow cornerrow) 0.5 -1 web-post-br
+                   4 (if use-last-rows? lastrow cornerrow) 0   -1 web-post-bl)
+   (for [x (range 4 ncols)] (key-wall-brace x (if use-last-rows? lastrow cornerrow) 0 -1 web-post-bl
+                                            x (if use-last-rows? lastrow cornerrow) 0 -1 web-post-br))
+   (for [x (range 5 ncols)] (key-wall-brace x       (if use-last-rows? lastrow cornerrow) 0 -1 web-post-bl
+                                            (dec x) (if use-last-rows? lastrow cornerrow) 0 -1 web-post-br))
    ; thumb walls
    (wall-brace thumb-ml-place 0  1 web-post-tr   thumb-ml-place  0  1 web-post-tl)
    (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place  0 -2 thumb-post-bl)
