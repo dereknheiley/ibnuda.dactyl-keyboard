@@ -54,7 +54,7 @@
 
 ; show caps on the right.scad file. set it true if you want to see the result.
 ; set it false when you want to actually print it.
-(def show-caps? false)
+(def show-caps? true)
 
 (defn column-offset [column]
   (if rental-car?
@@ -192,7 +192,11 @@
 (def column-base-angle (* β (- centercol 2)))
 
 (defn offset-for-column [col row]
-  (if (and use-wide-pinky? (and (not= row lastrow) (= col lastcol))) 5.5 0))
+  (if (and use-wide-pinky?
+           (not= row lastrow)
+           (= col lastcol))
+    5.5
+    1))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
   (let [column-angle (* β (- centercol column))
@@ -268,7 +272,7 @@
                :when (if use-last-rows?
                        (or (not (.contains [0 1] column)) (not= row lastrow))
                        (not= lastrow lastrow))]
-           (->> (sa-cap (if (and use-wide-pinky? (= column lastcol)) 1.5 1))
+           (->> (sa-cap (if (and use-wide-pinky? (= column lastcol) (not= row lastrow)) 1.5 1))
                 (key-place column row)))))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -439,20 +443,23 @@
     (thumb-ml-place web-post-tr)
     (thumb-tl-place thumb-post-bl)
     (thumb-ml-place web-post-br))
-  (triangle-hulls    ; top two to the main keyboard, starting on the left
-   (thumb-tl-place thumb-post-tl)
-   (key-place 0 cornerrow web-post-bl)
-   (thumb-tl-place thumb-post-tr)
-   (key-place 0 cornerrow web-post-br)
-   (thumb-tr-place thumb-post-tl)
-   (key-place 1 cornerrow web-post-bl)
-   (thumb-tr-place thumb-post-tr)
-   (key-place 1 cornerrow web-post-br)
-   (thumb-tr-place thumb-post-br)
-   (key-place 2 cornerrow web-post-bl)
-   (key-place 2 cornerrow web-post-br)
-   (thumb-tr-place thumb-post-br)
-   (key-place 3 cornerrow web-post-bl))
+   (triangle-hulls    ; top two to the main keyboard, starting on the left
+    (thumb-tl-place thumb-post-tl)
+    (key-place 0 cornerrow web-post-bl)
+    (thumb-tl-place thumb-post-tr)
+    (key-place 0 cornerrow web-post-br)
+    (thumb-tr-place thumb-post-tl)
+    (key-place 1 cornerrow web-post-bl)
+    (thumb-tr-place thumb-post-tr)
+    (key-place 1 cornerrow web-post-br)
+    (thumb-tr-place thumb-post-br)
+    (key-place 2 cornerrow web-post-bl)
+    (if use-last-rows?
+      (key-place 2 lastrow web-post-bl))
+    (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-bl)
+    (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-br)
+    (thumb-tr-place thumb-post-br)
+    (key-place 3 (if use-last-rows? lastrow cornerrow) web-post-bl))
    (triangle-hulls
     (thumb-tl-place thumb-post-bl)
     (thumb-ml-place web-post-br)
@@ -588,7 +595,7 @@
           (wall-brace thumb-ml-place -1  0 web-post-bl thumb-ml-place -1 -1 web-post-bl)
           (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place  0  1 web-post-tl))
    ; thumb tweeners
-   (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 cornerrow)  0 -1 web-post-bl)
+   (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 (if use-last-rows? lastrow cornerrow))  0 -1 web-post-bl)
    ; clunky bit on the top left thumb connection  (normal connectors don't work well)
    (bottom-hull
     (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
@@ -785,6 +792,7 @@
                   (union
                    key-holes
                    (if show-caps? caps)
+                   (if show-caps? thumbcaps)
                    pinky-connectors
                    pinky-walls
                    connectors
