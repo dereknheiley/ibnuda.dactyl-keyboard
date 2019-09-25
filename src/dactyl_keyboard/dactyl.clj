@@ -13,14 +13,14 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 4)
+(def nrows 5)
 (def ncols 6)
 
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 9))             ; or, change this for more precise tenting control
+(def tenting-angle (/ π 12))             ; or, change this for more precise tenting control
 (def column-style :standard)            ; options include :standard, :orthographic, and :fixed
 
 ; if you don't want the side nubs, set this
@@ -61,8 +61,7 @@
     (cond (= column 2)  [0 0 -6.5]
           (>= column 4) [0 0  6]
           :else         [0 0  0])
-    (cond (= column 0)  [0  -3   0]
-          (= column 2)  [0   3  -6.5]
+    (cond (= column 2)  [0   3  -6.5]
           (= column 3)  [0  -5   0]
           (>= column 4) [0  -15  6]
           :else         [0   0   0])))
@@ -94,6 +93,7 @@
 
 (def lastrow (dec nrows))
 (def cornerrow (dec lastrow))
+(def middlerow (dec cornerrow))
 (def lastcol (dec ncols))
 
 ;;;;;;;;;;;;;;;;;
@@ -179,7 +179,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def columns (range 0 ncols))
+(def inner-columns (range -1 ncols))
 (def rows (range 0 nrows))
+(def inner-rows (range 0 (dec nrows)))
 
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
 (def row-radius (+ (/ (/ (+ mount-height extra-height) 2)
@@ -196,7 +198,7 @@
            (not= row lastrow)
            (= col lastcol))
     5.5
-    1))
+    0))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
   (let [column-angle (* β (- centercol column))
@@ -208,26 +210,8 @@
                           (rotate-y-fn  column-angle)
                           (translate-fn [0 0 column-radius])
                           (translate-fn (column-offset column)))
-        column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
-        placed-shape-ortho (->> shape
-                                (translate-fn [0 0 (- row-radius)])
-                                (rotate-x-fn  (* α (- centerrow row)))
-                                (translate-fn [0 0 row-radius])
-                                (rotate-y-fn  column-angle)
-                                (translate-fn [(- (* (- column centercol) column-x-delta)) 0 column-z-delta])
-                                (translate-fn (column-offset column)))
-        placed-shape-fixed (->> shape
-                                (rotate-y-fn  (nth fixed-angles column))
-                                (translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
-                                (translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
-                                (rotate-x-fn  (* α (- centerrow row)))
-                                (translate-fn [0 0 (+ row-radius (nth fixed-z column))])
-                                (rotate-y-fn  fixed-tenting)
-                                (translate-fn [0 (second (column-offset column)) 0]))]
-    (->> (case column-style
-           :orthographic placed-shape-ortho
-           :fixed        placed-shape-fixed
-           placed-shape)
+        ]
+    (->> placed-shape
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))))
 
@@ -265,13 +249,24 @@
            (->> single-plate
                 (key-place column row)))))
 
+(defn key-inner-place [column row shape]
+  (apply-key-geometry translate
+                      (fn [angle obj] (rotate angle [1 0 0] obj))
+                      (fn [angle obj] (rotate angle [0 1 0] obj))
+                      column row shape))
+
+(def inner-key-holes
+  (apply union (for [row inner-rows]
+                 (->> single-plate
+                      (key-inner-place -1 row)))))
+
 (def caps
   (apply union
-         (for [column columns
+         (for [column (if use-inner-column? (range -1 ncols) columns)
                row rows
                :when (if use-last-rows?
-                       (or (not (.contains [0 1] column)) (not= row lastrow))
-                       (not= lastrow lastrow))]
+                       (or (not (.contains [-1 0 1] column)) (not= row lastrow))
+                       (not= row lastrow))]
            (->> (sa-cap (if (and use-wide-pinky? (= column lastcol) (not= row lastrow)) 1.5 1))
                 (key-place column row)))))
 
@@ -310,11 +305,11 @@
   (apply union
          (concat
           ;; Row connections
-          (for [column (range 0 (dec ncols))
+          (for [column (range (if use-inner-column? -1 0) (dec ncols))
                 row (range 0 (if use-last-rows? (inc lastrow) lastrow))
                 :when (if use-last-rows?
                         (not (and (= row lastrow)
-                                  (.contains [0 1] column)))
+                                  (.contains [-1 0 1] column)))
                         true)]
             (triangle-hulls
              (key-place (inc column) row web-post-tl)
@@ -323,7 +318,7 @@
              (key-place column row web-post-br)))
 
           ;; Column connections
-          (for [column columns
+          (for [column (if use-inner-column? inner-columns columns)
                 row (range 0 (if use-last-rows? lastrow cornerrow))
                 :when (if use-last-rows?
                         (not (and (= row cornerrow)
@@ -336,7 +331,7 @@
              (key-place column (inc row) web-post-tr)))
 
           ;; Diagonal connections
-          (for [column (range 0 (dec ncols))
+          (for [column (range (if use-inner-column? -1 0) (dec ncols))
                 row (range 0 (if use-last-rows? lastrow cornerrow))
                 :when (if use-last-rows?
                         (not (and (= row lastrow)
@@ -445,11 +440,11 @@
     (thumb-ml-place web-post-br))
    (triangle-hulls    ; top two to the main keyboard, starting on the left
     (thumb-tl-place thumb-post-tl)
-    (key-place 0 cornerrow web-post-bl)
+    (key-place (if use-inner-column? -1 0) cornerrow web-post-bl)
     (thumb-tl-place thumb-post-tr)
-    (key-place 0 cornerrow web-post-br)
+    (key-place (if use-inner-column? -1 0) cornerrow web-post-br)
     (thumb-tr-place thumb-post-tl)
-    (key-place 1 cornerrow web-post-bl)
+    (key-place (if use-inner-column? -1 0) cornerrow web-post-bl)
     (thumb-tr-place thumb-post-tr)
     (key-place 1 cornerrow web-post-br)
     (thumb-tr-place thumb-post-br)
@@ -492,8 +487,14 @@
 (defn left-key-position [row direction]
   (map - (key-position 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0]) [left-wall-x-offset 0 left-wall-z-offset]))
 
+(defn inner-key-position [row direction]
+  (map - (key-position -1 row [(* mount-width -0.5) (* direction mount-height 0.5) 0]) [left-wall-x-offset 0 left-wall-z-offset]))
+
 (defn left-key-place [row direction shape]
   (translate (left-key-position row direction) shape))
+
+(defn inner-key-place [row direction shape]
+  (translate (inner-key-position row direction) shape))
 
 (defn wall-locate1 [dx dy] [(* dx wall-thickness) (* dy wall-thickness) -1])
 (defn wall-locate2 [dx dy] [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
@@ -555,26 +556,30 @@
 (def case-walls
   (union
    ; back wall
-   (for [x (range 0 ncols)] (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
-   (for [x (range 1 ncols)] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
+   (for [x (range (if use-inner-column? -1 0) ncols)] (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
+   (for [x (range (if use-inner-column?  0 1) ncols)] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
    (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
    ; right wall
    right-wall
    ; left wall
    (for [y (range 0 lastrow)]
-     (union (wall-brace (partial left-key-place y 1) -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
-            (hull (key-place 0 y web-post-tl)
-                  (key-place 0 y web-post-bl)
-                  (left-key-place y  1 web-post)
-                  (left-key-place y -1 web-post))))
+     (union (wall-brace (partial (if use-inner-column? inner-key-place left-key-place) y 1) -1 0 web-post
+                        (partial (if use-inner-column? inner-key-place left-key-place) y -1) -1 0 web-post)
+            (hull (key-place (if use-inner-column? -1 0) y web-post-tl)
+                  (key-place (if use-inner-column? -1 0) y web-post-bl)
+                  ((if use-inner-column? inner-key-place left-key-place) y  1 web-post)
+                  ((if use-inner-column? inner-key-place left-key-place) y -1 web-post))))
    (for [y (range 1 lastrow)]
-     (union (wall-brace (partial left-key-place (dec y) -1) -1 0 web-post (partial left-key-place y  1) -1 0 web-post)
-            (hull (key-place 0 y       web-post-tl)
-                  (key-place 0 (dec y) web-post-bl)
-                  (left-key-place y        1 web-post)
-                  (left-key-place (dec y) -1 web-post))))
-   (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
-   (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)
+     (union (wall-brace (partial (if use-inner-column? inner-key-place left-key-place) (dec y) -1) -1 0 web-post
+                        (partial (if use-inner-column? inner-key-place left-key-place) y        1) -1 0 web-post)
+            (hull (key-place (if use-inner-column? -1 0) y       web-post-tl)
+                  (key-place (if use-inner-column? -1 0) (dec y) web-post-bl)
+                  ((if use-inner-column? inner-key-place left-key-place) y        1 web-post)
+                  ((if use-inner-column? inner-key-place left-key-place) (dec y) -1 web-post))))
+   (wall-brace (partial key-place (if use-inner-column? -1 0) 0) 0 1 web-post-tl
+               (partial (if use-inner-column? inner-key-place left-key-place) 0 1)  0 1 web-post)
+   (wall-brace (partial (if use-inner-column? inner-key-place left-key-place) 0 1)  0 1 web-post
+               (partial (if use-inner-column? inner-key-place left-key-place) 0 1) -1 0 web-post)
    ; front wall
    (key-wall-brace 3 (if use-last-rows? lastrow cornerrow) 0   -1 web-post-bl
                    3 (if use-last-rows? lastrow cornerrow) 0.5 -1 web-post-br)
@@ -598,27 +603,27 @@
    (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 (if use-last-rows? lastrow cornerrow))  0 -1 web-post-bl)
    ; clunky bit on the top left thumb connection  (normal connectors don't work well)
    (bottom-hull
-    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 (translate (wall-locate2 -1 0) web-post))
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 (translate (wall-locate3 -1 0) web-post))
     (thumb-ml-place (translate (wall-locate2 -0.3 1) web-post-tr))
     (thumb-ml-place (translate (wall-locate3 -0.3 1) web-post-tr)))
    (hull
-    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 (translate (wall-locate2 -1 0) web-post))
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 (translate (wall-locate3 -1 0) web-post))
     (thumb-ml-place (translate (wall-locate2 -0.3 1) web-post-tr))
     (thumb-ml-place (translate (wall-locate3 -0.3 1) web-post-tr))
     (thumb-tl-place thumb-post-tl))
    (hull
-    (left-key-place cornerrow -1 web-post)
-    (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 web-post)
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 (translate (wall-locate1 -1 0) web-post))
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 (translate (wall-locate2 -1 0) web-post))
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 (translate (wall-locate3 -1 0) web-post))
     (thumb-tl-place thumb-post-tl))
    (hull
-    (left-key-place cornerrow -1 web-post)
-    (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-    (key-place 0 cornerrow web-post-bl)
-    (key-place 0 cornerrow (translate (wall-locate1 -1 0) web-post-bl))
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 web-post)
+    ((if use-inner-column? inner-key-place left-key-place) cornerrow -1 (translate (wall-locate1 -1 0) web-post))
+    (key-place (if use-inner-column? -1 0) cornerrow web-post-bl)
+    (key-place (if use-inner-column? -1 0) cornerrow (translate (wall-locate1 -1 0) web-post-bl))
     (thumb-tl-place thumb-post-tl))
    (hull
     (thumb-ml-place web-post-tr)
@@ -754,8 +759,8 @@
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (let [lastloc (if-not use-wide-pinky? (+ lastcol 0.1) (+ lastcol 0.5))]
-    (union (screw-insert 0       0               bottom-radius top-radius height)
-           (screw-insert 0       (- lastrow 0.8) bottom-radius top-radius height)
+    (union (screw-insert (if use-inner-column? -1 0)       0               bottom-radius top-radius height)
+           (screw-insert (if use-inner-column? -1 0)       (- lastrow 0.8) bottom-radius top-radius height)
            (screw-insert 2       (+ lastrow 0.2) bottom-radius top-radius height)
            (screw-insert 3       0               bottom-radius top-radius height)
            (screw-insert lastloc 1               bottom-radius top-radius height))))
@@ -791,6 +796,7 @@
 (def model-right (difference
                   (union
                    key-holes
+                   (if use-inner-column? inner-key-holes)
                    (if show-caps? caps)
                    (if show-caps? thumbcaps)
                    pinky-connectors
