@@ -54,7 +54,11 @@
 
 ; show caps on the right.scad file. set it true if you want to see the result.
 ; set it false when you want to actually print it.
-(def show-caps? true)
+(def show-caps? false)
+
+; if this param set as true, you will only get 3 thumb keys. 2 1.5u and 1 1u.
+; otherwise, you will get standard thumb cluster.
+(def minidox-style? false)
 
 (defn column-offset [column]
   (if rental-car?
@@ -209,8 +213,7 @@
                           (translate-fn [0 0 (- column-radius)])
                           (rotate-y-fn  column-angle)
                           (translate-fn [0 0 column-radius])
-                          (translate-fn (column-offset column)))
-        ]
+                          (translate-fn (column-offset column)))]
     (->> placed-shape
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))))
@@ -294,15 +297,22 @@
 (def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 (def web-post-br (translate [(- (/ mount-width 2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 
-(if use-wide-pinky?
-  (do (def wide-post-tr (translate [(- (/ mount-width  1.2) post-adj) (- (/ mount-height  2) post-adj) 0] web-post))
-      (def wide-post-tl (translate [(+ (/ mount-width -1.2) post-adj) (- (/ mount-height  2) post-adj) 0] web-post))
-      (def wide-post-bl (translate [(+ (/ mount-width -1.2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
-      (def wide-post-br (translate [(- (/ mount-width  1.2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post)))
-  (do (def wide-post-tr web-post-tr)
-      (def wide-post-tl web-post-tl)
-      (def wide-post-br web-post-br)
-      (def wide-post-bl web-post-bl)))
+(def wide-post-tr
+  (if use-wide-pinky?
+    (translate [(- (/ mount-width  1.2) post-adj) (- (/ mount-height  2) post-adj) 0] web-post)
+    web-post-tr))
+(def wide-post-tl
+  (if use-wide-pinky?
+    (translate [(+ (/ mount-width -1.2) post-adj) (- (/ mount-height  2) post-adj) 0] web-post)
+    web-post-tl))
+(def wide-post-bl
+  (if use-wide-pinky?
+    (translate [(+ (/ mount-width -1.2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post)
+    web-post-bl))
+(def wide-post-br
+  (if use-wide-pinky?
+    (translate [(- (/ mount-width  1.2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post)
+    web-post-br))
 
 (defn triangle-hulls [& shapes]
   (apply union
@@ -372,11 +382,11 @@
        (translate [-12 -16 3])))
 (defn thumb-tl-place [shape]
   (->> shape
-       (rotate (deg2rad   6) [1 0 0])
+       (rotate (deg2rad  10) [1 0 0])
        (rotate (deg2rad -23) [0 1 0])
-       (rotate (deg2rad  25) [0 0 1])
+       (rotate (deg2rad  10) [0 0 1])
        (translate thumborigin)
-       (translate [-32 -20 -5])))
+       (translate [-32 -15 -2])))
 (defn thumb-mr-place [shape]
   (->> shape
        (rotate (deg2rad  -6) [1 0 0])
@@ -386,11 +396,11 @@
        (translate [-29 -40 -13])))
 (defn thumb-ml-place [shape]
   (->> shape
-       (rotate (deg2rad  -2) [1 0 0])
-       (rotate (deg2rad -26) [0 1 0])
+       (rotate (deg2rad   6) [1 0 0])
+       (rotate (deg2rad -34) [0 1 0])
        (rotate (deg2rad  40) [0 0 1])
        (translate thumborigin)
-       (translate [-51 -25 -14])))
+       (translate [-51 -25 -12])))
 (defn thumb-br-place [shape]
   (->> shape
        (rotate (deg2rad -16) [1 0 0])
@@ -399,16 +409,20 @@
        (translate thumborigin)
        (translate [-37.8 -55.3 -25.3])))
 (defn thumb-bl-place [shape]
-  (def mid-left [-38.90 -51.20 -22.50])
   (->> shape
        (rotate (deg2rad  -4) [1 0 0])
        (rotate (deg2rad -35) [0 1 0])
        (rotate (deg2rad  52) [0 0 1])
        (translate thumborigin)
-       (translate mid-left)))
+       (translate [-56.3 -43.3 -23.5])))
 
 (defn thumb-1x-layout [shape]
-  (union (thumb-ml-place shape)))
+  (union
+   (thumb-ml-place shape)
+   (if-not minidox-style?
+     (union (thumb-mr-place shape)
+            (thumb-bl-place shape)
+            (thumb-br-place shape)))))
     
 (defn thumb-15x-layout [shape]
   (union
@@ -438,18 +452,86 @@
 (def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
 (def thumb-post-br (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -1.15) post-adj) 0] web-post))
 
+
+
 (def thumb-connectors
+  (if minidox-style?
+    (union
+     (triangle-hulls    ; top two
+      (thumb-tl-place thumb-post-tr)
+      (thumb-tl-place thumb-post-br)
+      (thumb-tr-place thumb-post-tl)
+      (thumb-tr-place thumb-post-bl))
+     (triangle-hulls    ; top two to the middle two, starting on the left
+      (thumb-tl-place thumb-post-tl)
+      (thumb-ml-place web-post-tr)
+      (thumb-tl-place thumb-post-bl)
+      (thumb-ml-place web-post-br))
+     (triangle-hulls    ; top two to the main keyboard, starting on the left
+      (thumb-tl-place thumb-post-tl)
+      (key-place 0 cornerrow web-post-bl)
+      (thumb-tl-place thumb-post-tr)
+      (key-place 0 cornerrow web-post-br)
+      (thumb-tr-place thumb-post-tl)
+      (key-place 0 cornerrow web-post-bl)
+      (thumb-tr-place thumb-post-tr)
+      (key-place 1 cornerrow web-post-br)
+      (thumb-tr-place thumb-post-br)
+      (key-place 2 cornerrow web-post-bl)
+      (if use-last-rows?
+        (key-place 2 lastrow web-post-bl))
+      (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-bl)
+      (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-br)
+      (thumb-tr-place thumb-post-br)
+      (key-place 3 (if use-last-rows? lastrow cornerrow) web-post-bl))
+     (triangle-hulls
+      (thumb-tl-place thumb-post-bl)
+      (thumb-ml-place web-post-br)
+      (thumb-ml-place web-post-bl))
+     (triangle-hulls
+      (key-place 2 lastrow web-post-tl)
+      (key-place 2 cornerrow web-post-bl)
+      (key-place 2 lastrow web-post-tr)
+      (key-place 2 cornerrow web-post-br)
+      (key-place 3 cornerrow web-post-bl))
+     (triangle-hulls
+      (key-place 3 lastrow web-post-tr)
+      (key-place 4 cornerrow web-post-bl)))
   (union
    (triangle-hulls    ; top two
     (thumb-tl-place thumb-post-tr)
     (thumb-tl-place thumb-post-br)
     (thumb-tr-place thumb-post-tl)
     (thumb-tr-place thumb-post-bl))
+   (triangle-hulls    ; bottom two on the right
+    (thumb-br-place web-post-tr)
+    (thumb-br-place web-post-br)
+    (thumb-mr-place web-post-tl)
+    (thumb-mr-place web-post-bl))
+   (triangle-hulls    ; bottom two on the left
+    (thumb-bl-place web-post-tr)
+    (thumb-bl-place web-post-br)
+    (thumb-ml-place web-post-tl)
+    (thumb-ml-place web-post-bl))
+   (triangle-hulls    ; centers of the bottom four
+    (thumb-br-place web-post-tl)
+    (thumb-bl-place web-post-bl)
+    (thumb-br-place web-post-tr)
+    (thumb-bl-place web-post-br)
+    (thumb-mr-place web-post-tl)
+    (thumb-ml-place web-post-bl)
+    (thumb-mr-place web-post-tr)
+    (thumb-ml-place web-post-br))
    (triangle-hulls    ; top two to the middle two, starting on the left
     (thumb-tl-place thumb-post-tl)
     (thumb-ml-place web-post-tr)
     (thumb-tl-place thumb-post-bl)
-    (thumb-ml-place web-post-br))
+    (thumb-ml-place web-post-br)
+    (thumb-tl-place thumb-post-br)
+    (thumb-mr-place web-post-tr)
+    (thumb-tr-place thumb-post-bl)
+    (thumb-mr-place web-post-br)
+    (thumb-tr-place thumb-post-br)) 
    (triangle-hulls    ; top two to the main keyboard, starting on the left
     (thumb-tl-place thumb-post-tl)
     (key-place 0 cornerrow web-post-bl)
@@ -467,19 +549,13 @@
     (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-br)
     (thumb-tr-place thumb-post-br)
     (key-place 3 (if use-last-rows? lastrow cornerrow) web-post-bl))
-   (triangle-hulls
-    (thumb-tl-place thumb-post-bl)
-    (thumb-ml-place web-post-br)
-    (thumb-ml-place web-post-bl))
-   (triangle-hulls
+   (triangle-hulls 
+    (key-place 1 cornerrow web-post-br)
     (key-place 2 lastrow web-post-tl)
     (key-place 2 cornerrow web-post-bl)
     (key-place 2 lastrow web-post-tr)
     (key-place 2 cornerrow web-post-br)
-    (key-place 3 cornerrow web-post-bl))
-   (triangle-hulls
-    (key-place 3 lastrow web-post-tr)
-    (key-place 4 cornerrow web-post-bl))))
+    (key-place 3 cornerrow web-post-bl)))))
 
 ;;;;;;;;;;
 ;; Case ;;
@@ -602,17 +678,35 @@
    (for [x (range 5 ncols)] (key-wall-brace x       (if use-last-rows? lastrow cornerrow) 0 -1 web-post-bl
                                             (dec x) (if use-last-rows? lastrow cornerrow) 0 -1 web-post-br))
    ; thumb walls
-   (wall-brace thumb-ml-place 0  1 web-post-tr   thumb-ml-place  0  1 web-post-tl)
-   (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place  0 -2 thumb-post-bl)
-   (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-br)
-   (wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place  0 -2 thumb-post-bl)
-   (wall-brace thumb-tl-place 0 -2 thumb-post-bl thumb-ml-place -1 -1 web-post-bl)
+   (if minidox-style?
+     (union
+      (wall-brace thumb-ml-place 0  1 web-post-tr   thumb-ml-place  0  1 web-post-tl)
+      (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place  0 -2 thumb-post-bl)
+      (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-br)
+      (wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place  0 -2 thumb-post-bl)
+      (wall-brace thumb-tl-place 0 -2 thumb-post-bl thumb-ml-place -1 -1 web-post-bl))
+     (union
+      (wall-brace thumb-mr-place  0 -1 web-post-br thumb-tr-place  0 -1 thumb-post-br)
+      (wall-brace thumb-mr-place  0 -1 web-post-br thumb-mr-place  0 -1 web-post-bl)
+      (wall-brace thumb-br-place  0 -1 web-post-br thumb-br-place  0 -1 web-post-bl)
+      (wall-brace thumb-ml-place -0.3  1 web-post-tr thumb-ml-place  0  1 web-post-tl)
+      (wall-brace thumb-bl-place  0  1 web-post-tr thumb-bl-place  0  1 web-post-tl)
+      (wall-brace thumb-br-place -1  0 web-post-tl thumb-br-place -1  0 web-post-bl)
+      (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place -1  0 web-post-bl)))
    ; thumb corners
-   (union (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place -1  0 web-post-bl)
-          (wall-brace thumb-ml-place -1  0 web-post-bl thumb-ml-place -1 -1 web-post-bl)
-          (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place  0  1 web-post-tl))
+   (if minidox-style? 
+     (union (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place -1  0 web-post-bl)
+            (wall-brace thumb-ml-place -1  0 web-post-bl thumb-ml-place -1 -1 web-post-bl)
+            (wall-brace thumb-ml-place -1  0 web-post-tl thumb-ml-place  0  1 web-post-tl))
+     (union (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)
+            (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place  0  1 web-post-tl)))
    ; thumb tweeners
    (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 (if use-last-rows? lastrow cornerrow))  0 -1 web-post-bl)
+   (if-not minidox-style?
+     (union
+      (wall-brace thumb-mr-place  0 -1 web-post-bl thumb-br-place  0 -1 web-post-br)
+      (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tr)
+      (wall-brace thumb-bl-place -1  0 web-post-bl thumb-br-place -1  0 web-post-tl)))
    ; clunky bit on the top left thumb connection  (normal connectors don't work well)
    (bottom-hull
     (if use-inner-column?
@@ -664,8 +758,7 @@
       (thumb-tl-place thumb-post-tl)
       (key-place  0 cornerrow web-post-bl)
       (key-place -1 middlerow web-post-bl)
-      (key-place -1 cornerrow web-post-tr)
-      ))
+      (key-place -1 cornerrow web-post-tr)))
    (hull
     (thumb-ml-place web-post-tr)
     (thumb-ml-place (translate (wall-locate1 -0.3 1) web-post-tr))
@@ -896,4 +989,4 @@
       (write-scad
        (difference usb-holder usb-holder-hole)))
 
-(defn -main [dum] 1)  ; dummy to make it easier to batch
+(defn -main [dum] 1)  ; dummy to make it easier to batc
