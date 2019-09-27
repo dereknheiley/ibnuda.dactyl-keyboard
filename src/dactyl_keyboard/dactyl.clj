@@ -19,8 +19,8 @@
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
-(def centercol 5)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 15))             ; or, change this for more precise tenting control
+(def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
+(def tenting-angle (/ π 7))             ; or, change this for more precise tenting control
 (def column-style :standard)            ; options include :standard, :orthographic, and :fixed
 
 ; if you don't want the side nubs, set this
@@ -37,7 +37,7 @@
 (def use-trrs? false)
 
 ; if you want to create a "rental car", set this parameter as true
-(def rental-car? true)
+(def rental-car? false)
 
 ; if you want to use small usb hole, set
 ; this parameter as true
@@ -129,7 +129,9 @@
                                  (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
                                              0
                                              (/ plate-thickness 2)]))))
-        plate-half (union top-wall left-wall (if create-side-nub? (with-fn 100 side-nub)))]
+        plate-half (union top-wall
+                          left-wall
+                          (if create-side-nub? (with-fn 100 side-nub)))]
     (union plate-half
            (->> plate-half
                 (mirror [1 0 0])
@@ -141,42 +143,43 @@
 
 (def sa-length 18.25)
 (def sa-double-length 37.5)
-(def sa-cap {1 (let [bl2 (/ 18.5 2)
-                     m (/ 17 2)
-                     key-cap (hull (->> (polygon [[bl2 bl2] [bl2 (- bl2)] [(- bl2) (- bl2)] [(- bl2) bl2]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 0.05]))
-                                   (->> (polygon [[m m] [m (- m)] [(- m) (- m)] [(- m) m]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 6]))
-                                   (->> (polygon [[6 6] [6 -6] [-6 -6] [-6 6]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 12])))]
-                 (->> key-cap
-                      (translate [0 0 (+ 5 plate-thickness)])
-                      (color [220/255 163/255 163/255 1])))
-             2 (let [bl2 (/ sa-double-length 2)
-                     bw2 (/ 18.25 2)
-                     key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 0.05]))
-                                   (->> (polygon [[6 16] [6 -16] [-6 -16] [-6 16]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 12])))]
-                 (->> key-cap
-                      (translate [0 0 (+ 5 plate-thickness)])
-                      (color [127/255 159/255 127/255 1])))
-             1.5 (let [bl2 (/ 18.25 2)
-                       bw2 (/ 28 2)
-                       key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
-                                          (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                          (translate [0 0 0.05]))
-                                     (->> (polygon [[11 6] [-11 6] [-11 -6] [11 -6]])
-                                          (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                          (translate [0 0 12])))]
-                   (->> key-cap
-                        (translate [0 0 (+ 5 plate-thickness)])
-                        (color [240/255 223/255 175/255 1])))})
+(def sa-cap
+  {1 (let [bl2 (/ 18.5 2)
+           m (/ 17 2)
+           key-cap (hull (->> (polygon [[bl2 bl2] [bl2 (- bl2)] [(- bl2) (- bl2)] [(- bl2) bl2]])
+                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                              (translate [0 0 0.05]))
+                         (->> (polygon [[m m] [m (- m)] [(- m) (- m)] [(- m) m]])
+                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                              (translate [0 0 6]))
+                         (->> (polygon [[6 6] [6 -6] [-6 -6] [-6 6]])
+                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                              (translate [0 0 12])))]
+       (->> key-cap
+            (translate [0 0 (+ 5 plate-thickness)])
+            (color [220/255 163/255 163/255 1])))
+   2 (let [bl2 (/ sa-double-length 2)
+           bw2 (/ 18.25 2)
+           key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
+                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                              (translate [0 0 0.05]))
+                         (->> (polygon [[6 16] [6 -16] [-6 -16] [-6 16]])
+                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                              (translate [0 0 12])))]
+       (->> key-cap
+            (translate [0 0 (+ 5 plate-thickness)])
+            (color [127/255 159/255 127/255 1])))
+   1.5 (let [bl2 (/ 18.25 2)
+             bw2 (/ 28 2)
+             key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
+                                (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                                (translate [0 0 0.05]))
+                           (->> (polygon [[11 6] [-11 6] [-11 -6] [11 -6]])
+                                (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                                (translate [0 0 12])))]
+         (->> key-cap
+              (translate [0 0 (+ 5 plate-thickness)])
+              (color [240/255 223/255 175/255 1])))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Placement Functions ;;
@@ -241,7 +244,6 @@
 (defn key-position [column row position]
   (apply-key-geometry (partial map +) rotate-around-x rotate-around-y column row position))
 
-
 (def key-holes
   (apply union
          (for [column columns
@@ -288,9 +290,10 @@
 
 (def web-thickness 3.5)
 (def post-size 0.1)
-(def web-post (->> (cube post-size post-size web-thickness)
-                   (translate [0 0 (+ (/ web-thickness -2)
-                                      plate-thickness)])))
+(def web-post
+  (->> (cube post-size post-size web-thickness)
+       (translate [0 0 (+ (/ web-thickness -2)
+                          plate-thickness)])))
 
 (def post-adj (/ post-size 2))
 (def web-post-tr (translate [(- (/ mount-width 2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
@@ -315,6 +318,10 @@
     (translate [(- (/ mount-width  1.2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post)
     web-post-br))
 
+;; takes a list of 'location's,
+;; partitions them into triad,
+;; and apply hull on each triad,
+;; then finally apply union for the result.
 (defn triangle-hulls [& shapes]
   (apply union
          (map (partial apply hull)
@@ -477,7 +484,7 @@
       (thumb-tl-place thumb-post-tr)
       (key-place 0 cornerrow web-post-br)
       (thumb-tr-place thumb-post-tl)
-      (key-place 0 cornerrow web-post-bl)
+      (key-place 1 cornerrow web-post-bl)
       (thumb-tr-place thumb-post-tr)
       (key-place 1 cornerrow web-post-br)
       (thumb-tr-place thumb-post-br)
@@ -501,65 +508,65 @@
      (triangle-hulls
       (key-place 3 lastrow web-post-tr)
       (key-place 4 cornerrow web-post-bl)))
-  (union
-   (triangle-hulls    ; top two
-    (thumb-tl-place thumb-post-tr)
-    (thumb-tl-place thumb-post-br)
-    (thumb-tr-place thumb-post-tl)
-    (thumb-tr-place thumb-post-bl))
-   (triangle-hulls    ; bottom two on the right
-    (thumb-br-place web-post-tr)
-    (thumb-br-place web-post-br)
-    (thumb-mr-place web-post-tl)
-    (thumb-mr-place web-post-bl))
-   (triangle-hulls    ; bottom two on the left
-    (thumb-bl-place web-post-tr)
-    (thumb-bl-place web-post-br)
-    (thumb-ml-place web-post-tl)
-    (thumb-ml-place web-post-bl))
-   (triangle-hulls    ; centers of the bottom four
-    (thumb-br-place web-post-tl)
-    (thumb-bl-place web-post-bl)
-    (thumb-br-place web-post-tr)
-    (thumb-bl-place web-post-br)
-    (thumb-mr-place web-post-tl)
-    (thumb-ml-place web-post-bl)
-    (thumb-mr-place web-post-tr)
-    (thumb-ml-place web-post-br))
-   (triangle-hulls    ; top two to the middle two, starting on the left
-    (thumb-tl-place thumb-post-tl)
-    (thumb-ml-place web-post-tr)
-    (thumb-tl-place thumb-post-bl)
-    (thumb-ml-place web-post-br)
-    (thumb-tl-place thumb-post-br)
-    (thumb-mr-place web-post-tr)
-    (thumb-tr-place thumb-post-bl)
-    (thumb-mr-place web-post-br)
-    (thumb-tr-place thumb-post-br)) 
-   (triangle-hulls    ; top two to the main keyboard, starting on the left
-    (thumb-tl-place thumb-post-tl)
-    (key-place 0 cornerrow web-post-bl)
-    (thumb-tl-place thumb-post-tr)
-    (key-place 0 cornerrow web-post-br)
-    (thumb-tr-place thumb-post-tl)
-    (key-place 0 cornerrow web-post-bl)
-    (thumb-tr-place thumb-post-tr)
-    (key-place 1 cornerrow web-post-br)
-    (thumb-tr-place thumb-post-br)
-    (key-place 2 cornerrow web-post-bl)
-    (if use-last-rows?
-      (key-place 2 lastrow web-post-bl))
-    (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-bl)
-    (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-br)
-    (thumb-tr-place thumb-post-br)
-    (key-place 3 (if use-last-rows? lastrow cornerrow) web-post-bl))
-   (triangle-hulls 
-    (key-place 1 cornerrow web-post-br)
-    (key-place 2 lastrow web-post-tl)
-    (key-place 2 cornerrow web-post-bl)
-    (key-place 2 lastrow web-post-tr)
-    (key-place 2 cornerrow web-post-br)
-    (key-place 3 cornerrow web-post-bl)))))
+    (union
+     (triangle-hulls    ; top two
+      (thumb-tl-place thumb-post-tr)
+      (thumb-tl-place thumb-post-br)
+      (thumb-tr-place thumb-post-tl)
+      (thumb-tr-place thumb-post-bl))
+     (triangle-hulls    ; bottom two on the right
+      (thumb-br-place web-post-tr)
+      (thumb-br-place web-post-br)
+      (thumb-mr-place web-post-tl)
+      (thumb-mr-place web-post-bl))
+     (triangle-hulls    ; bottom two on the left
+      (thumb-bl-place web-post-tr)
+      (thumb-bl-place web-post-br)
+      (thumb-ml-place web-post-tl)
+      (thumb-ml-place web-post-bl))
+     (triangle-hulls    ; centers of the bottom four
+      (thumb-br-place web-post-tl)
+      (thumb-bl-place web-post-bl)
+      (thumb-br-place web-post-tr)
+      (thumb-bl-place web-post-br)
+      (thumb-mr-place web-post-tl)
+      (thumb-ml-place web-post-bl)
+      (thumb-mr-place web-post-tr)
+      (thumb-ml-place web-post-br))
+     (triangle-hulls    ; top two to the middle two, starting on the left
+      (thumb-tl-place thumb-post-tl)
+      (thumb-ml-place web-post-tr)
+      (thumb-tl-place thumb-post-bl)
+      (thumb-ml-place web-post-br)
+      (thumb-tl-place thumb-post-br)
+      (thumb-mr-place web-post-tr)
+      (thumb-tr-place thumb-post-bl)
+      (thumb-mr-place web-post-br)
+      (thumb-tr-place thumb-post-br)) 
+     (triangle-hulls    ; top two to the main keyboard, starting on the left
+      (thumb-tl-place thumb-post-tl)
+      (key-place 0 cornerrow web-post-bl)
+      (thumb-tl-place thumb-post-tr)
+      (key-place 0 cornerrow web-post-br)
+      (thumb-tr-place thumb-post-tl)
+      (key-place 1 cornerrow web-post-bl)
+      (thumb-tr-place thumb-post-tr)
+      (key-place 1 cornerrow web-post-br)
+      (thumb-tr-place thumb-post-br)
+      (key-place 2 cornerrow web-post-bl)
+      (if use-last-rows?
+        (key-place 2 lastrow web-post-bl))
+      (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-bl)
+      (key-place 2 (if use-last-rows? lastrow cornerrow) web-post-br)
+      (thumb-tr-place thumb-post-br)
+      (key-place 3 (if use-last-rows? lastrow cornerrow) web-post-bl))
+     (triangle-hulls 
+      (key-place 1 cornerrow web-post-br)
+      (key-place 2 lastrow web-post-tl)
+      (key-place 2 cornerrow web-post-bl)
+      (key-place 2 lastrow web-post-tr)
+      (key-place 2 cornerrow web-post-br)
+      (key-place 3 cornerrow web-post-bl)))))
 
 ;;;;;;;;;;
 ;; Case ;;
@@ -716,19 +723,19 @@
    (bottom-hull
     (if use-inner-column?
       (inner-key-place middlerow -1 (translate (wall-locate2 -1 0) web-post))
-      (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post)))
+      (left-key-place  cornerrow -1 (translate (wall-locate2 -1 0) web-post)))
     (if use-inner-column?
       (inner-key-place middlerow -1 (translate (wall-locate3 -1 0) web-post))
-      (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
+      (left-key-place  cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
     (thumb-ml-place (translate (wall-locate2 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
-    (thumb-ml-place (translate (wall-locate3 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
+    (thumb-ml-place (translate (wall-locate3 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr))))
    (hull
     (if use-inner-column?
       (inner-key-place middlerow -1 (translate (wall-locate2 -1 0) web-post))
-      (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post)))
+      (left-key-place  cornerrow -1 (translate (wall-locate2 -1 0) web-post)))
     (if use-inner-column?
       (inner-key-place middlerow -1 (translate (wall-locate3 -1 0) web-post))
-      (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
+      (left-key-place  cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
     (thumb-ml-place (translate (wall-locate2 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
     (thumb-ml-place (translate (wall-locate3 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
     (thumb-tl-place thumb-post-tl))
@@ -769,7 +776,7 @@
     (thumb-ml-place (translate (wall-locate1 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
     (thumb-ml-place (translate (wall-locate2 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
     (thumb-ml-place (translate (wall-locate3 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
-    (thumb-tl-place thumb-post-tl)))))
+    (thumb-tl-place thumb-post-tl))))
 
 (def rj9-start  (map + [0 -3  0] (key-position 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
 (def rj9-position  [(first rj9-start) (second rj9-start) 11])
