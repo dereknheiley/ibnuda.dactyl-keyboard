@@ -13,6 +13,16 @@ The main change is that the thumb cluster was adapted from the [ManuForm keyboar
 * Column tilt
 * Column offsets
 * Height
+* Side nubs: some MX style switches don't need them.
+* Wire posts: if you use amoeba pcb, it will only hinder you.
+* TRRS option: instead of RJ9, you can use TRRS cables. Really fitting for weebs and ricers.
+* [Rental Car](https://imgur.com/gallery/jxzEABw): to make the rows lined up.
+* Promicro holes: instead of vertical hole, use the horisontal one.
+* [Ergodox Style](https://geekhack.org/index.php?action=dlattach;topic=88576.0;attach=199354;image) By [Loligagger](https://geekhack.org/index.php?action=profile;u=12372):
+    * Uses the last row.
+    * Uses inner column.
+    * Uses wide outer-pinky keys.
+* [Minidox](https://www.thingiverse.com/thing:3866436): 36 keys by @ibnuda
 
 I built a 4x5 version (40% size) for myself. The default has a bit more tenting than the Dactyl. See the following model files for configurations that may be most common:
 
