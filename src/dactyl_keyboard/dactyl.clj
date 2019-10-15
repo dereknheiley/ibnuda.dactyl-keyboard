@@ -5,7 +5,6 @@
             [scad-clj.model :refer :all]
             [unicode-math.core :refer :all]))
 
-
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
 
@@ -37,7 +36,7 @@
 (def use-trrs? false)
 
 ; if you want to create a "rental car", set this parameter as true
-(def rental-car? true)
+(def rental-car? false)
 
 ; if you want to use small usb hole, set
 ; this parameter as true
@@ -62,13 +61,12 @@
 
 (defn column-offset [column]
   (if rental-car?
-    (cond (= column 2)  [0   0  -6.5]
-          (>= column 4) [0   0   6]
-          :else         [0   0   0])
-    (cond (= column 2)  [0   3  -6.5]
-          (= column 3)  [0  -5   0]
-          (>= column 4) [0  -15  6]
-          :else         [0   0   0])))
+    (cond (= column 2)  [0   0    -6.5]
+          (>= column 4) [0   0     6]
+          :else         [0   0     0])
+    (cond (= column 2)  [0   2.82 -6.5]
+          (>= column 4) [0  -13    6]
+          :else         [0   0     0])))
 
 (def thumb-offsets [6 -3 7])
 
