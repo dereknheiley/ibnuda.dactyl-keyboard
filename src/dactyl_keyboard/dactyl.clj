@@ -19,7 +19,7 @@
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 9))             ; or, change this for more precise tenting control
+(def tenting-angle (/ π 7))             ; or, change this for more precise tenting control
 (def column-style :standard)            ; options include :standard, :orthographic, and :fixed
 
 ; if you don't want the side nubs, set this
