@@ -18,7 +18,7 @@
 
 ; number of columns.
 ; 5 means your left hand will get a through g.
-(def ncols 5)
+(def ncols 6)
 
 ; curvature of the columns
 (def α (/ π 12))
@@ -29,7 +29,7 @@
 ; controls left-right tilt / tenting (higher number is more tenting)
 (def centercol 4)
 ; or, change this for more precise tenting control
-(def tenting-angle (/ π 7))  
+(def tenting-angle (/ π 9))  
 ; options include :standard, :orthographic, and :fixed
 (def column-style :standard) 
 
@@ -72,6 +72,9 @@
 ; otherwise, you will get standard thumb cluster.
 (def minidox-style? true)
 
+; if this param set as true, you will have a hotswap holder.
+(def use-hotswap? true)
+
 ; when you set `rental-car?` as true, you will get a lined up
 ; or un-staggered columns in x and y axis.
 (defn column-offset [column]
@@ -92,7 +95,7 @@
 (def thumb-offsets [6 -3 7])
 
 ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
-(def keyboard-z-offset 9)
+(def keyboard-z-offset 12)
 
 ; extra space between the base of keys; original= 2
 (def extra-width 2.5)
@@ -130,15 +133,16 @@
 ;;;;;;;;;;;;;;;;;
 
 ; Was 14.1, then 14.25
-(def keyswitch-height 14.4)
-(def keyswitch-width 14.4)
+(def keyswitch-height 14.1)
+(def keyswitch-width 14.1)
 
 (def sa-profile-key-height 12.7)
 
-(def plate-thickness 4)
+(def plate-thickness 5)
 (def mount-width (+ keyswitch-width 3))
 (def mount-height (+ keyswitch-height 3))
 
+; each and every single switch hole is defined by this function.
 (def single-plate
   (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
                       (translate [0
@@ -155,15 +159,48 @@
                                  (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
                                              0
                                              (/ plate-thickness 2)]))))
+        ; the hole's wall.
         plate-half (union top-wall
                           left-wall
-                          (if create-side-nub?
-                            (with-fn 100 side-nub)
-                            ()))]
-    (union plate-half
-           (->> plate-half
-                (mirror [1 0 0])
-                (mirror [0 1 0])))))
+                          (if create-side-nub? (with-fn 100 side-nub) ()))
+        ; the bottom of the hole.
+        swap-holder (->> (cube (+ keyswitch-width 3) (/ (+ keyswitch-height 3) 2) 3)
+                         (translate [0 (/ (+ keyswitch-height 3) 4) -1.5]))
+        ; for the main axis
+        main-axis-hole (->> (cylinder (/ 4.0 2) 10)
+                            (with-fn 12))
+        plus-hole (->> (cylinder (/ 3.1 2) 10)
+                       (with-fn 8)
+                       (translate [-3.81 2.54 0]))
+        minus-hole (->> (cylinder (/ 3.1 2) 10)
+                        (with-fn 8)
+                        (translate [2.54 5.08 0]))
+        plus-hole-mirrored (->> (cylinder (/ 3.1 2) 10)
+                                (with-fn 8)
+                                (translate [3.81 2.54 0]))
+        minus-hole-mirrored (->> (cylinder (/ 3.1 2) 10)
+                                 (with-fn 8)
+                                 (translate [-2.54 5.08 0]))
+        friction-hole (->> (cylinder (/ 1.7 2) 10)
+                           (with-fn 8))
+        friction-hole-right (translate [5 0 0] friction-hole)
+        friction-hole-left (translate [-5 0 0] friction-hole)
+        hotswap-base-shape (->> (cube 19 6.2 3.5)
+                                (translate [0 4 -2.6]))
+        hotswap-holder (difference swap-holder
+                                   main-axis-hole
+                                   plus-hole
+                                   minus-hole
+                                   plus-hole-mirrored
+                                   minus-hole-mirrored
+                                   friction-hole-left
+                                   friction-hole-right
+                                   hotswap-base-shape)]
+    (difference (union plate-half
+                       (->> plate-half
+                            (mirror [1 0 0])
+                            (mirror [0 1 0]))
+                       (if use-hotswap? hotswap-holder ())))))
 
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
@@ -416,6 +453,10 @@
 ;; Thumbs ;;
 ;;;;;;;;;;;;
 
+; this is where the original position of the thumb switches defined.
+; each and every thumb keys is derived from this value.
+; the value itself is defined from the 'm' key's position in qwerty layout
+; and then added by some values, including thumb-offsets above.
 (def thumborigin
   (map + (key-position 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0])
        thumb-offsets))
@@ -423,7 +464,7 @@
 (defn thumb-tr-place [shape]
   (->> shape
        (rotate (deg2rad  10) [1 0 0])
-       (rotate (deg2rad -23) [0 1 0])
+       (rotate (deg2rad   0) [0 1 0])
        (rotate (deg2rad  10) [0 0 1])
        (translate thumborigin)
        (translate [-12 -16 3])))
@@ -517,7 +558,9 @@
       (thumb-tl-place thumb-post-tr)
       (thumb-tl-place thumb-post-br)
       (thumb-tr-place thumb-post-tl)
-      (thumb-tr-place thumb-post-bl))
+      (thumb-tr-place thumb-post-bl)
+      (thumb-tl-place thumb-post-br)
+      (thumb-tl-place thumb-post-bl))
      (triangle-hulls    ; top two to the middle two, starting on the left
       (thumb-tl-place thumb-post-tl)
       (thumb-ml-place thumb-post-tr)
@@ -760,8 +803,9 @@
      (union
       (wall-brace thumb-ml-place 0  1 thumb-post-tr thumb-ml-place  0  1 thumb-post-tl)
       (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place  0 -2 thumb-post-bl)
-      (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-br)
-      (wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place  0 -2 thumb-post-bl)
+      (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-bl)
+      #_(wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-br)
+      #_(wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place  0 -2 thumb-post-bl)
       (wall-brace thumb-tl-place 0 -2 thumb-post-bl thumb-ml-place -1 -1 thumb-post-bl))
      (union
       (wall-brace thumb-mr-place  0   -1 web-post-br   thumb-tr-place  0 -1 thumb-post-br)
@@ -1003,7 +1047,7 @@
            (screw-insert (if use-inner-column? -1 0)       (- lastrow 0.8) bottom-radius top-radius height)
            (screw-insert 2       (+ lastrow 0.2) bottom-radius top-radius height)
            (screw-insert 3       0               bottom-radius top-radius height)
-           (screw-insert lastloc 1               bottom-radius top-radius height))))
+           #_(screw-insert lastloc 1               bottom-radius top-radius height))))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
 (def screw-insert-top-radius (/ 5.1 2))
@@ -1054,7 +1098,7 @@
     thumb
     thumb-connectors
     (difference (union case-walls
-                       screw-insert-outers
+                       #_screw-insert-outers
                        (if use-promicro-usb-hole?
                          (union pro-micro-holder
                                 trrs-usb-holder-holder)
@@ -1065,7 +1109,7 @@
                          trrs-usb-jack)
                   usb-holder-hole)
                 (if use-trrs? trrs-holder-hole rj9-space)
-                screw-insert-holes)
+                #_screw-insert-holes)
     (if-not use-trrs? rj9-holder ())
     (if use-wire-post? wire-posts ()))
    (translate [0 0 -20] (cube 350 350 40))))
