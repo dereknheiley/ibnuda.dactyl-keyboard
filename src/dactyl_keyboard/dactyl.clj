@@ -14,7 +14,7 @@
 
 ; number of rows.
 ; 4 means your pinky and index fingers will get three rows.
-(def nrows 4)
+(def nrows 5)
 
 ; number of columns.
 ; 5 means your left hand will get a through g.
@@ -54,14 +54,14 @@
 (def use-promicro-usb-hole? false)
 
 ; wide pinky, 1.5u.
-(def use-wide-pinky? false)
+(def use-wide-pinky? true)
 
 ; inner column like a weird dude.
-(def use-inner-column? false)
+(def use-inner-column? true)
 
 ; should be used with `use-wide-pinky` and
 ; `use-inner-column` for ergodox like thingy.
-(def use-last-rows? false)
+(def use-last-rows? true)
 
 ; show caps on the right.scad file.
 ; set it true if you want to see the result.
@@ -169,16 +169,16 @@
         ; for the main axis
         main-axis-hole (->> (cylinder (/ 4.0 2) 10)
                             (with-fn 12))
-        plus-hole (->> (cylinder (/ 3.1 2) 10)
+        plus-hole (->> (cylinder (/ 3.3 2) 10)
                        (with-fn 8)
                        (translate [-3.81 2.54 0]))
-        minus-hole (->> (cylinder (/ 3.1 2) 10)
+        minus-hole (->> (cylinder (/ 3.3 2) 10)
                         (with-fn 8)
                         (translate [2.54 5.08 0]))
-        plus-hole-mirrored (->> (cylinder (/ 3.1 2) 10)
+        plus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
                                 (with-fn 8)
                                 (translate [3.81 2.54 0]))
-        minus-hole-mirrored (->> (cylinder (/ 3.1 2) 10)
+        minus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
                                  (with-fn 8)
                                  (translate [-2.54 5.08 0]))
         friction-hole (->> (cylinder (/ 1.7 2) 10)
@@ -254,7 +254,7 @@
 (def columns (range 0 ncols))
 (def inner-columns (range -1 ncols))
 (def rows (range 0 nrows))
-(def inner-rows (range 0 (dec cornerrow)))
+(def inner-rows (range 0 cornerrow))
 
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
 (def row-radius (+ (/ (/ (+ mount-height extra-height) 2)
