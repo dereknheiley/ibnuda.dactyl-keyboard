@@ -14,11 +14,11 @@
 
 ; number of rows.
 ; 4 means your pinky and index fingers will get three rows.
-(def nrows 5)
+(def nrows 4)
 
 ; number of columns.
 ; 5 means your left hand will get a through g.
-(def ncols 6)
+(def ncols 5)
 
 ; curvature of the columns
 (def α (/ π 12))
@@ -54,14 +54,14 @@
 (def use-promicro-usb-hole? false)
 
 ; wide pinky, 1.5u.
-(def use-wide-pinky? true)
+(def use-wide-pinky? false)
 
 ; inner column like a weird dude.
-(def use-inner-column? true)
+(def use-inner-column? false)
 
 ; should be used with `use-wide-pinky` and
 ; `use-inner-column` for ergodox like thingy.
-(def use-last-rows? true)
+(def use-last-rows? false)
 
 ; show caps on the right.scad file.
 ; set it true if you want to see the result.
@@ -73,7 +73,7 @@
 (def minidox-style? true)
 
 ; if this param set as true, you will have a hotswap holder.
-(def use-hotswap? true)
+(def use-hotswap? false)
 
 ; when you set `rental-car?` as true, you will get a lined up
 ; or un-staggered columns in x and y axis.
@@ -95,7 +95,7 @@
 (def thumb-offsets [6 -3 7])
 
 ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
-(def keyboard-z-offset 12)
+(def keyboard-z-offset 4)
 
 ; extra space between the base of keys; original= 2
 (def extra-width 2.5)
@@ -133,8 +133,8 @@
 ;;;;;;;;;;;;;;;;;
 
 ; Was 14.1, then 14.25
-(def keyswitch-height 14.1)
-(def keyswitch-width 14.1)
+(def keyswitch-height 14.0)
+(def keyswitch-width 14.0)
 
 (def sa-profile-key-height 12.7)
 
@@ -464,7 +464,7 @@
 (defn thumb-tr-place [shape]
   (->> shape
        (rotate (deg2rad  10) [1 0 0])
-       (rotate (deg2rad   0) [0 1 0])
+       (rotate (deg2rad -23) [0 1 0])
        (rotate (deg2rad  10) [0 0 1])
        (translate thumborigin)
        (translate [-12 -16 3])))
@@ -485,7 +485,7 @@
        (translate thumborigin)
        (translate [-29 -40 -13])))
 (defn thumb-ml-place [shape]
-  (let [movement (if minidox-style? [-53 -23 -12] [-51 -25 -12])]
+  (let [movement (if minidox-style? [-53 -26 -12] [-51 -25 -12])]
     (->> shape
          (rotate (deg2rad   6) [1 0 0])
          (rotate (deg2rad -34) [0 1 0])
@@ -698,6 +698,23 @@
    (* dy (+ wall-xy-offset wall-thickness))
    wall-z-offset])
 
+; if you want to change the wall, use this.
+; place1 means the location at the keyboard, marked by key-place or thumb-xx-place
+; dx1 means the movement from place1 in x coordinate, multiplied by wall-xy-locate.
+; dy1 means the movement from place1 in y coordinate, multiplied by wall-xy-locate.
+; post1 means the position this wall attached to place1.
+;       xxxxx-br means bottom right of the place1.
+;       xxxxx-bl means bottom left of the place1.
+;       xxxxx-tr means top right of the place1.
+;       xxxxx-tl means top left of the place1.
+; place2 means the location at the keyboard, marked by key-place or thumb-xx-place
+; dx2 means the movement from place2 in x coordinate, multiplied by wall-xy-locate.
+; dy2 means the movement from place2 in y coordinate, multiplied by wall-xy-locate.
+; post2 means the position this wall attached to place2.
+;       xxxxx-br means bottom right of the place2.
+;       xxxxx-bl means bottom left of the place2.
+;       xxxxx-tr means top right of the place2.
+;       xxxxx-tl means top left of the place2.
 (defn wall-brace [place1 dx1 dy1 post1 place2 dx2 dy2 post2]
   (union
    (hull
@@ -804,8 +821,6 @@
       (wall-brace thumb-ml-place 0  1 thumb-post-tr thumb-ml-place  0  1 thumb-post-tl)
       (wall-brace thumb-tr-place 0 -1 thumb-post-br thumb-tr-place  0 -2 thumb-post-bl)
       (wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-bl)
-      #_(wall-brace thumb-tr-place 0 -2 thumb-post-bl thumb-tl-place  0 -2 thumb-post-br)
-      #_(wall-brace thumb-tl-place 0 -2 thumb-post-br thumb-tl-place  0 -2 thumb-post-bl)
       (wall-brace thumb-tl-place 0 -2 thumb-post-bl thumb-ml-place -1 -1 thumb-post-bl))
      (union
       (wall-brace thumb-mr-place  0   -1 web-post-br   thumb-tr-place  0 -1 thumb-post-br)
@@ -964,7 +979,7 @@
                     (+ (/ trrs-holder-thickness -2) (second trrs-holder-position))
                     (+ (/ (last trrs-holder-hole-size) 2) trrs-holder-thickness)]))))
 
-(def pro-micro-position (map + (key-position 0 1 (wall-locate3 -1 0)) [-6 2 -15]))
+(def pro-micro-position (map + (key-position 0 0.15 (wall-locate3 -1 0)) [-2 2 -30]))
 (def pro-micro-space-size [4 10 12]) ; z has no wall;
 (def pro-micro-wall-thickness 2)
 (def pro-micro-holder-size
@@ -1102,7 +1117,8 @@
                        (if use-promicro-usb-hole?
                          (union pro-micro-holder
                                 trrs-usb-holder-holder)
-                         usb-holder)
+                         (union usb-holder
+                                pro-micro-holder))
                        (if use-trrs? trrs-holder ()))
                 (if use-promicro-usb-hole?
                   (union trrs-usb-holder-space
