@@ -123,6 +123,8 @@
 ;; General variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn fcenterrow [nrows] (- nrows 3))
+
 (defn flastrow [nrows] (- nrows 1))
 (defn fcornerrow [nrows] (- nrows 2))
 (defn fmiddlerow [nrows] (- nrows 3))
@@ -274,8 +276,9 @@
 
 ; when set `use-wide-pinky?`,
 ; you will get 1.5u keys for the outermost pinky keys.
-(defn offset-for-column [configurations col row use-wide-pinky?]
-  (let [nrows (get configurations :configuration-nrows)
+(defn offset-for-column [configurations col row]
+  (let [use-wide-pinky? (get configurations :configuration-use-wide-pinky?)
+        nrows (get configurations :configuration-nrows)
         ncols (get configurations :configuration-ncols)
         lastrow (flastrow nrows)
         lastcol (flastcol ncols)]
@@ -291,13 +294,13 @@
   (let [alpha (get configurations :configuration-alpha)
         beta (get configurations :configuration-beta)
         centercol (get configurations :configuration-centercol)
-        centerrow (get configurations :configuration-centerrow)
+        centerrow (fcenterrow (get configurations :configuration-nrows))
         rental-car? (get configurations :configuration-rental-car?)
         use-wide-pinky? (get configurations :configuration-use-wide-pinky?)
         tenting-angle (get configurations :configuration-tenting-angle)
         column-angle (* beta (- centercol column))
         placed-shape (->> shape
-                          (translate-fn [(offset-for-column configurations use-wide-pinky? column row) 0 (- (row-radius alpha))])
+                          (translate-fn [(offset-for-column configurations column row) 0 (- (row-radius alpha))])
                           (rotate-x-fn  (* alpha (- centerrow row)))
                           (translate-fn [0 0 (row-radius alpha)])
                           (translate-fn [0 0 (- (column-radius beta))])
@@ -358,7 +361,7 @@
 (defn inner-key-holes [configurations]
   (let [nrows (get configurations :configuration-nrows)]
     (apply union (for [row (inner-rows nrows)]
-                   (->> single-plate
+                   (->> (single-plate configurations)
                         (key-inner-place configurations -1 row))))))
 
 (defn caps [configurations]
@@ -372,8 +375,8 @@
         lastcol (flastcol ncols)]
     (apply
      union
-     (for [column (if use-inner-column? (range -1 ncols) columns)
-           row rows
+     (for [column (if use-inner-column? (range -1 ncols) (columns ncols))
+           row (rows nrows)
            :when (if use-last-rows?
                    (or (not (.contains [-1 0 1] column)) (not= row lastrow))
                    (not= row lastrow))
@@ -443,7 +446,7 @@
     (apply
      union
      (concat
-          ;; Row connections
+      ;; Row connections
       (for [column (range (if use-inner-column? -1 0) (dec ncols))
             row (range 0 (if use-last-rows? (inc lastrow) lastrow))
             :when (if use-last-rows?
@@ -459,7 +462,7 @@
            (key-place configurations column row web-post-br)
            ())))
 
-          ;; Column connections
+      ;; Column connections
       (for [column (if use-inner-column? (inner-columns ncols) (columns ncols))
             row (range 0 (if use-last-rows? lastrow cornerrow))
             :when (if use-last-rows?
@@ -475,13 +478,13 @@
            (key-place configurations column (inc row) web-post-tl)
            ())))
 
-          ;; Diagonal connections
+      ;; Diagonal connections
       (for [column (range (if use-inner-column? -1 0) (dec ncols))
             row (range 0 (if use-last-rows? lastrow cornerrow))
             :when (if use-last-rows?
-                    (not (and (= row (lastrow nrows))
-                              (.contains [-1 0 1] column)))
-                    true)]
+                (not (and (= row lastrow)
+                          (.contains [-1 0 1] column)))
+                true)]
         (triangle-hulls
          (key-place configurations column row web-post-br)
          (key-place configurations column (inc row) web-post-tr)
@@ -831,8 +834,8 @@
              (key-place confs lastcol row (wide-post-br use-wide-pinky?))))
           (for [row (range 0 (if use-last-rows? lastrow cornerrow))]
             (triangle-hulls
-             (key-place confs lastcol row web-post-br)
-             (key-place confs lastcol row (wide-post-br use-wide-pinky?))
+             (key-place confs lastcol row       web-post-br)
+             (key-place confs lastcol row       (wide-post-br use-wide-pinky?))
              (key-place confs lastcol (inc row) web-post-tr)
              (key-place confs lastcol (inc row) (wide-post-tr use-wide-pinky?))))))))
 
@@ -848,7 +851,7 @@
                      lastcol (if use-last-rows? lastrow cornerrow) 0 -1 (wide-post-br use-wide-pinky?))
      (key-wall-brace confs
                      lastcol 0 0 1 web-post-tr
-                     lastcol 0 0 1 (wide-post-br use-wide-pinky?)))))
+                     lastcol 0 0 1 (wide-post-tr use-wide-pinky?)))))
 
 (defn case-walls [confs]
   (let [ncols (get confs :configuration-ncols)
@@ -870,7 +873,7 @@
    ; right wall
      (right-wall confs)
    ; left wall
-     #_(for [y (range 0 (if use-inner-column? cornerrow lastrow))]
+     (for [y (range 0 (if use-inner-column? cornerrow lastrow))]
        (union
         (wall-brace (partial (if use-inner-column?
                                (partial inner-key-place confs)
@@ -881,15 +884,15 @@
                                (partial left-key-place confs))
                              y -1) -1 0 web-post)
         (hull (key-place confs (if use-inner-column? -1 0) y web-post-tl)
-              (key-place confs (if use-inner-column? -1 0) y web-post-bl)
-              ((if use-inner-column?
-                 (partial inner-key-place confs)
-                 (partial left-key-place confs))
-               y  1 web-post)
-              ((if use-inner-column?
-                 (partial inner-key-place confs)
-                 (partial left-key-place))
-               y -1 web-post))))
+                (key-place confs (if use-inner-column? -1 0) y web-post-bl)
+                ((if use-inner-column?
+                   (partial inner-key-place confs)
+                   (partial left-key-place confs))
+                 y  1 web-post)
+                ((if use-inner-column?
+                   (partial inner-key-place confs)
+                   (partial left-key-place confs))
+                 y -1 web-post))))
      (for [y (range 1 (if use-inner-column? cornerrow lastrow))]
        (union
         (wall-brace (partial (if use-inner-column?
@@ -1042,7 +1045,7 @@
 (def rj9-cube
   (cube 14.78 13 22.38))
 (defn rj9-space [c]
-  (translate (rj9-position c) (rj9-cube c)))
+  (translate (rj9-position c) rj9-cube))
 (defn rj9-holder [c]
   (translate
    (rj9-position c)
@@ -1135,7 +1138,7 @@
         (translate [(first (pro-micro-position c))
                     (second (pro-micro-position c))
                     (last (pro-micro-position c))]))
-   pro-micro-space))
+   (pro-micro-space c)))
 
 (def teensy-width 20)
 (def teensy-height 12)
@@ -1147,9 +1150,9 @@
 (def teensy-offset-height 5)
 (def teensy-holder-top-length 18)
 (defn teensy-top-xy [c]
-  (key-position c 0 (- (get c :configuration-centerrow) 1) (wall-locate3 -1 0)))
+  (key-position c 0 (- (fcenterrow (get c :configuration-nrows)) 1) (wall-locate3 -1 0)))
 (defn teensy-bot-xy [c]
-  (key-position c 0 (+ (get c :configuration-centerrow) 1) (wall-locate3 -1 0)))
+  (key-position c 0 (+ (fcenterrow (get c :configuration-nrows)) 1) (wall-locate3 -1 0)))
 (defn teensy-holder-length [c]
   (- (second (teensy-top-xy c)) (second (teensy-bot-xy c))))
 (defn teensy-holder-offset [c]
@@ -1254,52 +1257,55 @@
         use-promicro-usb-hole? (get c :configuration-use-promicro-usb-hole?)
         use-trrs? (get c :configuration-use-trrs?)
         use-wire-post? (get c :configuration-use-wire-post?)]
-  (difference
-   (union
-    (key-holes c)
-    (if use-inner-column? inner-key-holes ())
-    (if show-caps? caps ())
-    (if show-caps? thumbcaps ())
-    (pinky-connectors c)
-    (pinky-walls c)
-    (connectors c)
-    (thumb c)
-    (thumb-connectors c)
-    (difference (union (case-walls c)
-                       #_screw-insert-outers
-                       #_(if use-promicro-usb-hole?
-                         (union (pro-micro-holder c)
-                                (trrs-usb-holder-holder c)
-                         (union (usb-holder c)
-                                (pro-micro-holder c)))
-                       (if use-trrs? (trrs-holder c) ()))
-                #_(if use-promicro-usb-hole?
-                  (union (trrs-usb-holder-space c )
-                         (trrs-usb-jack c))
-                  (usb-holder-hole c))
-                #_((if use-trrs? trrs-holder-hole rj9-space) c)
-                #_screw-insert-holes)
-    #_(if-not use-trrs? (rj9-holder c) ())
-    #_(if use-wire-post? (wire-posts c) ()))
-   (translate [0 0 -20] (cube 350 350 40))))))
+    (difference
+     (union
+      (if show-caps? (caps c) ())
+      (if show-caps? (thumbcaps c) ())
+      (if use-wire-post? (wire-posts c) ())
+      (if-not use-trrs? (rj9-holder c) ())
+      (if use-inner-column? (inner-key-holes c) ())
+      (key-holes c)
+      (thumb c)
+      (connectors c)
+      (thumb-connectors c)
+      (pinky-walls c)
+      (pinky-connectors c)
+      (difference
+       (union (case-walls c)
+              (if use-promicro-usb-hole?
+                (union (pro-micro-holder c)
+                       (trrs-usb-holder-holder c))
+                (union (usb-holder c)
+                       (pro-micro-holder c)))
+              (if use-trrs?
+                (trrs-holder c)
+                ()))
+       (if use-trrs?
+         (trrs-holder-hole c)
+         (rj9-space c))
+       (if use-promicro-usb-hole?
+         (union (trrs-usb-holder-space c)
+                (trrs-usb-jack c))
+         (usb-holder-hole c))))
+     (translate [0 0 -20] (cube 350 350 40)))))
 
 (def c (hash-map :configuration-nrows 4
                  :configuration-ncols 5
                  :configuration-alpha (/ π 12)
                  :configuration-beta (/ π 36)
-                 :configuration-centerrow 1
                  :configuration-centercol 4
-                 :configuration-tenting-angle (/ π 9)
+                 :configuration-tenting-angle (/ π 12)
                  :configuration-create-side-nub? false
-                 :configuration-use-wire-post? false
+                 :configuration-minidox-style? true
                  :configuration-rental-car? false
-                 :configuration-use-promicro-usb-hole? false
-                 :configuration-use-wide-pinky? false
+                 :configuration-show-caps? false
+                 :configuration-use-hotswap? false
                  :configuration-use-inner-column? false
                  :configuration-use-last-row? false
-                 :configuration-show-caps? false
-                 :configuration-minidox-style? true
-                 :configuration-use-hotswap? false))
+                 :configuration-use-promicro-usb-hole? true
+                 :configuration-use-trrs? true
+                 :configuration-use-wide-pinky? false
+                 :configuration-use-wire-post? false))
 
 (spit "things/right.scad"
       (write-scad (model-right c)))
