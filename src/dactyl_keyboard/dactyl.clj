@@ -3,7 +3,7 @@
   (:require [clojure.core.matrix :refer [array matrix mmul]]
             [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
-            [unicode-math.core :refer :all]))
+            #_[unicode-math.core :refer :all]))
 
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
@@ -157,7 +157,7 @@
                                    0
                                    (/ plate-thickness 2)]))
         side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
-                      (rotate (/ π 2) [1 0 0])
+                      (rotate (/ pi 2) [1 0 0])
                       (translate [(+ (/ keyswitch-width 2)) 0 1])
                       (hull (->> (cube 1.5 2.75 plate-thickness)
                                  (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
@@ -579,7 +579,7 @@
 (defn thumbcaps [configurations]
   (union
    (thumb-1x-layout configurations (sa-cap 1))
-   (thumb-15x-layout configurations (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
+   (thumb-15x-layout configurations (rotate (/ pi 2) [0 0 1] (sa-cap 1.5)))))
 
 (defn thumb [configurations]
   (union
@@ -1291,10 +1291,10 @@
 
 (def c (hash-map :configuration-nrows 4
                  :configuration-ncols 5
-                 :configuration-alpha (/ π 12)
-                 :configuration-beta (/ π 36)
+                 :configuration-alpha (/ pi 12)
+                 :configuration-beta (/ pi 36)
                  :configuration-centercol 4
-                 :configuration-tenting-angle (/ π 12)
+                 :configuration-tenting-angle (/ pi 12)
                  :configuration-create-side-nub? false
                  :configuration-minidox-style? true
                  :configuration-rental-car? false
@@ -1341,4 +1341,4 @@
       (write-scad
        (difference usb-holder usb-holder-hole)))
 
-(defn -main [dum] 1)  ; dummy to make it easier to batc
+#_(defn -main [dum] 1)  ; dummy to make it easier to batc
