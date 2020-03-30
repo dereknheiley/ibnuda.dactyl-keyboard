@@ -3,22 +3,11 @@
   (:require [clojure.core.matrix :refer [array matrix mmul]]
             [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
+            [compojure.core :refer :all]
             #_[unicode-math.core :refer :all]))
 
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
-
-;;;;;;;;;;;;;;;;;;;;;;
-;; Shape parameters ;;
-;;;;;;;;;;;;;;;;;;;;;;
-
-; number of rows.
-; 4 means your pinky and index fingers will get three rows.
-; (def nrows 4)
-
-; number of columns.
-; 5 means your left hand will get a through g.
-; (def ncols 5)
 
 ; curvature of the columns
 ; (def α (/ π 12))
@@ -95,7 +84,7 @@
 (def thumb-offsets [6 -3 7])
 
 ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
-(def keyboard-z-offset 4)
+;(def keyboard-z-offset 4)
 
 ; extra space between the base of keys; original= 2
 (def extra-width 2.5)
@@ -271,8 +260,8 @@
      cap-top-height))
 (defn column-x-delta [beta]
   (+ -1 (- (* column-radius (Math/sin beta)))))
-(defn column-base-angle
-  [beta centercol] (* beta (- centercol 2)))
+(defn column-base-angle [beta centercol]
+  (* beta (- centercol 2)))
 
 ; when set `use-wide-pinky?`,
 ; you will get 1.5u keys for the outermost pinky keys.
@@ -296,8 +285,8 @@
         centercol (get configurations :configuration-centercol)
         centerrow (fcenterrow (get configurations :configuration-nrows))
         rental-car? (get configurations :configuration-rental-car?)
-        use-wide-pinky? (get configurations :configuration-use-wide-pinky?)
         tenting-angle (get configurations :configuration-tenting-angle)
+        keyboard-z-offset (get configurations :configuration-keyboard-z-offset)
         column-angle (* beta (- centercol column))
         placed-shape (->> shape
                           (translate-fn [(offset-for-column configurations column row) 0 (- (row-radius alpha))])
@@ -1307,7 +1296,7 @@
                  :configuration-use-wide-pinky? false
                  :configuration-use-wire-post? false))
 
-(spit "things/right.scad"
+#_(spit "things/right.scad"
       (write-scad (model-right c)))
 
 #_(spit "things/left.scad"

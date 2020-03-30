@@ -1,11 +1,13 @@
 (ns dactyl-keyboard.handler
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
+            [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [scad-clj.model :refer [pi]]
             [scad-clj.scad :refer [write-scad]]
             [selmer.parser :refer [render-file]]
-            [dactyl-keyboard.dactyl :as dm]))
+            [dactyl-keyboard.dactyl :as dm])
+  (:gen-class))
 
 (defn parse-int [s]
   (Integer. (re-find  #"\d+" s)))
@@ -21,34 +23,48 @@
 
 (defn generate [req]
   (let [params (:form-params req)
-        param-ncols (get params "ncols")
-        param-nrows (get params "nrows")
-        param-trrs-connector (get params "trrs-connector")
-        param-use-promicro-usb-hole (get params "usb-hole")
-        param-side-nub (get params "side-nub")
-        param-minidox (get params "minidox")
-        param-rentalcar (get params "rentalcar")
-        param-inner-column (get params "inner-column")
-        param-last-row (get params "last-row")
-        param-wide-pinky (get params "wide-pinky")
-        param-wire-post (get params "wire-post")
-        c (hash-map :configuration-nrows (parse-int param-nrows)
-                    :configuration-ncols (parse-int param-ncols)
-                    :configuration-alpha (/ pi 12)
-                    :configuration-beta (/ pi 36)
-                    :configuration-centercol 4
-                    :configuration-tenting-angle (/ pi 12)
-                    :configuration-create-side-nub? (parse-bool param-side-nub)
-                    :configuration-minidox-style? (parse-bool param-minidox)
-                    :configuration-rental-car? (parse-bool param-rentalcar)
-                    :configuration-show-caps? false
-                    :configuration-use-hotswap? false
-                    :configuration-use-inner-column? (parse-bool param-inner-column)
-                    :configuration-use-last-row? (parse-bool param-last-row)
-                    :configuration-use-promicro-usb-hole? (parse-bool param-use-promicro-usb-hole)
-                    :configuration-use-trrs? (parse-bool param-trrs-connector)
-                    :configuration-use-wide-pinky? (parse-bool param-wide-pinky)
-                    :configuration-use-wire-post? (parse-bool param-wire-post))
+        param-ncols (parse-int (get params "ncols"))
+        param-nrows (parse-int (get params "nrows"))
+        param-side-nub (parse-bool (get params "side-nub"))
+        param-minidox (parse-bool (get params "minidox"))
+
+        param-alpha (parse-int (get params "alpha"))
+        param-beta (parse-int (get params "beta"))
+        param-centercol (parse-int (get params "centercol"))
+        param-tenting-angle (parse-int (get params "tenting-angle"))
+
+        param-trrs-connector (parse-bool (get params "trrs-connector"))
+        param-use-promicro-usb-hole (parse-bool (get params "usb-hole"))
+
+        param-hotswap (parse-bool (get params "hotswap"))
+        param-rentalcar (parse-bool (get params "rentalcar"))
+        param-inner-column (parse-bool (get params "inner-column"))
+        param-last-row (parse-bool (get params "last-row"))
+        param-keyboard-z-offset (parse-int (get params "keyboard-z-offset"))
+        param-wide-pinky (parse-bool (get params "wide-pinky"))
+        param-wire-post (parse-bool (get params "wire-post"))
+        param-show-keycaps (parse-bool (get params "show-keycaps"))
+        c (hash-map :configuration-nrows param-nrows
+                    :configuration-ncols param-ncols
+                    :configuration-create-side-nub? param-side-nub
+                    :configuration-minidox-style? param-minidox
+
+                    :configuration-alpha (/ pi param-alpha)
+                    :configuration-beta (/ pi param-beta)
+                    :configuration-centercol param-centercol
+                    :configuration-tenting-angle (/ pi param-tenting-angle)
+
+                    :configuration-use-promicro-usb-hole?  param-use-promicro-usb-hole
+                    :configuration-use-trrs? param-trrs-connector
+
+                    :configuration-use-hotswap? param-hotswap
+                    :configuration-rental-car? param-rentalcar
+                    :configuration-use-inner-column? param-inner-column
+                    :configuration-keyboard-z-offset param-keyboard-z-offset
+                    :configuration-show-caps? param-show-keycaps
+                    :configuration-use-last-row? param-last-row
+                    :configuration-use-wide-pinky? param-wide-pinky
+                    :configuration-use-wire-post? param-wire-post)
         generated-scad (generate-scad c)]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
