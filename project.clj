@@ -13,6 +13,7 @@
   :plugins [[lein-exec "0.3.7"]
             [lein-auto "0.1.3"]
             [lein-ring "0.12.5"]]
-  :ring {:handler dactyl-keyboard.handler/app}
+  :ring {:handler dactyl-keyboard.handler/app
+         :port 3030}
   :profiles {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
                                   [ring/ring-mock "0.3.2"]]}})
