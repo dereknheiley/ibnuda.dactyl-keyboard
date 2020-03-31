@@ -9,63 +9,8 @@
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
 
-; curvature of the columns
-; (def α (/ π 12))
-; curvature of the rows
-; (def β (/ π 36))
-; controls front-back tilt
-; (def centerrow (- nrows 3))
-; controls left-right tilt / tenting (higher number is more tenting)
-; (def centercol 4)
-; or, change this for more precise tenting control
-; (def tenting-angle (/ π 9))  
-; options include :standard, :orthographic, and :fixed
-(def column-style :standard) 
+(def column-style :standard)
 
-; if you don't want the side nubs, set this
-; parameter as false.
-; otherwise, set it as true.
-; (def create-side-nub? false)
-
-; if you want to have wire posts, set this
-; parameter as true.
-; (def use-wire-post? false)
-
-; if you want to use trrs instead of rj9, set
-; this parameter as true
-; (def use-trrs? false)
-
-; if you want to create a "rental car", set this parameter as true
-; (def rental-car? false)
-
-; if you want to use small usb hole, set
-; this parameter as true
-; (def use-promicro-usb-hole? false)
-
-; wide pinky, 1.5u.
-; (def use-wide-pinky? false)
-
-; inner column like a weird dude.
-; (def use-inner-column? false)
-
-; should be used with `use-wide-pinky` and
-; `use-inner-column` for ergodox like thingy.
-; (def use-last-rows? false)
-
-; show caps on the right.scad file.
-; set it true if you want to see the result.
-; set it false when you want to actually print it.
-; (def show-caps? false)
-
-; if this param set as true, you will only get 3 thumb keys. 3 1.5us.
-; otherwise, you will get standard thumb cluster.
-; (def minidox-style? true)
-
-; if this param set as true, you will have a hotswap holder.
-; (def use-hotswap? false)
-
-; when you set `rental-car?` as true, you will get a lined up
-; or un-staggered columns in x and y axis.
 (defn column-offset [rental-car? column]
   (if rental-car?
     (cond (= column 2)  [0   0    -6.5]
@@ -112,12 +57,32 @@
 ;; General variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn fcenterrow [nrows] (- nrows 3))
+(defn fcenterrow
+  "Determines where should the center (bottom-most point in the row's curve)
+   of the row located at. And most people would want to have the center
+   at the homerow. Why does it subtract the value by 3? Because this codebase
+   starts the row from the higher row (F row -> num row -> top row)
+   and the homerow is number 3 from the last after thumb and bottom row."
+  [nrows]
+  (- nrows 3))
 
-(defn flastrow [nrows] (- nrows 1))
-(defn fcornerrow [nrows] (- nrows 2))
-(defn fmiddlerow [nrows] (- nrows 3))
-(defn flastcol [ncols] (- ncols 1))
+(defn flastrow
+  "Determines where the last row should be located at."
+  [nrows]
+  (- nrows 1))
+(defn fcornerrow
+  "Determines where the penultimate row should be located at."
+  [nrows]
+  (- nrows 2))
+(defn fmiddlerow
+  "Should be replaced with `fcenterrow`."
+  [nrows]
+  (- nrows 3))
+(defn flastcol
+  "Determines where the last column should be located at. With 0 being inner index
+   finger, 1 being index finger, and so on."
+  [ncols]
+  (- ncols 1))
 
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
@@ -134,7 +99,11 @@
 (def mount-height (+ keyswitch-height 3))
 
 ; each and every single switch hole is defined by this function.
-(defn single-plate [configurations]
+(defn single-plate
+  "Defines the form of switch hole. It determines the whether it uses
+   box or mx style based on the `configuration-create-side-nub?`. It also
+   asks whether it creates hotswap housing or not based on `configuration-use-hotswap?`"
+  [configurations]
   (let [create-side-nub? (get configurations :configuration-create-side-nub?)
         use-hotswap? (get configurations :configuration-use-hotswap?)
         top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
@@ -244,28 +213,56 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; an array of columns from 0 to number of columns.
-(defn columns [ncols] (range 0 ncols))
-(defn inner-columns [ncols] (range -1 ncols))
-(defn rows [nrows] (range 0 nrows))
-(defn inner-rows [nrows] (range 0 (fcornerrow nrows)))
+(defn columns
+  "It creates an array for column placement. Where 0 being inner index
+   finger's column, 1 being index finger's column, 2 middle finger's, and so on."
+  [ncols]
+  (range 0 ncols))
+(defn inner-columns
+  "It creates an array for column placement. Where -1 being inner-inner index
+   finger's column, 1 being index finger's column, 2 middle finger's, and so on."
+  [ncols]
+  (range -1 ncols))
+(defn rows
+  "It creates an array for row placement. Where 0 being top-most row, 1 second
+   top-most row, and so on."
+  [nrows]
+  (range 0 nrows))
+(defn inner-rows
+  "It creates an array for row placement for the inner-most column. Where 0 being
+   top-most row, 1 second top-most row, and so on."
+  [nrows]
+  (range 0 (fcornerrow nrows)))
 
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
-(defn row-radius [alpha]
+
+(defn row-radius
+  "It computes the radius of the row's curve. It takes the value of `pi` divided
+   by `alpha` to compute the said radius."
+  [alpha]
   (+ (/ (/ (+ mount-height extra-height) 2)
         (Math/sin (/ alpha 2)))
      cap-top-height))
-(defn column-radius [beta]
+(defn column-radius
+  "It computes the radius of the column's curve. It takes the value of `pi` divided
+   by `beta` to compute the said radius."
+  [beta]
   (+ (/ (/ (+ mount-width extra-width) 2)
         (Math/sin (/ beta 2)))
      cap-top-height))
-(defn column-x-delta [beta]
+(defn column-x-delta
+  [beta]
   (+ -1 (- (* column-radius (Math/sin beta)))))
-(defn column-base-angle [beta centercol]
+(defn column-base-angle
+  [beta centercol]
   (* beta (- centercol 2)))
 
 ; when set `use-wide-pinky?`,
 ; you will get 1.5u keys for the outermost pinky keys.
-(defn offset-for-column [configurations col row]
+(defn offset-for-column
+  "This function is used to give additional spacing for the column.
+   Main use case is to make the outer pinky keys use 1.5u."
+  [configurations col row]
   (let [use-wide-pinky? (get configurations :configuration-use-wide-pinky?)
         nrows (get configurations :configuration-nrows)
         ncols (get configurations :configuration-ncols)
@@ -279,7 +276,11 @@
 
 ; this is the helper function to 'place' the keys on the defined curve
 ; of the board.
-(defn apply-key-geometry [configurations translate-fn rotate-x-fn rotate-y-fn column row shape]
+(defn apply-key-geometry
+  "Helps to place the keys in the determined where a key should be placed
+   and rotated in xyz coordinate based on its position (row and column).
+   It is the implementation detail of `key-place`."
+  [configurations translate-fn rotate-x-fn rotate-y-fn column row shape]
   (let [alpha (get configurations :configuration-alpha)
         beta (get configurations :configuration-beta)
         centercol (get configurations :configuration-centercol)
@@ -289,7 +290,11 @@
         keyboard-z-offset (get configurations :configuration-keyboard-z-offset)
         column-angle (* beta (- centercol column))
         placed-shape (->> shape
-                          (translate-fn [(offset-for-column configurations column row) 0 (- (row-radius alpha))])
+                          (translate-fn [(offset-for-column configurations
+                                                            column
+                                                            row)
+                                         0
+                                         (- (row-radius alpha))])
                           (rotate-x-fn  (* alpha (- centerrow row)))
                           (translate-fn [0 0 (row-radius alpha)])
                           (translate-fn [0 0 (- (column-radius beta))])
@@ -302,7 +307,9 @@
 
 ; this is the function that puts the key switch holes
 ; based on the row and the column.
-(defn key-place [configurations column row shape]
+(defn key-place
+  "Puts the keys' shape to its place based on it's column and row."
+  [configurations column row shape]
   (apply-key-geometry configurations
                       translate
                       (fn [angle obj] (rotate angle [1 0 0] obj))
@@ -326,7 +333,9 @@
 (defn key-position [configurations column row position]
   (apply-key-geometry configurations (partial map +) rotate-around-x rotate-around-y column row position))
 
-(defn key-holes [configurations]
+(defn key-holes
+  "Determines which keys should be generated based on the configuration."
+  [configurations]
   (let [use-last-rows? (get configurations :configuration-use-last-row?)
         ncols (get configurations :configuration-ncols)
         nrows (get configurations :configuration-nrows)
@@ -340,7 +349,10 @@
              (->> (single-plate configurations)
                   (key-place configurations column row))))))
 
-(defn key-inner-place [configurations column row shape]
+(defn key-inner-place
+  "It generates the placement of the inner column.
+   TODO: genericisise it."
+  [configurations column row shape]
   (apply-key-geometry configurations
                       translate
                       (fn [angle obj] (rotate angle [1 0 0] obj))
@@ -419,12 +431,17 @@
 ;; partitions them into triad,
 ;; and apply hull on each triad,
 ;; then finally apply union for the result.
-(defn triangle-hulls [& shapes]
+(defn triangle-hulls
+  "It creates a wall that borders with the 'location's in the list."
+  [& shapes]
   (apply union
          (map (partial apply hull)
               (partition 3 1 shapes))))
 
-(defn connectors [configurations]
+(defn connectors
+  "It creates the wall which connects to each keys in the main body based
+   on the configuration provided."
+  [configurations]
   (let [use-inner-column? (get configurations :configuration-use-inner-column?)
         use-last-rows? (get configurations :configuration-use-last-row?)
         ncols (get configurations :configuration-ncols)
@@ -471,9 +488,9 @@
       (for [column (range (if use-inner-column? -1 0) (dec ncols))
             row (range 0 (if use-last-rows? lastrow cornerrow))
             :when (if use-last-rows?
-                (not (and (= row lastrow)
-                          (.contains [-1 0 1] column)))
-                true)]
+                    (not (and (= row lastrow)
+                              (.contains [-1 0 1] column)))
+                    true)]
         (triangle-hulls
          (key-place configurations column row web-post-br)
          (key-place configurations column (inc row) web-post-tr)
@@ -813,20 +830,20 @@
         lastcol (flastcol (get confs :configuration-ncols))
         lastrow (flastrow (get confs :configuration-nrows))
         cornerrow (fcornerrow (get confs :configuration-nrows))]
-  (apply union
-         (concat
-          (for [row (range 0 (if use-last-rows? (inc lastrow) lastrow))]
-            (triangle-hulls
-             (key-place confs lastcol row web-post-tr)
-             (key-place confs lastcol row (wide-post-tr use-wide-pinky?))
-             (key-place confs lastcol row web-post-br)
-             (key-place confs lastcol row (wide-post-br use-wide-pinky?))))
-          (for [row (range 0 (if use-last-rows? lastrow cornerrow))]
-            (triangle-hulls
-             (key-place confs lastcol row       web-post-br)
-             (key-place confs lastcol row       (wide-post-br use-wide-pinky?))
-             (key-place confs lastcol (inc row) web-post-tr)
-             (key-place confs lastcol (inc row) (wide-post-tr use-wide-pinky?))))))))
+    (apply union
+           (concat
+            (for [row (range 0 (if use-last-rows? (inc lastrow) lastrow))]
+              (triangle-hulls
+               (key-place confs lastcol row web-post-tr)
+               (key-place confs lastcol row (wide-post-tr use-wide-pinky?))
+               (key-place confs lastcol row web-post-br)
+               (key-place confs lastcol row (wide-post-br use-wide-pinky?))))
+            (for [row (range 0 (if use-last-rows? lastrow cornerrow))]
+              (triangle-hulls
+               (key-place confs lastcol row       web-post-br)
+               (key-place confs lastcol row       (wide-post-br use-wide-pinky?))
+               (key-place confs lastcol (inc row) web-post-tr)
+               (key-place confs lastcol (inc row) (wide-post-tr use-wide-pinky?))))))))
 
 (defn pinky-walls [confs]
   (let [use-last-rows? (get confs :configuration-use-last-row?)
@@ -873,15 +890,15 @@
                                (partial left-key-place confs))
                              y -1) -1 0 web-post)
         (hull (key-place confs (if use-inner-column? -1 0) y web-post-tl)
-                (key-place confs (if use-inner-column? -1 0) y web-post-bl)
-                ((if use-inner-column?
-                   (partial inner-key-place confs)
-                   (partial left-key-place confs))
-                 y  1 web-post)
-                ((if use-inner-column?
-                   (partial inner-key-place confs)
-                   (partial left-key-place confs))
-                 y -1 web-post))))
+              (key-place confs (if use-inner-column? -1 0) y web-post-bl)
+              ((if use-inner-column?
+                 (partial inner-key-place confs)
+                 (partial left-key-place confs))
+               y  1 web-post)
+              ((if use-inner-column?
+                 (partial inner-key-place confs)
+                 (partial left-key-place confs))
+               y -1 web-post))))
      (for [y (range 1 (if use-inner-column? cornerrow lastrow))]
        (union
         (wall-brace (partial (if use-inner-column?
@@ -899,8 +916,8 @@
                  (partial left-key-place confs))
                y        1 web-post)
               ((if use-inner-column?
-                  (partial inner-key-place confs)
-                  (partial left-key-place confs)) (dec y) -1 web-post))))
+                 (partial inner-key-place confs)
+                 (partial left-key-place confs)) (dec y) -1 web-post))))
      (wall-brace (partial key-place confs (if use-inner-column? -1 0) 0) 0 1 web-post-tl
                  (partial (if use-inner-column?
                             (partial inner-key-place confs)
@@ -1280,54 +1297,58 @@
 
 (def c (hash-map :configuration-nrows 4
                  :configuration-ncols 5
+                 :configuration-create-side-nub? false
+                 :configuration-minidox-style? true
+
                  :configuration-alpha (/ pi 12)
                  :configuration-beta (/ pi 36)
                  :configuration-centercol 4
                  :configuration-tenting-angle (/ pi 12)
-                 :configuration-create-side-nub? false
-                 :configuration-minidox-style? true
-                 :configuration-rental-car? false
-                 :configuration-show-caps? false
+
+                 :configuration-use-promicro-usb-hole? false
+                 :configuration-use-trrs? false
+
                  :configuration-use-hotswap? false
+                 :configuration-rental-car? false
                  :configuration-use-inner-column? false
+                 :configuration-keyboard-z-offset 4
+                 :configuration-show-caps? false
                  :configuration-use-last-row? false
-                 :configuration-use-promicro-usb-hole? true
-                 :configuration-use-trrs? true
                  :configuration-use-wide-pinky? false
                  :configuration-use-wire-post? false))
 
-#_(spit "things/right.scad"
+(spit "things/right.scad"
       (write-scad (model-right c)))
 
 #_(spit "things/left.scad"
-      (write-scad (mirror [-1 0 0] model-right)))
+        (write-scad (mirror [-1 0 0] model-right)))
 
 #_(spit "things/right-test.scad"
-      (write-scad
-       (union
-        key-holes
-        connectors
-        thumb
-        thumb-connectors
-        case-walls
-        thumbcaps
-        caps
-        teensy-holder
-        rj9-holder
-        usb-holder-hole)))
+        (write-scad
+         (union
+          key-holes
+          connectors
+          thumb
+          thumb-connectors
+          case-walls
+          thumbcaps
+          caps
+          teensy-holder
+          rj9-holder
+          usb-holder-hole)))
 
 #_(spit "things/right-plate.scad"
-      (write-scad
-       (cut
-        (translate [0 0 -0.1]
-                   (difference (union case-walls
-                                      teensy-holder
+        (write-scad
+         (cut
+          (translate [0 0 -0.1]
+                     (difference (union case-walls
+                                        teensy-holder
                                           ; rj9-holder
-                                      screw-insert-outers)
-                               (translate [0 0 -10] screw-insert-screw-holes))))))
+                                        screw-insert-outers)
+                                 (translate [0 0 -10] screw-insert-screw-holes))))))
 
 #_(spit "things/test.scad"
-      (write-scad
-       (difference usb-holder usb-holder-hole)))
+        (write-scad
+         (difference usb-holder usb-holder-hole)))
 
 #_(defn -main [dum] 1)  ; dummy to make it easier to batc
