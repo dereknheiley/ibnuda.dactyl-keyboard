@@ -43,6 +43,7 @@
         param-keyboard-z-offset (parse-int (get params "keyboard-z-offset"))
         param-wide-pinky (parse-bool (get params "wide-pinky"))
         param-wire-post (parse-bool (get params "wire-post"))
+        param-screw-inserts (parse-bool (get params "screw-inserts"))
         param-show-keycaps (parse-bool (get params "show-keycaps"))
         c (hash-map :configuration-nrows param-nrows
                     :configuration-ncols param-ncols
@@ -64,7 +65,8 @@
                     :configuration-show-caps? param-show-keycaps
                     :configuration-use-last-row? param-last-row
                     :configuration-use-wide-pinky? param-wide-pinky
-                    :configuration-use-wire-post? param-wire-post)
+                    :configuration-use-wire-post? param-wire-post
+                    :configuration-use-screw-inserts? param-screw-inserts)
         generated-scad (generate-scad c)]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"

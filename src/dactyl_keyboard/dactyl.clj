@@ -1261,6 +1261,7 @@
   (let [use-inner-column? (get c :configuration-use-inner-column?)
         show-caps? (get c :configuration-show-caps?)
         use-promicro-usb-hole? (get c :configuration-use-promicro-usb-hole?)
+        use-screw-inserts? (get c :configuration-use-screw-inserts?)
         use-trrs? (get c :configuration-use-trrs?)
         use-wire-post? (get c :configuration-use-wire-post?)]
     (difference
@@ -1278,6 +1279,10 @@
       (pinky-connectors c)
       (difference
        (union (case-walls c)
+              (if use-screw-inserts?
+                (screw-insert-outers c)
+                ()
+              )
               (if use-promicro-usb-hole?
                 (union (pro-micro-holder c)
                        (trrs-usb-holder-holder c))
@@ -1286,6 +1291,10 @@
               (if use-trrs?
                 (trrs-holder c)
                 ()))
+       (if use-screw-inserts?
+        (screw-insert-holes c)
+        ()
+       )
        (if use-trrs?
          (trrs-holder-hole c)
          (rj9-space c))
@@ -1315,7 +1324,8 @@
                  :configuration-show-caps? false
                  :configuration-use-last-row? false
                  :configuration-use-wide-pinky? false
-                 :configuration-use-wire-post? false))
+                 :configuration-use-wire-post? false
+                 :configuration-use-screw-inserts? false))
 
 (spit "things/right.scad"
       (write-scad (model-right c)))
