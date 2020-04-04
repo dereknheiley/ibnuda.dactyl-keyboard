@@ -11,8 +11,8 @@
 
 (def column-style :standard)
 
-(defn column-offset [rental-car? column]
-  (if rental-car?
+(defn column-offset [ortho? column]
+  (if ortho?
     (cond (= column 2)  [0   0    -6.5]
           (>= column 4) [0   0     6]
           :else         [0   0     0])
@@ -309,7 +309,7 @@
         beta (get configurations :configuration-beta)
         centercol (get configurations :configuration-centercol)
         centerrow (fcenterrow (get configurations :configuration-nrows))
-        rental-car? (get configurations :configuration-rental-car?)
+        ortho? (get configurations :configuration-ortho?)
         tenting-angle (get configurations :configuration-tenting-angle)
         keyboard-z-offset (get configurations :configuration-keyboard-z-offset)
         column-angle (* beta (- centercol column))
@@ -324,7 +324,7 @@
                           (translate-fn [0 0 (- (column-radius beta))])
                           (rotate-y-fn  column-angle)
                           (translate-fn [0 0 (column-radius beta)])
-                          (translate-fn (column-offset rental-car? column)))]
+                          (translate-fn (column-offset ortho? column)))]
     (->> placed-shape
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))))
@@ -360,16 +360,18 @@
 (defn key-holes
   "Determines which keys should be generated based on the configuration."
   [configurations]
-  (let [use-last-rows? (get configurations :configuration-use-last-row?)
+  (let [row-count (get configurations :configuration-last-row-count)
         ncols (get configurations :configuration-ncols)
         nrows (get configurations :configuration-nrows)
         lastrow (flastrow nrows)]
     (apply union
            (for [column (columns ncols)
                  row (rows nrows)
-                 :when (if use-last-rows?
-                         (or (not (.contains [0 1] column)) (not= row lastrow))
-                         (not= row lastrow))]
+                 :when (case row-count
+                         :zero (not= row lastrow)
+                         :two (or (.contains [2 3] column)
+                                  (not= row lastrow))
+                         :full (or (not (.contains [0 1] column)) (not= row lastrow)))]
              (->> (single-plate configurations)
                   (key-place configurations column row))))))
 
@@ -390,8 +392,8 @@
                         (key-inner-place configurations -1 row))))))
 
 (defn caps [configurations]
-  (let [use-inner-column? (get configurations :configuration-use-last-row?)
-        use-last-rows? (get configurations :configuration-use-last-row?)
+  (let [use-inner-column? (get configurations :configuration-use-inner-column?)
+        row-count (get configurations :configuration-last-row-count)
         use-wide-pinky? (get configurations :configuration-use-wide-pinky?)
         ncols (get configurations :configuration-ncols)
         nrows (get configurations :configuration-nrows)
@@ -402,9 +404,11 @@
      union
      (for [column (if use-inner-column? (range -1 ncols) (columns ncols))
            row (rows nrows)
-           :when (if use-last-rows?
-                   (or (not (.contains [-1 0 1] column)) (not= row lastrow))
-                   (not= row lastrow))
+           :when (case row-count
+                   :zero (not= row lastrow)
+                   :two (or (.contains [2 3] column)
+                            (not= row lastrow))
+                   :full (or (not (.contains [0 1] column)) (not= row lastrow)))
            :when (if use-inner-column?
                    (not (and (.contains [-1] column)
                              (or (= row cornerrow)
@@ -421,7 +425,7 @@
 ;; Web Connectors ;;
 ;;;;;;;;;;;;;;;;;;;;
 
-(def web-thickness 3.5)
+(def web-thickness 5)
 (def post-size 0.1)
 (def web-post
   (->> (cube post-size post-size web-thickness)
@@ -467,59 +471,76 @@
    on the configuration provided."
   [configurations]
   (let [use-inner-column? (get configurations :configuration-use-inner-column?)
-        use-last-rows? (get configurations :configuration-use-last-row?)
+        row-count (get configurations :configuration-last-row-count)
         ncols (get configurations :configuration-ncols)
         nrows (get configurations :configuration-nrows)
         lastrow (flastrow nrows)
         cornerrow (fcornerrow nrows)
         middlerow (fmiddlerow nrows)]
-    (apply
-     union
-     (concat
+    (union
+     (apply
+      union
+      (concat
       ;; Row connections
-      (for [column (range (if use-inner-column? -1 0) (dec ncols))
-            row (range 0 (if use-last-rows? (inc lastrow) lastrow))
-            :when (if use-last-rows?
-                    (not (and (= row lastrow)
-                              (.contains [-1 0 1] column)))
-                    true)]
-        (triangle-hulls
-         (key-place configurations (inc column) row web-post-tl)
-         (key-place configurations column row web-post-tr)
-         (key-place configurations (inc column) row web-post-bl)
-         (if (not (and (= column -1)
-                       (= row cornerrow)))
-           (key-place configurations column row web-post-br)
-           ())))
+       (for [column (range (if use-inner-column? -1 0) (dec ncols))
+             row (range 0 (inc lastrow))
+             :when (case row-count
+                     :zero (or (not= row lastrow)
+                               (and (= row cornerrow)
+                                    (= column -1)))
+                     :two (or (.contains [2] column)
+                              (not= row lastrow))
+                     :full (not (and (= row lastrow)
+                                     (.contains [-1 0 1] column))))]
+         (triangle-hulls
+          (key-place configurations (inc column) row web-post-tl)
+          (key-place configurations column row web-post-tr)
+          (key-place configurations (inc column) row web-post-bl)
+          (if (not (and (= column -1)
+                        (= row cornerrow)))
+            (key-place configurations column row web-post-br)
+            ())))
 
       ;; Column connections
-      (for [column (if use-inner-column? (inner-columns ncols) (columns ncols))
-            row (range 0 (if use-last-rows? lastrow cornerrow))
-            :when (if use-last-rows?
-                    (not (and (= row cornerrow)
-                              (.contains [-1 0 1] column)))
-                    true)]
-        (triangle-hulls
-         (key-place configurations column row web-post-br)
-         (key-place configurations column row web-post-bl)
-         (key-place configurations column (inc row) web-post-tr)
-         (if (not (and (= column -1)
-                       (= row middlerow)))
-           (key-place configurations column (inc row) web-post-tl)
-           ())))
+       (for [column (if use-inner-column? (inner-columns ncols) (columns ncols))
+             row (range 0 lastrow)
+             :when (case row-count
+                     :zero (not= row cornerrow)
+                     :two (or (not= row cornerrow))
+                     :full (not (and (= row cornerrow)
+                                     (.contains [-1 0 1] column))))]
+         (triangle-hulls
+          (key-place configurations column row web-post-br)
+          (key-place configurations column row web-post-bl)
+          (key-place configurations column (inc row) web-post-tr)
+          (if (not (and (= column -1)
+                        (= row middlerow)))
+            (key-place configurations column (inc row) web-post-tl)
+            ())))
 
       ;; Diagonal connections
-      (for [column (range (if use-inner-column? -1 0) (dec ncols))
-            row (range 0 (if use-last-rows? lastrow cornerrow))
-            :when (if use-last-rows?
-                    (not (and (= row lastrow)
-                              (.contains [-1 0 1] column)))
-                    true)]
-        (triangle-hulls
-         (key-place configurations column row web-post-br)
-         (key-place configurations column (inc row) web-post-tr)
-         (key-place configurations (inc column) row web-post-bl)
-         (key-place configurations (inc column) (inc row) web-post-tl)))))))
+       (for [column (range (if use-inner-column? -1 0) (dec ncols))
+             row (range 0 lastrow)
+             :when (case row-count
+                     :full (not (or (and (= row lastrow)
+                                         (.contains [-1 0 1] column))
+                                    (and (= row cornerrow)
+                                         (.contains [-1 0 1] column))))
+                     (or (not= row cornerrow)))]
+         (triangle-hulls
+          (key-place configurations column row web-post-br)
+          (key-place configurations column (inc row) web-post-tr)
+          (key-place configurations (inc column) row web-post-bl)
+          (key-place configurations (inc column) (inc row) web-post-tl)))))
+     (case row-count
+       :two (triangle-hulls (key-place configurations 2 lastrow   web-post-tr)
+                            (key-place configurations 3 cornerrow web-post-bl)
+                            (key-place configurations 3 lastrow   web-post-tl)
+                            (key-place configurations 3 cornerrow web-post-br)
+                            (key-place configurations 3 lastrow   web-post-tr)
+                            (key-place configurations 4 cornerrow web-post-bl)
+                            (key-place configurations 3 lastrow   web-post-br))
+       ()))))
 
 ;;;;;;;;;;;;
 ;; Thumbs ;;
@@ -630,7 +651,7 @@
 
 (defn thumb-connectors [confs]
   (let [minidox-style? (get confs :configuration-minidox-style?)
-        use-last-rows? (get confs :configuration-use-last-row?)
+        row-count (get confs :configuration-last-row-count)
         lastrow (flastrow (get confs :configuration-nrows))
         cornerrow (fcornerrow (get confs :configuration-nrows))]
     (if minidox-style?
@@ -658,13 +679,13 @@
         (key-place confs 1 cornerrow web-post-br)
         (thumb-tr-place confs thumb-post-br)
         (key-place confs 2 cornerrow web-post-bl)
-        (if use-last-rows?
-          (key-place confs 2 lastrow web-post-bl)
-          ())
-        (key-place confs 2 (if use-last-rows? lastrow cornerrow) web-post-bl)
-        (key-place confs 2 (if use-last-rows? lastrow cornerrow) web-post-br)
+        (case row-count
+          :zero ()
+          (key-place confs 2 lastrow web-post-bl))
+        (key-place confs 2 (case row-count :zero cornerrow lastrow) web-post-bl)
+        (key-place confs 2 (case row-count :zero cornerrow lastrow) web-post-br)
         (thumb-tr-place confs thumb-post-br)
-        (key-place confs 3 (if use-last-rows? lastrow cornerrow) web-post-bl))
+        (key-place confs 3 (case row-count :zero cornerrow lastrow) web-post-bl))
        (triangle-hulls
         (thumb-tl-place confs thumb-post-bl)
         (thumb-ml-place confs thumb-post-br)
@@ -724,13 +745,13 @@
         (key-place confs 1 cornerrow web-post-br)
         (thumb-tr-place confs thumb-post-br)
         (key-place confs 2 cornerrow web-post-bl)
-        (if use-last-rows?
-          (key-place confs 2 lastrow web-post-bl)
-          ())
-        (key-place confs 2 (if use-last-rows? lastrow cornerrow) web-post-bl)
-        (key-place confs 2 (if use-last-rows? lastrow cornerrow) web-post-br)
+        (case row-count
+          :zero ()
+          (key-place confs 2 lastrow web-post-bl))
+        (key-place confs 2 (case row-count :zero cornerrow lastrow) web-post-bl)
+        (key-place confs 2 (case row-count :zero cornerrow lastrow) web-post-br)
         (thumb-tr-place confs thumb-post-br)
-        (key-place confs 3 (if use-last-rows? lastrow cornerrow) web-post-bl))
+        (key-place confs 3 (case row-count :zero cornerrow lastrow) web-post-bl))
        (triangle-hulls
         (key-place confs 1 cornerrow web-post-br)
         (key-place confs 2 lastrow web-post-tl)
@@ -818,7 +839,7 @@
               (partial key-place c x2 y2) dx2 dy2 post2))
 
 (defn right-wall [confs]
-  (let [use-last-rows? (get confs :configuration-use-last-row?)
+  (let [row-count (get confs :configuration-last-row-count)
         use-wide-pinky? (get confs :configuration-use-wide-pinky?)
         lastcol (flastcol (get confs :configuration-ncols))
         lastrow (flastrow (get confs :configuration-nrows))
@@ -830,8 +851,8 @@
              (key-wall-brace confs
                              lastcol y 1 0 (wide-post-tr use-wide-pinky?)
                              lastcol y 1 0 (wide-post-br use-wide-pinky?)))
-           (if use-last-rows?
-             (key-wall-brace confs
+           (case row-count
+             :full (key-wall-brace confs
                              lastcol lastrow 1 0 (wide-post-tr use-wide-pinky?)
                              lastcol lastrow 1 0 (wide-post-br use-wide-pinky?))
              ())
@@ -839,176 +860,201 @@
              (key-wall-brace confs
                              lastcol (dec y) 1 0 (wide-post-br use-wide-pinky?)
                              lastcol y 1 0 (wide-post-tr use-wide-pinky?)))
-           (if use-last-rows?
-             (key-wall-brace confs
+           (case row-count
+             :full (key-wall-brace confs
                              lastcol (dec lastrow) 1 0 (wide-post-br use-wide-pinky?)
                              lastcol lastrow       1 0 (wide-post-tr use-wide-pinky?))
              ())
            (key-wall-brace confs
-                           lastcol (if use-last-rows? lastrow cornerrow) 0 -1 (wide-post-br use-wide-pinky?)
-                           lastcol (if use-last-rows? lastrow cornerrow) 1  0 (wide-post-br use-wide-pinky?)))))
+                           lastcol (case row-count :full lastrow cornerrow) 0 -1 (wide-post-br use-wide-pinky?)
+                           lastcol (case row-count :full lastrow cornerrow) 1  0 (wide-post-br use-wide-pinky?)))))
 
-(defn pinky-connectors [confs]
-  (let [use-last-rows? (get confs :configuration-use-last-row?)
-        use-wide-pinky? (get confs :configuration-use-wide-pinky?)
-        lastcol (flastcol (get confs :configuration-ncols))
-        lastrow (flastrow (get confs :configuration-nrows))
-        cornerrow (fcornerrow (get confs :configuration-nrows))]
-    (apply union
-           (concat
-            (for [row (range 0 (if use-last-rows? (inc lastrow) lastrow))]
-              (triangle-hulls
-               (key-place confs lastcol row web-post-tr)
-               (key-place confs lastcol row (wide-post-tr use-wide-pinky?))
-               (key-place confs lastcol row web-post-br)
-               (key-place confs lastcol row (wide-post-br use-wide-pinky?))))
-            (for [row (range 0 (if use-last-rows? lastrow cornerrow))]
-              (triangle-hulls
-               (key-place confs lastcol row       web-post-br)
-               (key-place confs lastcol row       (wide-post-br use-wide-pinky?))
-               (key-place confs lastcol (inc row) web-post-tr)
-               (key-place confs lastcol (inc row) (wide-post-tr use-wide-pinky?))))))))
-
-(defn pinky-walls [confs]
-  (let [use-last-rows? (get confs :configuration-use-last-row?)
-        use-wide-pinky? (get confs :configuration-use-wide-pinky?)
-        lastcol (flastcol (get confs :configuration-ncols))
-        lastrow (flastrow (get confs :configuration-nrows))
-        cornerrow (fcornerrow (get confs :configuration-nrows))]
-    (union
-     (key-wall-brace confs
-                     lastcol (if use-last-rows? lastrow cornerrow) 0 -1 web-post-br
-                     lastcol (if use-last-rows? lastrow cornerrow) 0 -1 (wide-post-br use-wide-pinky?))
-     (key-wall-brace confs
-                     lastcol 0 0 1 web-post-tr
-                     lastcol 0 0 1 (wide-post-tr use-wide-pinky?)))))
-
-(defn case-walls [confs]
+(defn back-wall [confs]
   (let [ncols (get confs :configuration-ncols)
         lastcol (flastcol ncols)
+        use-inner-column? (get confs :configuration-use-inner-column?)]
+  (union
+  (for [x (range (if use-inner-column? -1 0) ncols)]
+    (key-wall-brace confs x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
+  (for [x (range (if use-inner-column?  0 1) ncols)]
+    (key-wall-brace confs x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
+  (key-wall-brace confs lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr))))
+
+(defn left-wall [confs]
+  (let [nrows (get confs :configuration-nrows)
+        lastrow (flastrow nrows)
+        cornerrow (fcornerrow nrows)
+        use-inner-column? (get confs :configuration-use-inner-column?)]
+    (union
+    (for [y (range 0 (if use-inner-column? cornerrow lastrow))]
+      (union
+       (wall-brace (partial (if use-inner-column?
+                              (partial inner-key-place confs)
+                              (partial left-key-place confs))
+                            y  1) -1 0 web-post
+                   (partial (if use-inner-column?
+                              (partial inner-key-place confs)
+                              (partial left-key-place confs))
+                            y -1) -1 0 web-post)
+       (hull (key-place confs (if use-inner-column? -1 0) y web-post-tl)
+             (key-place confs (if use-inner-column? -1 0) y web-post-bl)
+             ((if use-inner-column?
+                (partial inner-key-place confs)
+                (partial left-key-place confs))
+              y  1 web-post)
+             ((if use-inner-column?
+                (partial inner-key-place confs)
+                (partial left-key-place confs))
+              y -1 web-post))))
+    (for [y (range 1 (if use-inner-column? cornerrow lastrow))]
+      (union
+       (wall-brace (partial (if use-inner-column?
+                              (partial inner-key-place confs)
+                              (partial left-key-place confs))
+                            (dec y) -1) -1 0 web-post
+                   (partial (if use-inner-column?
+                              (partial inner-key-place confs)
+                              (partial left-key-place confs))
+                            y        1) -1 0 web-post)
+       (hull (key-place confs (if use-inner-column? -1 0) y       web-post-tl)
+             (key-place confs (if use-inner-column? -1 0) (dec y) web-post-bl)
+             ((if use-inner-column?
+                (partial inner-key-place confs)
+                (partial left-key-place confs))
+              y        1 web-post)
+             ((if use-inner-column?
+                (partial inner-key-place confs)
+                (partial left-key-place confs)) (dec y) -1 web-post))))
+    (wall-brace (partial key-place confs (if use-inner-column? -1 0) 0) 0 1 web-post-tl
+                  (partial (if use-inner-column?
+                             (partial inner-key-place confs)
+                             (partial left-key-place confs)) 0 1)  0 1 web-post)
+    (wall-brace (partial (if use-inner-column?
+                             (partial inner-key-place confs)
+                             (partial left-key-place confs)) 0 1)  0 1 web-post
+                  (partial (if use-inner-column?
+                             (partial inner-key-place confs)
+                             (partial left-key-place confs)) 0 1) -1 0 web-post))))
+(defn front-wall [confs]
+  (let [ncols (get confs :configuration-ncols)
         nrows (get confs :configuration-nrows)
         lastrow (flastrow nrows)
         cornerrow (fcornerrow nrows)
-        middlerow (fmiddlerow nrows)
-        minidox-style? (get confs :configuration-minidox-style?)
-        use-last-rows? (get confs :configuration-use-last-row?)
-        use-inner-column? (get confs :configuration-use-inner-column?)]
+        row-count (get confs :configuration-last-row-count)]
     (union
-   ; back wall
-     (for [x (range (if use-inner-column? -1 0) ncols)]
-       (key-wall-brace confs x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
-     (for [x (range (if use-inner-column?  0 1) ncols)]
-       (key-wall-brace confs x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
-     (key-wall-brace confs lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
-   ; right wall
-     (right-wall confs)
-   ; left wall
-     (for [y (range 0 (if use-inner-column? cornerrow lastrow))]
-       (union
-        (wall-brace (partial (if use-inner-column?
-                               (partial inner-key-place confs)
-                               (partial left-key-place confs))
-                             y  1) -1 0 web-post
-                    (partial (if use-inner-column?
-                               (partial inner-key-place confs)
-                               (partial left-key-place confs))
-                             y -1) -1 0 web-post)
-        (hull (key-place confs (if use-inner-column? -1 0) y web-post-tl)
-              (key-place confs (if use-inner-column? -1 0) y web-post-bl)
-              ((if use-inner-column?
-                 (partial inner-key-place confs)
-                 (partial left-key-place confs))
-               y  1 web-post)
-              ((if use-inner-column?
-                 (partial inner-key-place confs)
-                 (partial left-key-place confs))
-               y -1 web-post))))
-     (for [y (range 1 (if use-inner-column? cornerrow lastrow))]
-       (union
-        (wall-brace (partial (if use-inner-column?
-                               (partial inner-key-place confs)
-                               (partial left-key-place confs))
-                             (dec y) -1) -1 0 web-post
-                    (partial (if use-inner-column?
-                               (partial inner-key-place confs)
-                               (partial left-key-place confs))
-                             y        1) -1 0 web-post)
-        (hull (key-place confs (if use-inner-column? -1 0) y       web-post-tl)
-              (key-place confs (if use-inner-column? -1 0) (dec y) web-post-bl)
-              ((if use-inner-column?
-                 (partial inner-key-place confs)
-                 (partial left-key-place confs))
-               y        1 web-post)
-              ((if use-inner-column?
-                 (partial inner-key-place confs)
-                 (partial left-key-place confs)) (dec y) -1 web-post))))
-     (wall-brace (partial key-place confs (if use-inner-column? -1 0) 0) 0 1 web-post-tl
-                 (partial (if use-inner-column?
-                            (partial inner-key-place confs)
-                            (partial left-key-place confs)) 0 1)  0 1 web-post)
-     (wall-brace (partial (if use-inner-column?
-                            (partial inner-key-place confs)
-                            (partial left-key-place confs)) 0 1)  0 1 web-post
-                 (partial (if use-inner-column?
-                            (partial inner-key-place confs)
-                            (partial left-key-place confs)) 0 1) -1 0 web-post)
-   ; front wall
      (key-wall-brace confs
-                     3 (if use-last-rows? lastrow cornerrow) 0   -1 web-post-bl
-                     3 (if use-last-rows? lastrow cornerrow) 0.5 -1 web-post-br)
+                     3 (case row-count :zero cornerrow lastrow) 0   -1 web-post-bl
+                     3 (case row-count :zero cornerrow lastrow) 0.5 -1 web-post-br)
      (key-wall-brace confs
-                     3 (if use-last-rows? lastrow cornerrow) 0.5 -1 web-post-br
-                     4 (if use-last-rows? lastrow cornerrow) 0   -1 web-post-bl)
+                     3 (case row-count :zero cornerrow lastrow)   0.5 -1 web-post-br
+                     4 (case row-count :full lastrow   cornerrow) 0   -1 web-post-bl)
      (for [x (range 4 ncols)]
        (key-wall-brace confs
-                       x (if use-last-rows? lastrow cornerrow) 0 -1 web-post-bl
-                       x (if use-last-rows? lastrow cornerrow) 0 -1 web-post-br))
+                       x (case row-count :full lastrow cornerrow) 0 -1 web-post-bl
+                       x (case row-count :full lastrow cornerrow) 0 -1 web-post-br))
      (for [x (range 5 ncols)]
        (key-wall-brace confs
-                       x       (if use-last-rows? lastrow cornerrow) 0 -1 web-post-bl
-                       (dec x) (if use-last-rows? lastrow cornerrow) 0 -1 web-post-br))
-   ; thumb walls
-     (if minidox-style?
-       (union
-        (wall-brace (partial thumb-ml-place confs) 0  1 thumb-post-tr
-                    (partial thumb-ml-place confs)  0  1 thumb-post-tl)
-        (wall-brace (partial thumb-tr-place confs) 0 -1 thumb-post-br
-                    (partial thumb-tr-place confs)  0 -2 thumb-post-bl)
-        (wall-brace (partial thumb-tr-place confs) 0 -2 thumb-post-bl
-                    (partial thumb-tl-place confs)  0 -2 thumb-post-bl)
-        (wall-brace (partial thumb-tl-place confs) 0 -2 thumb-post-bl
-                    (partial thumb-ml-place confs) -1 -1 thumb-post-bl))
-       (union
-        (wall-brace (partial thumb-mr-place confs)  0   -1 web-post-br
-                    (partial thumb-tr-place confs)  0 -1 thumb-post-br)
-        (wall-brace (partial thumb-mr-place confs)  0   -1 web-post-br
-                    (partial thumb-mr-place confs)  0 -1 web-post-bl)
-        (wall-brace (partial thumb-br-place confs)  0   -1 web-post-br
-                    (partial thumb-br-place confs)  0 -1 web-post-bl)
-        (wall-brace (partial thumb-ml-place confs) -0.3  1 web-post-tr
-                    (partial thumb-ml-place confs)  0  1 web-post-tl)
-        (wall-brace (partial thumb-bl-place confs)  0    1 web-post-tr
-                    (partial thumb-bl-place confs)  0  1 web-post-tl)
-        (wall-brace (partial thumb-br-place confs) -1    0 web-post-tl
-                    (partial thumb-br-place confs) -1  0 web-post-bl)
-        (wall-brace (partial thumb-bl-place confs) -1    0 web-post-tl
-                    (partial thumb-bl-place confs) -1  0 web-post-bl)))
-   ; thumb corners
+                       x       (case row-count :full lastrow cornerrow) 0 -1 web-post-bl
+                       (dec x) (case row-count :full lastrow cornerrow) 0 -1 web-post-br)))))
+
+(defn pinky-connectors [confs]
+  (let [row-count (get confs :configuration-last-row-count)
+        use-wide-pinky? (get confs :configuration-use-wide-pinky?)
+        lastcol (flastcol (get confs :configuration-ncols))
+        lastrow (flastrow (get confs :configuration-nrows))
+        cornerrow (fcornerrow (get confs :configuration-nrows))]
+    (if-not use-wide-pinky?
+      ()
+      (apply union
+             (concat
+              (for [row (range 0 (case row-count :full (inc lastrow) lastrow))]
+                (triangle-hulls
+                 (key-place confs lastcol row web-post-tr)
+                 (key-place confs lastcol row (wide-post-tr use-wide-pinky?))
+                 (key-place confs lastcol row web-post-br)
+                 (key-place confs lastcol row (wide-post-br use-wide-pinky?))))
+              (for [row (range 0 (case row-count :full lastrow cornerrow))]
+                (triangle-hulls
+                 (key-place confs lastcol row       web-post-br)
+                 (key-place confs lastcol row       (wide-post-br use-wide-pinky?))
+                 (key-place confs lastcol (inc row) web-post-tr)
+                 (key-place confs lastcol (inc row) (wide-post-tr use-wide-pinky?)))))))))
+
+(defn pinky-walls [confs]
+  (let [row-count (get confs :configuration-last-row-count)
+        use-wide-pinky? (get confs :configuration-use-wide-pinky?)
+        lastcol (flastcol (get confs :configuration-ncols))
+        lastrow (flastrow (get confs :configuration-nrows))
+        cornerrow (fcornerrow (get confs :configuration-nrows))]
+    (if-not use-wide-pinky?
+      ()
+      (union
+       (key-wall-brace confs
+                       lastcol (case row-count :full lastrow cornerrow) 0 -1 web-post-br
+                       lastcol (case row-count :full lastrow cornerrow) 0 -1 (wide-post-br use-wide-pinky?))
+       (key-wall-brace confs
+                       lastcol 0 0 1 web-post-tr
+                       lastcol 0 0 1 (wide-post-tr use-wide-pinky?))))))
+
+(defn thumb-wall [confs]
+  (let [minidox-style? (get confs :configuration-minidox-style?)]
+    (if minidox-style?
+      (union
+       (wall-brace (partial thumb-ml-place confs)  0  1 thumb-post-tr
+                   (partial thumb-ml-place confs)  0  1 thumb-post-tl)
+       (wall-brace (partial thumb-tr-place confs)  0 -1 thumb-post-br
+                   (partial thumb-tr-place confs)  0 -2 thumb-post-bl)
+       (wall-brace (partial thumb-tr-place confs)  0 -2 thumb-post-bl
+                   (partial thumb-tl-place confs)  0 -2 thumb-post-bl)
+       (wall-brace (partial thumb-tl-place confs)  0 -2 thumb-post-bl
+                   (partial thumb-ml-place confs) -1 -1 thumb-post-bl))
+      (union
+       (wall-brace (partial thumb-mr-place confs)  0   -1 web-post-br
+                   (partial thumb-tr-place confs)  0   -1 thumb-post-br)
+       (wall-brace (partial thumb-mr-place confs)  0   -1 web-post-br
+                   (partial thumb-mr-place confs)  0   -1 web-post-bl)
+       (wall-brace (partial thumb-br-place confs)  0   -1 web-post-br
+                   (partial thumb-br-place confs)  0   -1 web-post-bl)
+       (wall-brace (partial thumb-ml-place confs) -0.3  1 web-post-tr
+                   (partial thumb-ml-place confs)  0    1 web-post-tl)
+       (wall-brace (partial thumb-bl-place confs)  0    1 web-post-tr
+                   (partial thumb-bl-place confs)  0    1 web-post-tl)
+       (wall-brace (partial thumb-br-place confs) -1    0 web-post-tl
+                   (partial thumb-br-place confs) -1    0 web-post-bl)
+       (wall-brace (partial thumb-bl-place confs) -1    0 web-post-tl
+                   (partial thumb-bl-place confs) -1    0 web-post-bl)))))
+
+(defn thumb-corner [confs]
+  (let [minidox-style? (get confs :configuration-minidox-style?)]
      (if minidox-style?
        (union (wall-brace (partial thumb-ml-place confs) -1  0 thumb-post-tl (partial thumb-ml-place confs) -1  0 thumb-post-bl)
               (wall-brace (partial thumb-ml-place confs) -1  0 thumb-post-bl (partial thumb-ml-place confs) -1 -1 thumb-post-bl)
               (wall-brace (partial thumb-ml-place confs) -1  0 thumb-post-tl (partial thumb-ml-place confs)  0  1 thumb-post-tl))
        (union (wall-brace (partial thumb-br-place confs) -1  0 web-post-bl   (partial thumb-br-place confs)  0 -1 web-post-bl)
-              (wall-brace (partial thumb-bl-place confs) -1  0 web-post-tl   (partial thumb-bl-place confs)  0  1 web-post-tl)))
-   ; thumb tweeners
+              (wall-brace (partial thumb-bl-place confs) -1  0 web-post-tl   (partial thumb-bl-place confs)  0  1 web-post-tl)))))
+
+(defn thumb-tweener [confs]
+  (let [minidox-style? (get confs :configuration-minidox-style?)
+        row-count (get confs :configuration-last-row-count)
+        nrows (get confs :configuration-nrows)
+        lastrow (flastrow nrows)
+        cornerrow (fcornerrow nrows)]
+    (union
      (wall-brace (partial thumb-tr-place confs)  0 -1 thumb-post-br
-                 (partial (partial key-place confs) 3 (if use-last-rows? lastrow cornerrow))  0 -1 web-post-bl)
+                 (partial (partial key-place confs) 3 (case row-count :zero cornerrow lastrow))  0 -1 web-post-bl)
      (if-not minidox-style?
        (union
         (wall-brace (partial thumb-mr-place confs)  0 -1 web-post-bl  (partial thumb-br-place confs)  0 -1 web-post-br)
         (wall-brace (partial thumb-ml-place confs)  0  1 web-post-tl  (partial thumb-bl-place confs)  0  1 web-post-tr)
-        (wall-brace (partial thumb-bl-place confs) -1  0 web-post-bl  (partial thumb-br-place confs) -1  0 web-post-tl)))
-   ; clunky bit on the top left thumb connection  (normal connectors don't work well)
+        (wall-brace (partial thumb-bl-place confs) -1  0 web-post-bl  (partial thumb-br-place confs) -1  0 web-post-tl))))))
+
+(defn second-thumb-to-body [confs]
+  (let [minidox-style? (get confs :configuration-minidox-style?)
+        use-inner-column? (get confs :configuration-use-inner-column?)
+        nrows (get confs :configuration-nrows)
+        cornerrow (fcornerrow nrows)
+        middlerow (fmiddlerow nrows)]
+    (union
      (bottom-hull
       (if use-inner-column?
         (inner-key-place confs middlerow -1 (translate (wall-locate2 -1 0) web-post))
@@ -1067,6 +1113,19 @@
       (thumb-ml-place confs (translate (wall-locate2 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
       (thumb-ml-place confs (translate (wall-locate3 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
       (thumb-tl-place confs thumb-post-tl)))))
+
+(defn case-walls [confs]
+  (union
+   (back-wall confs)
+   (right-wall confs)
+   (left-wall confs)
+   (front-wall confs)
+   (pinky-walls confs)
+   (pinky-connectors confs)
+   (thumb-wall confs)
+   (thumb-corner confs)
+   (thumb-tweener confs)
+   (second-thumb-to-body confs)))
 
 (defn rj9-start [confs]
   (map + [0 -3  0] (key-position confs 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
@@ -1289,48 +1348,53 @@
         use-trrs? (get c :configuration-use-trrs?)
         use-wire-post? (get c :configuration-use-wire-post?)]
     (difference
-     (union
-      (if show-caps? (caps c) ())
-      (if show-caps? (thumbcaps c) ())
-      (if use-wire-post? (wire-posts c) ())
-      (if-not use-trrs? (rj9-holder c) ())
-      (if use-inner-column? (inner-key-holes c) ())
-      (key-holes c)
-      (thumb c)
-      (connectors c)
-      (thumb-connectors c)
-      (pinky-walls c)
-      (pinky-connectors c)
-      (difference
-       (union (case-walls c)
-              (if use-screw-inserts?
-                (screw-insert-outers c)
-                ()
-              )
-              (if use-promicro-usb-hole?
-                (union (pro-micro-holder c)
-                       (trrs-usb-holder-holder c))
-                (union (usb-holder c)
-                       (pro-micro-holder c)))
-              (if use-trrs?
-                (trrs-holder c)
-                ()))
-       (if use-screw-inserts?
-        (screw-insert-holes c)
-        ()
-       )
-       (if use-trrs?
-         (trrs-holder-hole c)
-         (rj9-space c))
-       (if use-promicro-usb-hole?
-         (union (trrs-usb-holder-space c)
-                (trrs-usb-jack c))
-         (usb-holder-hole c))))
-     (translate [0 0 -20] (cube 350 350 40)))))
+       (union
+        (if show-caps? (caps c) ())
+        (if show-caps? (thumbcaps c) ())
+        (if use-wire-post? (wire-posts c) ())
+        (if-not use-trrs? (rj9-holder c) ())
+        (if use-inner-column? (inner-key-holes c) ())
+        (key-holes c)
+        (thumb c)
+        (connectors c)
+        (thumb-connectors c)
+        (difference
+         (union (case-walls c)
+                (if use-screw-inserts?
+                  (screw-insert-outers c)
+                  ())
+                (if use-promicro-usb-hole?
+                  (union (pro-micro-holder c)
+                         (trrs-usb-holder-holder c))
+                  (union (usb-holder c)
+                         (pro-micro-holder c)))
+                (if use-trrs?
+                  (trrs-holder c)
+                  ()))
+         (if use-screw-inserts?
+           (screw-insert-holes c)
+           ())
+         (if use-trrs?
+           (trrs-holder-hole c)
+           (rj9-space c))
+         (if use-promicro-usb-hole?
+           (union (trrs-usb-holder-space c)
+                  (trrs-usb-jack c))
+           (usb-holder-hole c))))
+       (translate [0 0 -20] (cube 350 350 40)))))
+
+(defn right-plate [c]
+  (cut (translate [0 0 -0.1]
+                  (difference (union (case-walls c)
+                                     (rj9-holder c)
+                                     (usb-holder c)
+                                     (screw-insert-outers c))
+                              (translate [0 0 -10] (screw-insert-screw-holes c))))))
 
 (def c (hash-map :configuration-nrows 4
                  :configuration-ncols 5
                  :configuration-create-side-nub? false
+                 :configuration-use-alps? false
                  :configuration-minidox-style? false
 
                  :configuration-alpha (/ pi 12)
@@ -1342,22 +1406,14 @@
                  :configuration-use-trrs? false
 
                  :configuration-use-hotswap? false
-                 :configuration-rental-car? true
+                 :configuration-ortho? false
                  :configuration-use-inner-column? false
-                 :configuration-keyboard-z-offset 4
+                 :configuration-keyboard-z-offset 16
                  :configuration-show-caps? false
-                 :configuration-use-last-row? false
+                 :configuration-last-row-count :full
                  :configuration-use-wide-pinky? false
                  :configuration-use-wire-post? false
                  :configuration-use-screw-inserts? false))
-
-(defn right-plate [c]
-  (cut (translate [0 0 -0.1]
-                  (difference (union (case-walls c)
-                                     (rj9-holder c)
-                                     (usb-holder c)
-                                     (screw-insert-outers c))
-                              (translate [0 0 -10] (screw-insert-screw-holes c))))))
 
 #_(spit "things/right.scad"
       (write-scad (model-right c)))

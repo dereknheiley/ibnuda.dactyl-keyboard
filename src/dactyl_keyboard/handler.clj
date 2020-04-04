@@ -28,10 +28,15 @@
   (let [params (:form-params req)
         param-ncols (parse-int (get params "ncols"))
         param-nrows (parse-int (get params "nrows"))
+        param-minidox (parse-bool (get params "minidox"))
+        param-last-row-count (case (get params "last-row")
+                               "zero" :zero
+                               "full" :full
+                               :two)
         keyswitch-type (get params "switch-type")
         param-use-alps (case keyswitch-type "alps" true false)
         param-side-nub (case keyswitch-type "mx" true false)
-        param-minidox (parse-bool (get params "minidox"))
+        param-inner-column (parse-bool (get params "inner-column"))
 
         param-alpha (parse-int (get params "alpha"))
         param-beta (parse-int (get params "beta"))
@@ -42,9 +47,7 @@
         param-use-promicro-usb-hole (parse-bool (get params "usb-hole"))
 
         param-hotswap (parse-bool (get params "hotswap"))
-        param-rentalcar (parse-bool (get params "rentalcar"))
-        param-inner-column (parse-bool (get params "inner-column"))
-        param-last-row (parse-bool (get params "last-row"))
+        param-ortho (parse-bool (get params "ortho"))
         param-keyboard-z-offset (parse-int (get params "keyboard-z-offset"))
         param-wide-pinky (parse-bool (get params "wide-pinky"))
         param-wire-post (parse-bool (get params "wire-post"))
@@ -54,9 +57,11 @@
         generate-plate? (some? param-generate-plate)
         c (hash-map :configuration-nrows param-nrows
                     :configuration-ncols param-ncols
+                    :configuration-minidox-style? param-minidox
+                    :configuration-last-row-count param-last-row-count
                     :configuration-create-side-nub? param-side-nub
                     :configuration-use-alps? param-use-alps
-                    :configuration-minidox-style? param-minidox
+                    :configuration-use-inner-column? param-inner-column
 
                     :configuration-alpha (/ pi param-alpha)
                     :configuration-beta (/ pi param-beta)
@@ -67,11 +72,9 @@
                     :configuration-use-trrs? param-trrs-connector
 
                     :configuration-use-hotswap? param-hotswap
-                    :configuration-rental-car? param-rentalcar
-                    :configuration-use-inner-column? param-inner-column
+                    :configuration-ortho? param-ortho
                     :configuration-keyboard-z-offset param-keyboard-z-offset
                     :configuration-show-caps? param-show-keycaps
-                    :configuration-use-last-row? param-last-row
                     :configuration-use-wide-pinky? param-wide-pinky
                     :configuration-use-wire-post? param-wire-post
                     :configuration-use-screw-inserts? param-screw-inserts)

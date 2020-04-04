@@ -54,16 +54,27 @@
                         <input type="number" name="ncols" id="ncols" value=5>
                         <label for="nrows">Number of rows</label>
                         <input type="number" name="nrows" id="nrows" value=4>
+                        <label for="minidox">Thumb Key Count</label>
+                        <select id="minidox" name="minidox">
+                            <option value="false">6</option>
+                            <option value="true">3</option>
+                        </select>
+                        <label for="last-row">Last Row Key Counts?</label>
+                        <select id="last-row" name="last-row">
+                            <option value="two">Two (Default Dactyl Manuform).</option>
+                            <option value="zero">No last row.</option>
+                            <option value="full">Use all keys.</option>
+                        </select>
                         <label for="switch-type">Key Hole</label>
                         <select id="switch-type" name="switch-type">
                             <option value="box">Box and MX</option>
                             <option value="mx">MX</option>
                             <option value="alps">Alps</option>
                         </select>
-                        <label for="minidox">Thumb Key Count</label>
-                        <select id="minidox" name="minidox">
-                            <option value="false">6</option>
-                            <option value="true">3</option>
+                        <label for="inner-column">Inner Column?</label>
+                        <select id="inner-column" name="inner-column">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
                         </select>
                     </fieldset>
                     <label for="curvature">
@@ -130,20 +141,10 @@
                             <option value="false">No</option>
                             <option value="true">Yes</option>
                         </select>
-                        <label for="rentalcar">Stagger?</label>
-                        <select id="rentalcar" name="rentalcar">
+                        <label for="ortho">Stagger?</label>
+                        <select id="ortho" name="ortho">
                             <option value="false">Yes</option>
                             <option value="true">No</option>
-                        </select>
-                        <label for="inner-column">Inner Column?</label>
-                        <select id="inner-column" name="inner-column">
-                            <option value="false">No</option>
-                            <option value="true">Yes</option>
-                        </select>
-                        <label for="last-row">Last Row?</label>
-                        <select id="last-row" name="last-row">
-                            <option value="false">No</option>
-                            <option value="true">Yes</option>
                         </select>
                         <label for="wide-pinky">Wide Pinky?</label>
                         <select id="wide-pinky" name="wide-pinky">
