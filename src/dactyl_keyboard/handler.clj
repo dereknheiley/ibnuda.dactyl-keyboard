@@ -28,7 +28,9 @@
   (let [params (:form-params req)
         param-ncols (parse-int (get params "ncols"))
         param-nrows (parse-int (get params "nrows"))
-        param-side-nub (parse-bool (get params "side-nub"))
+        keyswitch-type (get params "switch-type")
+        param-use-alps (case keyswitch-type "alps" true false)
+        param-side-nub (case keyswitch-type "mx" true false)
         param-minidox (parse-bool (get params "minidox"))
 
         param-alpha (parse-int (get params "alpha"))
@@ -53,6 +55,7 @@
         c (hash-map :configuration-nrows param-nrows
                     :configuration-ncols param-ncols
                     :configuration-create-side-nub? param-side-nub
+                    :configuration-use-alps? param-use-alps
                     :configuration-minidox-style? param-minidox
 
                     :configuration-alpha (/ pi param-alpha)

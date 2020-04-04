@@ -92,6 +92,11 @@
 (def keyswitch-height 14.0)
 (def keyswitch-width 14.0)
 
+(def alps-width 15.6)
+(def alps-notch-width 15.5)
+(def alps-notch-height 1)
+(def alps-height 13)
+
 (def sa-profile-key-height 12.7)
 
 (def plate-thickness 5)
@@ -106,14 +111,30 @@
   [configurations]
   (let [create-side-nub? (get configurations :configuration-create-side-nub?)
         use-hotswap? (get configurations :configuration-use-hotswap?)
-        top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
-                      (translate [0
-                                  (+ (/ 1.5 2) (/ keyswitch-height 2))
-                                  (/ plate-thickness 2)]))
-        left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-                       (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
-                                   0
-                                   (/ plate-thickness 2)]))
+        use-alps? (get configurations :configuration-use-alps?)
+        top-wall (if use-alps?
+                   (->> (cube (+ keyswitch-width 3) 2.2 plate-thickness)
+                        (translate [0
+                                    (+ (/ 2.2 2) (/ alps-height 2))
+                                    (/ plate-thickness 2)]))
+                   (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+                        (translate [0
+                                    (+ (/ 1.5 2) (/ keyswitch-height 2))
+                                    (/ plate-thickness 2)])))
+        left-wall (if use-alps?
+                    (union (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+                                (translate [(+ (/ 1.5 2) (/ 15.6 2))
+                                            0
+                                            (/ plate-thickness 2)]))
+                           (->> (cube 1.5 (+ keyswitch-height 3) 1.0)
+                                (translate [(+ (/ 1.5 2) (/ alps-notch-width 2))
+                                            0
+                                            (- plate-thickness
+                                               (/ alps-notch-height 2))])))
+                    (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+                         (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                     0
+                                     (/ plate-thickness 2)])) )
         side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
                       (rotate (/ pi 2) [1 0 0])
                       (translate [(+ (/ keyswitch-width 2)) 0 1])
@@ -162,7 +183,10 @@
                        (->> plate-half
                             (mirror [1 0 0])
                             (mirror [0 1 0]))
-                       (if use-hotswap? hotswap-holder ())))))
+                       (if (and use-hotswap?
+                                (not use-alps?))
+                         hotswap-holder
+                         ())))))
 
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
@@ -590,7 +614,7 @@
 (defn thumb [configurations]
   (union
    (thumb-1x-layout configurations  (single-plate configurations))
-   (thumb-15x-layout configurations (single-plate configurations))
+   (thumb-15x-layout configurations (rotate (/ pi 2) [0 0 1](single-plate configurations)))
    (thumb-15x-layout configurations larger-plate)))
 
 (def thumb-post-tr
