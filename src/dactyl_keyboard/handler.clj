@@ -15,8 +15,11 @@
 (defn parse-bool [s]
   (Boolean/valueOf s))
 
-(defn generate-scad [confs]
+(defn generate-case [confs]
   (write-scad (dm/model-right confs)))
+
+(defn generate-plate [confs]
+  (write-scad (dm/right-plate confs)))
 
 (defn home [_]
   (render-file "index.html" {:name "water"}))
@@ -45,6 +48,8 @@
         param-wire-post (parse-bool (get params "wire-post"))
         param-screw-inserts (parse-bool (get params "screw-inserts"))
         param-show-keycaps (parse-bool (get params "show-keycaps"))
+        param-generate-plate (parse-bool (get params "generate-plate"))
+        generate-plate? (some? param-generate-plate)
         c (hash-map :configuration-nrows param-nrows
                     :configuration-ncols param-ncols
                     :configuration-create-side-nub? param-side-nub
@@ -67,7 +72,9 @@
                     :configuration-use-wide-pinky? param-wide-pinky
                     :configuration-use-wire-post? param-wire-post
                     :configuration-use-screw-inserts? param-screw-inserts)
-        generated-scad (generate-scad c)]
+        generated-scad (if generate-plate
+                         (generate-plate c)
+                         (generate-case c))]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}

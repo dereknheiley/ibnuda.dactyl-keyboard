@@ -1307,7 +1307,7 @@
 (def c (hash-map :configuration-nrows 4
                  :configuration-ncols 5
                  :configuration-create-side-nub? false
-                 :configuration-minidox-style? true
+                 :configuration-minidox-style? false
 
                  :configuration-alpha (/ pi 12)
                  :configuration-beta (/ pi 36)
@@ -1318,7 +1318,7 @@
                  :configuration-use-trrs? false
 
                  :configuration-use-hotswap? false
-                 :configuration-rental-car? false
+                 :configuration-rental-car? true
                  :configuration-use-inner-column? false
                  :configuration-keyboard-z-offset 4
                  :configuration-show-caps? false
@@ -1327,8 +1327,30 @@
                  :configuration-use-wire-post? false
                  :configuration-use-screw-inserts? false))
 
-(spit "things/right.scad"
+(defn right-plate [c]
+  (cut (translate [0 0 -0.1]
+                  (difference (union (case-walls c)
+                                     (rj9-holder c)
+                                     (usb-holder c)
+                                     (screw-insert-outers c))
+                              (translate [0 0 -10] (screw-insert-screw-holes c))))))
+
+#_(spit "things/right.scad"
       (write-scad (model-right c)))
+
+(spit "things/right-plate.scad"
+      (write-scad (right-plate c)))
+
+#_(spit "things/right-plate.scad"
+        (write-scad
+         (cut
+          (translate [0 0 -0.1]
+                     (difference (union case-walls
+                                        teensy-holder
+                                          ; rj9-holder
+                                        screw-insert-outers)
+                                 (translate [0 0 -10] screw-insert-screw-holes))))))
+
 
 #_(spit "things/left.scad"
         (write-scad (mirror [-1 0 0] model-right)))
@@ -1346,16 +1368,6 @@
           teensy-holder
           rj9-holder
           usb-holder-hole)))
-
-#_(spit "things/right-plate.scad"
-        (write-scad
-         (cut
-          (translate [0 0 -0.1]
-                     (difference (union case-walls
-                                        teensy-holder
-                                          ; rj9-holder
-                                        screw-insert-outers)
-                                 (translate [0 0 -10] screw-insert-screw-holes))))))
 
 #_(spit "things/test.scad"
         (write-scad
