@@ -1338,7 +1338,7 @@
 #_(spit "things/right.scad"
       (write-scad (model-right c)))
 
-(spit "things/right-plate.scad"
+#_(spit "things/right-plate.scad"
       (write-scad (right-plate c)))
 
 #_(spit "things/right-plate.scad"
