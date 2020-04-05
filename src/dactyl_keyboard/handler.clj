@@ -1,12 +1,11 @@
 (ns dactyl-keyboard.handler
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
-            [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [scad-clj.model :refer [pi]]
             [scad-clj.scad :refer [write-scad]]
             [selmer.parser :refer [render-file]]
-            [dactyl-keyboard.dactyl :as dm])
+            [dactyl-keyboard.manuform :as dm])
   (:gen-class))
 
 (defn parse-int [s]

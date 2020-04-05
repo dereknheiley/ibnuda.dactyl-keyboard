@@ -1,10 +1,8 @@
-(ns dactyl-keyboard.dactyl
+(ns dactyl-keyboard.manuform
   (:refer-clojure :exclude [use import])
   (:require [clojure.core.matrix :refer [array matrix mmul]]
             [scad-clj.scad :refer :all]
-            [scad-clj.model :refer :all]
-            [compojure.core :refer :all]
-            #_[unicode-math.core :refer :all]))
+            [scad-clj.model :refer :all]))
 
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
