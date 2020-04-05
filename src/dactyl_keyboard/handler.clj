@@ -53,6 +53,7 @@
         param-wire-post (parse-bool (get params "wire-post"))
         param-screw-inserts (parse-bool (get params "screw-inserts"))
         param-show-keycaps (parse-bool (get params "show-keycaps"))
+        param-wrist-rest (parse-bool (get params "wrist-rest"))
         param-generate-plate (get params "generate-plate")
         generate-plate? (some? param-generate-plate)
         c (hash-map :configuration-nrows param-nrows
@@ -77,7 +78,8 @@
                     :configuration-show-caps? param-show-keycaps
                     :configuration-use-wide-pinky? param-wide-pinky
                     :configuration-use-wire-post? param-wire-post
-                    :configuration-use-screw-inserts? param-screw-inserts)
+                    :configuration-use-screw-inserts? param-screw-inserts
+                    :configuration-use-wrist-rest? param-wrist-rest)
         generated-scad (if generate-plate?
                          (generate-plate c)
                          (generate-case c))]

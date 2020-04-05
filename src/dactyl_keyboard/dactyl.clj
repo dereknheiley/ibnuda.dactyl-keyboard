@@ -11,7 +11,16 @@
 
 (def column-style :standard)
 
-(defn column-offset [ortho? column]
+(defn column-offset
+  "Determines how much 'stagger' the columns are
+   0 = inner index finger's column.
+   1 = index finger's column.
+   2 = middle finger's column.
+   3 = ring finger's column.
+   4 >= pinky finger's column.
+   [x y z] means that it will be staggered by 'x'mm in X axis (left/right),
+   'y'mm in Y axis (front/back), and 'z'mm in Z axis (up/down). "
+  [ortho? column]
   (if ortho?
     (cond (= column 2)  [0   0    -6.5]
           (>= column 4) [0   0     6]
@@ -107,7 +116,8 @@
 (defn single-plate
   "Defines the form of switch hole. It determines the whether it uses
    box or mx style based on the `configuration-create-side-nub?`. It also
-   asks whether it creates hotswap housing or not based on `configuration-use-hotswap?`"
+   asks whether it creates hotswap housing or not based on `configuration-use-hotswap?`.
+   and determines whether it should use alps cutout or not based on  `configuration-use-alps?`"
   [configurations]
   (let [create-side-nub? (get configurations :configuration-create-side-nub?)
         use-hotswap? (get configurations :configuration-use-hotswap?)
@@ -980,7 +990,7 @@
                  (key-place confs lastcol (inc row) web-post-tr)
                  (key-place confs lastcol (inc row) (wide-post-tr use-wide-pinky?)))))))))
 
-(defn pinky-walls [confs]
+(defn pinky-wall [confs]
   (let [row-count (get confs :configuration-last-row-count)
         use-wide-pinky? (get confs :configuration-use-wide-pinky?)
         lastcol (flastcol (get confs :configuration-ncols))
@@ -1120,7 +1130,7 @@
    (right-wall confs)
    (left-wall confs)
    (front-wall confs)
-   (pinky-walls confs)
+   (pinky-wall confs)
    (pinky-connectors confs)
    (thumb-wall confs)
    (thumb-corner confs)
@@ -1340,48 +1350,214 @@
       (key-place c column row (translate [0 0 0]  (wire-post c -1 6)))
       (key-place c column row (translate [5 0 0]  (wire-post c  1 0)))))))
 
+(def wrist-rest-back-height 29)
+(def wrist-rest-angle 0)
+(def wrist-rest-rotation-angle 0)
+(def wrist-rest-ledge 3.5)
+(defn wrist-rest-y-angle [tenting-angle] (* tenting-angle 45))
+
+;;Wrist rest to case connections
+(defn left-wrist-connector-x [ncols] (if (> ncols 5) -40 -40))
+(defn middle-wrist-connector-x [ncols] (if (> ncols 5) -12 -17.5))
+(defn right-wrist-connector-x [ncols] (if (> ncols 5) 24 5))
+(def wrist-right-nut-y 20.5)
+(def wrist-base-position-x -1)
+
+(def wrist-rest-front-cut
+  (scale [1.1, 1, 1]
+         (->> (cylinder 7 200)
+              (with-fn 50)
+              (translate [0 -13.4 0]))))
+
+(def cut-bottom
+  (->> (cube 300 300 100) (translate [0 0 -50])))
+
+(def h-offset
+  (* (Math/tan (/ (* pi wrist-rest-angle) 180)) 88))
+
+(def scale-cos
+  (Math/cos (/ (* pi wrist-rest-angle) 180)))
+
+(def scale-amount
+  (/ (* 83.7 scale-cos) 19.33))
+
+(def wrist-rest
+  (difference
+   (scale [4.25 scale-amount 1]
+          (difference
+           (union
+            (difference
+             (scale [1.3, 1, 1]
+                    (->> (cylinder 10 150)
+                         (with-fn 50)
+                         (translate [0 0 0])))
+             (scale [1.1, 1, 1]
+                    (->> (cylinder 7 201)
+                         (with-fn 50)
+                         (translate [0 -13.4 0]))
+                    (->> (cube 18 10 201)
+                         (translate [0 -12.4 0]))))
+            (->> (cylinder 6.8 200)
+                 (with-fn 50)
+                 (translate [-6.15 -0.98 0]))
+            (->> (cylinder 6.8 200)
+                 (with-fn 50)
+                 (translate [6.15 -0.98 0]))
+            (->> (cylinder 5.9 200)
+                 (with-fn 50)
+                 (translate [-6.35 -2 0]))
+            (scale [1.01, 1, 1]
+                   (->> (cylinder 5.9 200)
+                        (with-fn 50)
+                        (translate [6.35 -2. 0]))))))
+   cut-bottom))
+
+(defn wrist-rest-base [confs]
+  (let [tenting-angle (get confs :configuration-tenting-angle)]
+    (->>
+     (scale [1 1 1] ;;;;scale the wrist rest to the final size after it has been cut
+            (difference
+             (scale [1.08 1.08 1] wrist-rest)
+             (->> (cube 200 200 200)
+                  (translate [0 0 (+ (+ (/ h-offset 2)
+                                        (- wrist-rest-back-height h-offset))
+                                     100)])
+                  (rotate  (/ (* pi wrist-rest-angle) 180)  [1 0 0])
+                  (rotate  (/ (* pi (wrist-rest-y-angle tenting-angle)) 180)  [0 1 0]))
+             (->> (difference
+                   wrist-rest
+                   (->> (cube 200 200 200)
+                        (translate [0 0 (- (+ (/ h-offset 2)
+                                              (- wrist-rest-back-height h-offset))
+                                           (+ 100  wrist-rest-ledge))])
+                        (rotate (/ (* pi wrist-rest-angle) 180) [1 0 0])
+                        (rotate (/ (* pi (wrist-rest-y-angle tenting-angle)) 180)  [0 1 0])))))))))
+
+(defn rest-case-cuts [confs]
+  (let [ncols (get confs :configuration-ncols)
+        nrows (get confs :configuration-nrows)]
+    (union
+     (->> (cylinder 1.85 25)
+          (with-fn 30)
+          (rotate  (/ pi 2)  [1 0 0])
+          (translate [(right-wrist-connector-x ncols) 24 4.5]))
+      (->> (cylinder 2.8 5.2)
+           (with-fn 50)
+           (rotate  (/ pi 2)  [1 0 0])
+           (translate [(right-wrist-connector-x ncols) (+ 33.8 nrows) 4.5]))
+      (->> (cube 6 3 12.2)
+           (translate [(right-wrist-connector-x ncols) (+ wrist-right-nut-y nrows) 1.5]))
+      (->> (cylinder 1.85 25)
+           (with-fn 30)
+           (rotate (/ pi 2)  [1 0 0])
+           (translate [(middle-wrist-connector-x ncols) 14 4.5]))
+      (->> (cylinder 2.8 5.2)
+           (with-fn 50)
+           (rotate (/ pi 2) [1 0 0])
+           (translate [(middle-wrist-connector-x ncols) 26 4.5]))
+      (->> (cube 6 3 12.2)
+           (translate [(middle-wrist-connector-x ncols) (+ 10.0 nrows) 1.5]))
+      (->> (cylinder 1.85 25)
+           (with-fn 30)
+           (rotate (/ pi 2) [1 0 0])
+           (translate [(left-wrist-connector-x ncols) 11 4.5]))
+      (->> (cylinder 2.8 5.2)
+           (with-fn 50)
+           (rotate (/ pi 2) [1 0 0])
+           (translate [(left-wrist-connector-x ncols) (+ 17.25 nrows) 4.5]))
+      (->> (cube 6 3 12.2)
+           (translate [(left-wrist-connector-x ncols) (+ 6.0 nrows) 1.5])) )))
+
+(defn rest-case-connectors [confs]
+  (let [ncols (get confs :configuration-ncols)]
+    (difference
+     (union
+      (scale [1 1 1.6]
+             (->> (cylinder 8 60)
+                  (with-fn 50)
+                  (rotate  (/ pi 2) [1 0 0])
+                  (translate [(right-wrist-connector-x ncols) 14 4])))
+      (scale [1 1 1.6]
+             (->> (cylinder 8 60)
+                  (with-fn 50)
+                  (rotate (/ pi 2) [1 0 0])
+                  (translate [(middle-wrist-connector-x ncols) 19 4])))
+      (scale [1 1 1.6]
+             (->> (cylinder 8 60)
+                  (with-fn 50)
+                  (rotate (/ pi 2) [1 0 0])
+                  (translate [(left-wrist-connector-x ncols) 14 4])))))))
+
+(defn wrist-rest-locate [confs]
+  (let [nrows 5]
+    (key-position confs 3 8 (map + (wall-locate1 0 (- 4.9 (* 2 nrows))) [0 (/ mount-height 2) 0]) )))
+
+(defn wrest-wall-cut
+  [confs]
+  (->> (for [xyz (range 1.00 10 3)]
+         (union
+          (translate [1, xyz,1] (case-walls confs))))))
+
+(defn wrist-rest-build [confs]
+  (difference
+   (->> (union
+         (->> (wrist-rest-base confs)
+              (translate [wrist-base-position-x -40 0])
+              (rotate  (/ (* pi wrist-rest-rotation-angle) 180)  [0 0 1]))
+         (->> (difference (rest-case-connectors confs)
+                          (rest-case-cuts confs)
+                          cut-bottom)))
+        (translate [(+ (first (thumborigin confs)) 33) (- (second (thumborigin confs)) 50) 0]))
+   (translate [(+ (first (thumborigin confs)) 33)
+               (- (second (thumborigin confs)) 50)
+               0]
+              (rest-case-cuts confs))
+   (wrest-wall-cut confs)))
+
 (defn model-right [c]
   (let [use-inner-column? (get c :configuration-use-inner-column?)
         show-caps? (get c :configuration-show-caps?)
         use-promicro-usb-hole? (get c :configuration-use-promicro-usb-hole?)
         use-screw-inserts? (get c :configuration-use-screw-inserts?)
         use-trrs? (get c :configuration-use-trrs?)
-        use-wire-post? (get c :configuration-use-wire-post?)]
+        use-wire-post? (get c :configuration-use-wire-post?)
+        use-wrist-rest? (get c :configuration-use-wrist-rest?)]
     (difference
-       (union
-        (if show-caps? (caps c) ())
-        (if show-caps? (thumbcaps c) ())
-        (if use-wire-post? (wire-posts c) ())
-        (if-not use-trrs? (rj9-holder c) ())
-        (if use-inner-column? (inner-key-holes c) ())
-        (key-holes c)
-        (thumb c)
-        (connectors c)
-        (thumb-connectors c)
-        (difference
-         (union (case-walls c)
-                (if use-screw-inserts?
-                  (screw-insert-outers c)
-                  ())
-                (if use-promicro-usb-hole?
-                  (union (pro-micro-holder c)
-                         (trrs-usb-holder-holder c))
-                  (union (usb-holder c)
-                         (pro-micro-holder c)))
-                (if use-trrs?
-                  (trrs-holder c)
-                  ()))
-         (if use-screw-inserts?
-           (screw-insert-holes c)
-           ())
-         (if use-trrs?
-           (trrs-holder-hole c)
-           (rj9-space c))
-         (if use-promicro-usb-hole?
-           (union (trrs-usb-holder-space c)
-                  (trrs-usb-jack c))
-           (usb-holder-hole c))))
-       (translate [0 0 -20] (cube 350 350 40)))))
+     (union
+      (if use-wrist-rest? (wrist-rest-build c) ())
+      (if show-caps? (caps c) ())
+      (if show-caps? (thumbcaps c) ())
+      (if use-wire-post? (wire-posts c) ())
+      (if-not use-trrs? (rj9-holder c) ())
+      (if use-inner-column? (inner-key-holes c) ())
+      (key-holes c)
+      (thumb c)
+      (connectors c)
+      (thumb-connectors c)
+      (difference
+       (union (case-walls c)
+              (if use-screw-inserts?
+                (screw-insert-outers c)
+                ())
+              (if use-promicro-usb-hole?
+                (union (pro-micro-holder c)
+                       (trrs-usb-holder-holder c))
+                (union (usb-holder c)
+                       (pro-micro-holder c)))
+              (if use-trrs?
+                (trrs-holder c)
+                ()))
+       (if use-screw-inserts?
+         (screw-insert-holes c)
+         ())
+       (if use-trrs?
+         (trrs-holder-hole c)
+         (rj9-space c))
+       (if use-promicro-usb-hole?
+         (union (trrs-usb-holder-space c)
+                (trrs-usb-jack c))
+         (usb-holder-hole c))))
+     (translate [0 0 -60] (cube 350 350 120)))))
 
 (defn right-plate [c]
   (cut (translate [0 0 -0.1]
@@ -1392,7 +1568,7 @@
                               (translate [0 0 -10] (screw-insert-screw-holes c))))))
 
 (def c (hash-map :configuration-nrows 4
-                 :configuration-ncols 5
+                 :configuration-ncols 6
                  :configuration-create-side-nub? false
                  :configuration-use-alps? false
                  :configuration-minidox-style? false
@@ -1400,7 +1576,7 @@
                  :configuration-alpha (/ pi 12)
                  :configuration-beta (/ pi 36)
                  :configuration-centercol 4
-                 :configuration-tenting-angle (/ pi 12)
+                 :configuration-tenting-angle (/ pi 9)
 
                  :configuration-use-promicro-usb-hole? false
                  :configuration-use-trrs? false
@@ -1410,10 +1586,11 @@
                  :configuration-use-inner-column? false
                  :configuration-keyboard-z-offset 16
                  :configuration-show-caps? false
-                 :configuration-last-row-count :full
+                 :configuration-last-row-count :zero
                  :configuration-use-wide-pinky? false
                  :configuration-use-wire-post? false
-                 :configuration-use-screw-inserts? false))
+                 :configuration-use-screw-inserts? false
+                 :configuration-use-wrist-rest? true))
 
 #_(spit "things/right.scad"
       (write-scad (model-right c)))
