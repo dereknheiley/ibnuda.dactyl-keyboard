@@ -127,6 +127,8 @@
 
 (def thumb-count :two) ; or :five
 
+(def use-numrow? true)
+
 (def nrows 4)
 (def ncols 5)
 
@@ -143,7 +145,11 @@
 (def alpha (/ pi 12))
 (def beta (/ pi 36))
 
-(def column-rotation (/ pi 9))
+(def tenting-angle (/ pi 7))
+(def thumb-tenting-angle (/ pi 24))
+
+(def z-offset 18)
+(def thumb-offset [-48 -45 (+ z-offset 27)])
 
 (defn column-offset [column]
   (cond
@@ -171,8 +177,8 @@
                           (translate [0 0 column-radius])
                           (translate (column-offset column)))]
     (->> placed-shape
-         (rotate column-rotation [0 1 0])
-         (translate [0 0 13]))))
+         (rotate tenting-angle [0 1 0])
+         (translate [0 0 z-offset]))))
 
 (defn case-place [column row shape]
   (let [row-placed-shape (->> shape
@@ -187,8 +193,8 @@
                           (translate [0 0 column-radius])
                           (translate column-offset))]
     (->> placed-shape
-         (rotate column-rotation [0 1 0])
-         (translate [0 0 13]))))
+         (rotate tenting-angle [0 1 0])
+         (translate [0 0 z-offset]))))
 
 (def key-holes
   (apply union
@@ -207,56 +213,6 @@
            (->> (sa-cap 1)
                 (key-place column row)))))
 
-(def wall-thickness 2)
-(def wall-z-offset 0)
-(def wall-xy-offset 0)
-
-(defn wall-locate1 [dx dy]
-  [(* dx wall-thickness) (* dy wall-thickness) -1])
-(defn wall-locate2 [dx dy]
-  [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
-(defn wall-locate3 [dx dy]
-  [(* dx (+ wall-xy-offset wall-thickness))
-   (* dy (+ wall-xy-offset wall-thickness))
-   wall-z-offset])
-
-; if you want to change the wall, use this.
-; place1 means the location at the keyboard, marked by key-place or thumb-xx-place
-; dx1 means the movement from place1 in x coordinate, multiplied by wall-xy-locate.
-; dy1 means the movement from place1 in y coordinate, multiplied by wall-xy-locate.
-; post1 means the position this wall attached to place1.
-;       xxxxx-br means bottom right of the place1.
-;       xxxxx-bl means bottom left of the place1.
-;       xxxxx-tr means top right of the place1.
-;       xxxxx-tl means top left of the place1.
-; place2 means the location at the keyboard, marked by key-place or thumb-xx-place
-; dx2 means the movement from place2 in x coordinate, multiplied by wall-xy-locate.
-; dy2 means the movement from place2 in y coordinate, multiplied by wall-xy-locate.
-; post2 means the position this wall attached to place2.
-;       xxxxx-br means bottom right of the place2.
-;       xxxxx-bl means bottom left of the place2.
-;       xxxxx-tr means top right of the place2.
-;       xxxxx-tl means top left of the place2.
-(defn wall-brace [place1 dx1 dy1 post1 place2 dx2 dy2 post2]
-  (union
-   (hull
-    (place1 post1)
-    (place1 (translate (wall-locate1 dx1 dy1) post1))
-    (place1 (translate (wall-locate2 dx1 dy1) post1))
-    (place1 (translate (wall-locate3 dx1 dy1) post1))
-    (place2 post2)
-    (place2 (translate (wall-locate1 dx2 dy2) post2))
-    (place2 (translate (wall-locate2 dx2 dy2) post2))
-    (place2 (translate (wall-locate3 dx2 dy2) post2)))
-   (bottom-hull
-    (place1 (translate (wall-locate2 dx1 dy1) post1))
-    (place1 (translate (wall-locate3 dx1 dy1) post1))
-    (place2 (translate (wall-locate2 dx2 dy2) post2))
-    (place2 (translate (wall-locate3 dx2 dy2) post2)))))
-
-(defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
-  (wall-brace (partial key-place x1 y1) dx1 dy1 post1
-              (partial key-place x2 y2) dx2 dy2 post2))
 ;;;;;;;;;;;;;;;;;;;;
 ;; Web Connectors ;;
 ;;;;;;;;;;;;;;;;;;;;
@@ -335,8 +291,10 @@
          (translate [0 0 column-radius])
          (translate [mount-width 0 0])
          (rotate (* pi (- 1/4 3/16)) [0 0 1])
-         (rotate beta [1 1 0])
-         (translate [-52 -45 40]))))
+         #_(rotate tenting-angle [0 1 0])
+         #_(rotate beta [1 1 0])
+         (rotate thumb-tenting-angle [1 1 0])
+         (translate thumb-offset))))
 
 (defn thumb-2x-column [shape]
   (thumb-place 0 -1/2 (rotate (/ pi 1) [0 0 1] shape)))
@@ -741,6 +699,7 @@
                           (key-place 0 2 web-post-bl)))
      (color [1 1 0] (hull (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
                           (key-place 0 2 web-post-bl)
+                          (key-place 0 3 web-post-bl)
                           (key-place 0 3 web-post-tl)))
      (hull (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
            (thumb-place 1 thumb-where web-post-tr)
