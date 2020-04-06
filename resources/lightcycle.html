@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Dactyl Lightcycle</title>
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="milligram.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="column column-50 column-offset-25">
+                <h1>Dactyl Lightcycle Generator</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column column-25">
+            </div>
+            <div class="column column-50">
+                <form method="POST" action="/lightcycle">
+                    <label for="keys">
+                        <h3>Keys</h3>
+                    </label>
+                    <fieldset name="keys" id="keys">
+                        <label for="ncols">Number of columns</label>
+                        <input type="number" name="ncols" id="ncols" value=5>
+                        <label for="thumb-count">Thumb key count?</label>
+                        <select id="thumb-count" name="thumb-count">
+                            <option value="5">5</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                        </select>
+                        <label for="last-row">Use bottom row?</label>
+                        <select id="last-row" name="last-row">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                        <label for="num-row">Use num row?</label>
+                        <select id="num-row" name="num-row">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </fieldset>
+                    <label for="curvature">
+                        <h3>Curvature & Tenting</h3>
+                    </label>
+                    <fieldset name="curvature" id=curvature>
+                        <label for="alpha">Column's Curvature</label>
+                        <select id="alpha" name="alpha">
+                            <option value=12>pi/12</option>
+                            <option value=13>pi/13</option>
+                            <option value=14>pi/14</option>
+                            <option value=15>pi/15</option>
+                            <option value=16>pi/16</option>
+                            <option value=17>pi/17</option>
+                            <option value=18>pi/18</option>
+                            <option value=19>pi/19</option>
+                            <option value=20>pi/20</option>
+                            <option value=21>pi/21</option>
+                        </select>
+                        <label for="beta">Row's Curvature</label>
+                        <select id="beta" name="beta">
+                            <option value=36>pi/36</option>
+                            <option value=30>pi/30</option>
+                        </select>
+                        <label for="tenting-angle">Tenting Angle</label>
+                        <select id="tenting-angle" name="tenting-angle">
+                            <option value=15>pi/15</option>
+                            <option value=14>pi/14</option>
+                            <option value=13>pi/13</option>
+                            <option value=12>pi/12</option>
+                            <option value=11>pi/11</option>
+                            <option value=10>pi/10</option>
+                            <option value=9>pi/9</option>
+                            <option value=8>pi/8</option>
+                            <option value=7>pi/7</option>
+                        </select>
+                    </fieldset>
+                    <label for="case-form">
+                        <h3>Form of the Case</h3>
+                    </label>
+                    <fieldset name="case-form" id="case-form">
+                        <label for="keyboard-z-offset">Height Offset</label>
+                        <select id="keyboard-z-offset" name="keyboard-z-offset">
+                            <option value=4>4 mm</option>
+                            <option value=6>6 mm</option>
+                            <option value=8>8 mm</option>
+                            <option value=10>10 mm</option>
+                            <option value=12>12 mm</option>
+                            <option value=14>14 mm</option>
+                            <option value=16>16 mm</option>
+                        </select>
+                    </fieldset>
+                    <label for="Miscelania">
+                        <h3>Miscelania</h3>
+                    </label>
+                    <fieldset name="keycaps" id="keycaps">
+                        <label for="show-keycaps">Show Keycaps?</label>
+                        <select id="show-keycaps" name="show-keycaps">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </fieldset>
+                    <input class="button-primary" type="submit" name="generate-case" value="Generate Case">
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column column-50 column-offset-25">
+                <p>
+                    Written by <a href="https://dactyl.bigcartel.com">Cheap Dactyl</a>.
+                    Licensed under the<a href="https://github.com/ibnuda/dactyl-keyboard/tree/refaktor#license"
+                        rel="noopener" target="_blank" title="GNU Affero General Public License Version 3"> GNU
+                        Affero General Public License V3</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

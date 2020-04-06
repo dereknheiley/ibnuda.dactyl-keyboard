@@ -995,5 +995,5 @@
    :configuration-thumb-offset-y -45
    :configuration-thumb-offset-z 27})
 
-(spit "things/lightcycle-cherry-top-right.scad"
+#_(spit "things/lightcycle-cherry-top-right.scad"
       (write-scad (dactyl-top-right c)))

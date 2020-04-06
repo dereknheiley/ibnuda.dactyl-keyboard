@@ -5,7 +5,8 @@
             [scad-clj.model :refer [pi]]
             [scad-clj.scad :refer [write-scad]]
             [selmer.parser :refer [render-file]]
-            [dactyl-keyboard.manuform :as dm])
+            [dactyl-keyboard.manuform :as dm]
+            [dactyl-keyboard.lightcycle :as dl])
   (:gen-class))
 
 (defn parse-int [s]
@@ -14,16 +15,25 @@
 (defn parse-bool [s]
   (Boolean/valueOf s))
 
-(defn generate-case [confs]
+(defn generate-case-dl [confs]
+  (write-scad (dl/dactyl-top-right confs)))
+
+(defn generate-case-dm [confs]
   (write-scad (dm/model-right confs)))
 
-(defn generate-plate [confs]
+(defn generate-plate-dm [confs]
   (write-scad (dm/right-plate confs)))
 
 (defn home [_]
-  (render-file "index.html" {:name "water"}))
+  (render-file "index.html" {}))
 
-(defn generate [req]
+(defn manuform [_]
+  (render-file "manuform.html" {}))
+
+(defn lightcycle [_]
+  (render-file "lightcycle.html" {}))
+
+(defn generate-manuform [req]
   (let [params (:form-params req)
         param-ncols (parse-int (get params "ncols"))
         param-nrows (parse-int (get params "nrows"))
@@ -80,8 +90,35 @@
                     :configuration-use-screw-inserts? param-screw-inserts
                     :configuration-use-wrist-rest? param-wrist-rest)
         generated-scad (if generate-plate?
-                         (generate-plate c)
-                         (generate-case c))]
+                         (generate-plate-dm c)
+                         (generate-case-dm c))]
+    {:status 200
+     :headers {"Content-Type" "application/octet-stream"
+               "Content-Disposition" "inline; filename=\"myfile.scad\""}
+     :body generated-scad}))
+
+(defn generate-lightcycle [req]
+  (let [p (:form-params req)
+        param-ncols (parse-int (get p "ncols"))
+        param-use-numrow? (parse-bool (get p "num-row"))
+        param-use-lastrow? (parse-bool (get p "last-row"))
+        param-thumb-count (case (get p "thumb-count")
+                            "2" :two
+                            "3" :three
+                            :five)
+        c {:configuration-ncols param-ncols
+           :configuration-use-numrow? param-use-numrow?
+           :configuration-use-lastrow? param-use-lastrow?
+           :configuration-thumb-count param-thumb-count
+           :configuration-alpha (/ pi 12)
+           :configuration-beta (/ pi 36)
+           :configuration-z-offset 18
+           :configuration-tenting-angle (/ pi 7)
+           :configuration-thumb-tenting-angle (/ pi 24)
+           :configuration-thumb-offset-x -48
+           :configuration-thumb-offset-y -45
+           :configuration-thumb-offset-z 27}
+        generated-scad (generate-case-dl c)]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}
@@ -89,7 +126,10 @@
 
 (defroutes app-routes
   (GET "/" [] home)
-  (POST "/" [] generate)
+  (GET "/manuform" [] manuform)
+  (POST "/manuform" [] generate-manuform)
+  (GET "/lightcycle" [] lightcycle)
+  (POST "/lightcycle" [] generate-lightcycle)
   (route/resources "/")
   (route/not-found "not found"))
 

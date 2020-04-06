@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Dactyl Manuform</title>
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="milligram.min.css">
+    <script>
+        function setkeyboard(ncols, nrows, minidox, innercolumn, lastrow, widepinky) {
+            document.getElementById("ncols").value = ncols;
+            document.getElementById("nrows").value = nrows;
+            document.getElementById("minidox").value = minidox;
+            document.getElementById("inner-column").value = innercolumn;
+            document.getElementById("last-row").value = lastrow;
+            document.getElementById("wide-pinky").value = widepinky;
+        }
+        function setminidox() {
+            setkeyboard(5, 4, "true", "false", "zero", "false");
+        }
+        function setcorne() {
+            setkeyboard(6, 4, "true", "false", "zero", "false");
+        }
+        function setergodox() {
+            setkeyboard(6, 5, "false", "true", "full", "true");
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="column column-50 column-offset-25">
+                <h1>Dactyl Manuform Generator</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column column-25">
+                <h2>Defaults:</h2>
+                <button onclick="setminidox()">Minidox</button>
+                <br>
+                <button onclick="setcorne()">Corne</button>
+                <br>
+                <button onclick="setergodox()">Ergodox</button>
+            </div>
+            <div class="column column-50">
+                <form method="POST" action="/manuform">
+                    <label for="keys">
+                        <h3>Keys</h3>
+                    </label>
+                    <fieldset name="keys" id="keys">
+                        <label for="ncols">Number of columns</label>
+                        <input type="number" name="ncols" id="ncols" value=5>
+                        <label for="nrows">Number of rows</label>
+                        <input type="number" name="nrows" id="nrows" value=4>
+                        <label for="minidox">Thumb Key Count</label>
+                        <select id="minidox" name="minidox">
+                            <option value="false">6</option>
+                            <option value="true">3</option>
+                        </select>
+                        <label for="last-row">Last Row Key Counts?</label>
+                        <select id="last-row" name="last-row">
+                            <option value="two">Two (Default Dactyl Manuform).</option>
+                            <option value="zero">No last row.</option>
+                            <option value="full">Use all keys.</option>
+                        </select>
+                        <label for="switch-type">Key Hole</label>
+                        <select id="switch-type" name="switch-type">
+                            <option value="box">Box and MX</option>
+                            <option value="mx">MX</option>
+                            <option value="alps">Alps</option>
+                        </select>
+                        <label for="inner-column">Inner Column?</label>
+                        <select id="inner-column" name="inner-column">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </fieldset>
+                    <label for="curvature">
+                        <h3>Curvature & Tenting</h3>
+                    </label>
+                    <fieldset name="curvature" id=curvature>
+                        <label for="alpha">Column's Curvature</label>
+                        <select id="alpha" name="alpha">
+                            <option value=12>pi/12</option>
+                            <option value=13>pi/13</option>
+                            <option value=14>pi/14</option>
+                            <option value=15>pi/15</option>
+                            <option value=16>pi/16</option>
+                            <option value=17>pi/17</option>
+                            <option value=18>pi/18</option>
+                            <option value=19>pi/19</option>
+                            <option value=20>pi/20</option>
+                            <option value=21>pi/21</option>
+                        </select>
+                        <label for="beta">Row's Curvature</label>
+                        <select id="beta" name="beta">
+                            <option value=36>pi/36</option>
+                            <option value=30>pi/30</option>
+                        </select>
+                        <label for="centecol">Center of the curvature for the column</label>
+                        <select id="centercol" name="centercol">
+                            <option value=4>Pinky finger's column</option>
+                            <option value=3>Ring finger's column</option>
+                            <option value=2>Middle finger's column</option>
+                            <option value=1>Index finger's column.</option>
+                        </select>
+                        <label for="tenting-angle">Tenting Angle</label>
+                        <select id="tenting-angle" name="tenting-angle">
+                            <option value=12>pi/12</option>
+                            <option value=11>pi/11</option>
+                            <option value=10>pi/10</option>
+                            <option value=9>pi/9</option>
+                            <option value=8>pi/8</option>
+                            <option value=7>pi/7</option>
+                        </select>
+                    </fieldset>
+                    <label for="connector">
+                        <h3>Connectors</h3>
+                    </label>
+                    <fieldset name="connector" id="connector">
+                        <label for="trrs-connector">Connector</label>
+                        <select id="trrs-connector" name="trrs-connector">
+                            <option value="false">RJ9</option>
+                            <option value="true">TRRS</option>
+                        </select>
+                        <label for="usb-hole">USB Hole</label>
+                        <select id="usb-hole" name="usb-hole">
+                            <option value="false">Mini</option>
+                            <option value="true">Micro</option>
+                        </select>
+                    </fieldset>
+                    <label for="case-form">
+                        <h3>Form of the Case</h3>
+                    </label>
+                    <fieldset name="case-form" id="case-form">
+                        <label for="hotswap">Dongguan Kaihua Electronics Co., Ltd
+                            (originally named Longhua Electronics)'s Hotswap Socket?</label>
+                        <select id="hotswap" name="hotswap">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                        <label for="ortho">Stagger?</label>
+                        <select id="ortho" name="ortho">
+                            <option value="false">Yes</option>
+                            <option value="true">No</option>
+                        </select>
+                        <label for="wide-pinky">Wide Pinky?</label>
+                        <select id="wide-pinky" name="wide-pinky">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                        <label for="keyboard-z-offset">Height Offset</label>
+                        <select id="keyboard-z-offset" name="keyboard-z-offset">
+                            <option value=4>4 mm</option>
+                            <option value=6>6 mm</option>
+                            <option value=8>8 mm</option>
+                            <option value=10>10 mm</option>
+                            <option value=12>12 mm</option>
+                            <option value=14>14 mm</option>
+                            <option value=16>16 mm</option>
+                        </select>
+                        <label for="wire-post">Wire Posts?</label>
+                        <select id="wire-post" name="wire-post">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                        <label for="screw-inserts">Screw inserts</label>
+                        <select id="screw-inserts" name="screw-inserts">
+                            <option value="false">No screw inserts</option>
+                            <option value="true">Screw inserts</option>
+                        </select>
+                    </fieldset>
+                    <label for="Miscelania">
+                        <h3>Miscelania</h3>
+                    </label>
+                    <fieldset name="keycaps" id="keycaps">
+                        <label for="show-keycaps">Show Keycaps?</label>
+                        <select id="show-keycaps" name="show-keycaps">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                        <label for="wrist-rest">Integrated Wrist Rest?</label>
+                        <select id="wrist-rest" name="wrist-rest">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </fieldset>
+                    <input class="button-primary" type="submit" name="generate-case" value="Generate Case">
+                    <input class="button-primary" type="submit" name="generate-plate" value="Generate Plate">
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column column-50 column-offset-25">
+                <p>
+                    Written by <a href="https://dactyl.bigcartel.com">Cheap Dactyl</a>.
+                    Licensed under the<a href="https://github.com/ibnuda/dactyl-keyboard/tree/refaktor#license"
+                        rel="noopener" target="_blank" title="GNU Affero General Public License Version 3"> GNU
+                        Affero General Public License V3</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
