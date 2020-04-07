@@ -26,7 +26,7 @@
                     </label>
                     <fieldset name="keys" id="keys">
                         <label for="ncols">Number of columns</label>
-                        <input type="number" name="ncols" id="ncols" value=5>
+                        <input type="number" name="ncols" id="ncols" value=6>
                         <label for="thumb-count">Thumb key count?</label>
                         <select id="thumb-count" name="thumb-count">
                             <option value="5">5</option>
@@ -67,7 +67,7 @@
                             <option value=30>pi/30</option>
                         </select>
                         <label for="tenting-angle">Tenting Angle</label>
-                        <select id="tenting-angle" name="tenting-angle">
+                        <select id="tenting-angle" name="tenting-angle" value=12>
                             <option value=15>pi/15</option>
                             <option value=14>pi/14</option>
                             <option value=13>pi/13</option>
@@ -78,20 +78,58 @@
                             <option value=8>pi/8</option>
                             <option value=7>pi/7</option>
                         </select>
+                        <label for="thumb-tenting-angle">Tenting Angle</label>
+                        <select id="thumb-tenting-angle" name="thumb-tenting-angle">
+                            <option value=24>pi/24</option>
+                            <option value=23>pi/23</option>
+                            <option value=22>pi/22</option>
+                            <option value=21>pi/21</option>
+                            <option value=20>pi/20</option>
+                            <option value=19>pi/19</option>
+                            <option value=18>pi/18</option>
+                            <option value=17>pi/17</option>
+                            <option value=16>pi/16</option>
+                        </select>
+                    </fieldset>
+                    <label for="thumb-offset">
+                        <h3>Form of the Case</h3>
+                    </label>
+                    <fieldset name="thumb-offset" id="thumb-offset">
+                        <label for="thumb-offset-x">Thumb Position in X direction (left/right)</label>
+                        <select id="thumb-offset-x" name="thumb-offset-x">
+                            <option value="52">Default</option>
+                            <option value="48">Closer to body</option>
+                            <option value="56">Farther to body</option>
+                        </select>
+                        <label for="thumb-offset-y">Thumb Position in Y direction (front/back)</label>
+                        <select id="thumb-offset-y" name="thumb-offset-y">
+                            <option value="45">Default</option>
+                            <option value="49">Farther to body</option>
+                        </select>
+                        <label for="thumb-offset-z">Thumb Position in Z direction (up/down)</label>
+                        <select id="thumb-offset-z" name="thumb-offset-z">
+                            <option value="27">Default</option>
+                            <option value="23">Lower to body</option>
+                            <option value="31">Higher to body</option>
+                        </select>
                     </fieldset>
                     <label for="case-form">
                         <h3>Form of the Case</h3>
                     </label>
                     <fieldset name="case-form" id="case-form">
-                        <label for="keyboard-z-offset">Height Offset</label>
-                        <select id="keyboard-z-offset" name="keyboard-z-offset">
-                            <option value=4>4 mm</option>
-                            <option value=6>6 mm</option>
-                            <option value=8>8 mm</option>
-                            <option value=10>10 mm</option>
-                            <option value=12>12 mm</option>
-                            <option value=14>14 mm</option>
+                        <label for="z-offset">Height Offset</label>
+                        <select id="z-offset" name="z-offset">
+                            <option value=18>18 mm</option>
+                            <option value=20>20 mm</option>
+                            <option value=22>22 mm</option>
+                            <option value=24>24 mm</option>
+                            <option value=26>26 mm</option>
+                            <option value=28>28 mm</option>
+                            <option value=30>30 mm</option>
                             <option value=16>16 mm</option>
+                            <option value=14>14 mm</option>
+                            <option value=12>12 mm</option>
+                            <option value=10>10 mm</option>
                         </select>
                     </fieldset>
                     <label for="Miscelania">
@@ -111,7 +149,8 @@
         <div class="row">
             <div class="column column-50 column-offset-25">
                 <p>
-                    Written by <a href="https://dactyl.bigcartel.com">Cheap Dactyl</a>.
+                    Written by <a href="https://github.com/ibnuda">Ibnu D. Aji</a>.
+                    Provided as is by <a href="https://dactyl.bigcartel.com">Cheap Dactyl</a>.
                     Licensed under the<a href="https://github.com/ibnuda/dactyl-keyboard/tree/refaktor#license"
                         rel="noopener" target="_blank" title="GNU Affero General Public License Version 3"> GNU
                         Affero General Public License V3</a>.

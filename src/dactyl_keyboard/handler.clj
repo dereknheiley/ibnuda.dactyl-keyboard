@@ -65,30 +65,30 @@
         param-wrist-rest (parse-bool (get params "wrist-rest"))
         param-generate-plate (get params "generate-plate")
         generate-plate? (some? param-generate-plate)
-        c (hash-map :configuration-nrows param-nrows
-                    :configuration-ncols param-ncols
-                    :configuration-minidox-style? param-minidox
-                    :configuration-last-row-count param-last-row-count
-                    :configuration-create-side-nub? param-side-nub
-                    :configuration-use-alps? param-use-alps
-                    :configuration-use-inner-column? param-inner-column
+        c {:configuration-nrows param-nrows
+           :configuration-ncols param-ncols
+           :configuration-minidox-style? param-minidox
+           :configuration-last-row-count param-last-row-count
+           :configuration-create-side-nub? param-side-nub
+           :configuration-use-alps? param-use-alps
+           :configuration-use-inner-column? param-inner-column
 
-                    :configuration-alpha (/ pi param-alpha)
-                    :configuration-beta (/ pi param-beta)
-                    :configuration-centercol param-centercol
-                    :configuration-tenting-angle (/ pi param-tenting-angle)
+           :configuration-alpha (/ pi param-alpha)
+           :configuration-beta (/ pi param-beta)
+           :configuration-centercol param-centercol
+           :configuration-tenting-angle (/ pi param-tenting-angle)
 
-                    :configuration-use-promicro-usb-hole?  param-use-promicro-usb-hole
-                    :configuration-use-trrs? param-trrs-connector
+           :configuration-use-promicro-usb-hole?  param-use-promicro-usb-hole
+           :configuration-use-trrs? param-trrs-connector
 
-                    :configuration-use-hotswap? param-hotswap
-                    :configuration-ortho? param-ortho
-                    :configuration-keyboard-z-offset param-keyboard-z-offset
-                    :configuration-show-caps? param-show-keycaps
-                    :configuration-use-wide-pinky? param-wide-pinky
-                    :configuration-use-wire-post? param-wire-post
-                    :configuration-use-screw-inserts? param-screw-inserts
-                    :configuration-use-wrist-rest? param-wrist-rest)
+           :configuration-use-hotswap? param-hotswap
+           :configuration-ortho? param-ortho
+           :configuration-keyboard-z-offset param-keyboard-z-offset
+           :configuration-show-caps? param-show-keycaps
+           :configuration-use-wide-pinky? param-wide-pinky
+           :configuration-use-wire-post? param-wire-post
+           :configuration-use-screw-inserts? param-screw-inserts
+           :configuration-use-wrist-rest? param-wrist-rest}
         generated-scad (if generate-plate?
                          (generate-plate-dm c)
                          (generate-case-dm c))]
@@ -106,18 +106,27 @@
                             "2" :two
                             "3" :three
                             :five)
+        param-alpha (parse-int (get p "alpha"))
+        param-beta (parse-int (get p "beta"))
+        param-tenting-angle (parse-int (get p "tenting-angle"))
+        param-thumb-tenting-angle (parse-int (get p "thumb-tenting-angle"))
+        param-z-offset (parse-int (get p "z-offset"))
+        param-thumb-offset-x (parse-int (get p "thumb-offset-x"))
+        param-thumb-offset-y (parse-int (get p "thumb-offset-y"))
+        param-thumb-offset-z (parse-int (get p "thumb-offset-z"))
         c {:configuration-ncols param-ncols
            :configuration-use-numrow? param-use-numrow?
            :configuration-use-lastrow? param-use-lastrow?
            :configuration-thumb-count param-thumb-count
-           :configuration-alpha (/ pi 12)
-           :configuration-beta (/ pi 36)
-           :configuration-z-offset 18
-           :configuration-tenting-angle (/ pi 7)
-           :configuration-thumb-tenting-angle (/ pi 24)
-           :configuration-thumb-offset-x -48
-           :configuration-thumb-offset-y -45
-           :configuration-thumb-offset-z 27}
+
+           :configuration-alpha (/ pi param-alpha)
+           :configuration-beta (/ pi param-beta)
+           :configuration-tenting-angle (/ pi param-tenting-angle)
+           :configuration-z-offset param-z-offset
+           :configuration-thumb-tenting-angle (/ pi param-thumb-tenting-angle)
+           :configuration-thumb-offset-x (- 0 param-thumb-offset-x)
+           :configuration-thumb-offset-y (- 0 param-thumb-offset-y)
+           :configuration-thumb-offset-z param-thumb-offset-z}
         generated-scad (generate-case-dl c)]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
