@@ -808,24 +808,41 @@
    (* dy (+ wall-xy-offset wall-thickness))
    wall-z-offset])
 
-; if you want to change the wall, use this.
-; place1 means the location at the keyboard, marked by key-place or thumb-xx-place
-; dx1 means the movement from place1 in x coordinate, multiplied by wall-xy-locate.
-; dy1 means the movement from place1 in y coordinate, multiplied by wall-xy-locate.
-; post1 means the position this wall attached to place1.
-;       xxxxx-br means bottom right of the place1.
-;       xxxxx-bl means bottom left of the place1.
-;       xxxxx-tr means top right of the place1.
-;       xxxxx-tl means top left of the place1.
-; place2 means the location at the keyboard, marked by key-place or thumb-xx-place
-; dx2 means the movement from place2 in x coordinate, multiplied by wall-xy-locate.
-; dy2 means the movement from place2 in y coordinate, multiplied by wall-xy-locate.
-; post2 means the position this wall attached to place2.
-;       xxxxx-br means bottom right of the place2.
-;       xxxxx-bl means bottom left of the place2.
-;       xxxxx-tr means top right of the place2.
-;       xxxxx-tl means top left of the place2.
-(defn wall-brace [place1 dx1 dy1 post1 place2 dx2 dy2 post2]
+(defn wall-brace
+  " if you want to change the wall, use this.
+    place1 means the location at the keyboard, marked by key-place or thumb-xx-place
+    dx1 means the movement from place1 in x coordinate, multiplied by wall-xy-locate.
+    dy1 means the movement from place1 in y coordinate, multiplied by wall-xy-locate.
+    post1 means the position this wall attached to place1.
+          xxxxx-br means bottom right of the place1.
+          xxxxx-bl means bottom left of the place1.
+          xxxxx-tr means top right of the place1.
+          xxxxx-tl means top left of the place1.
+    place2 means the location at the keyboard, marked by key-place or thumb-xx-place
+    dx2 means the movement from place2 in x coordinate, multiplied by wall-xy-locate.
+    dy2 means the movement from place2 in y coordinate, multiplied by wall-xy-locate.
+    post2 means the position this wall attached to place2.
+          xxxxx-br means bottom right of the place2.
+          xxxxx-bl means bottom left of the place2.
+          xxxxx-tr means top right of the place2.
+          xxxxx-tl means top left of the place2.
+    howe does it work?
+    given this following wall
+        a ==\\ b
+             \\
+            c \\ d
+              | |
+              | |
+              | |
+              | |
+            e | | f
+    in this function a: usually the wall of a switch hole.
+                    b: the result of hull and translation from wall-locate1
+                    c: the result of hull and translation from wall-locate2
+                    d: the result of hull and translation from wall-locate3
+                    e: the result of bottom-hull translation from wall-locate2
+                    f: the result of bottom-hull translation from wall-locate3"
+  [place1 dx1 dy1 post1 place2 dx2 dy2 post2]
   (union
    (hull
     (place1 post1)
@@ -1566,10 +1583,10 @@
                               (translate [0 0 -10] (screw-insert-screw-holes c))))))
 
 (def c (hash-map :configuration-nrows 4
-                 :configuration-ncols 6
+                 :configuration-ncols 5
                  :configuration-create-side-nub? false
                  :configuration-use-alps? false
-                 :configuration-minidox-style? false
+                 :configuration-minidox-style? true
 
                  :configuration-alpha (/ pi 12)
                  :configuration-beta (/ pi 36)
@@ -1582,13 +1599,13 @@
                  :configuration-use-hotswap? false
                  :configuration-ortho? false
                  :configuration-use-inner-column? false
-                 :configuration-keyboard-z-offset 16
+                 :configuration-keyboard-z-offset 4
                  :configuration-show-caps? false
                  :configuration-last-row-count :zero
                  :configuration-use-wide-pinky? false
                  :configuration-use-wire-post? false
                  :configuration-use-screw-inserts? false
-                 :configuration-use-wrist-rest? true))
+                 :configuration-use-wrist-rest? false))
 
 #_(spit "things/right.scad"
       (write-scad (model-right c)))
