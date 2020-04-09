@@ -142,18 +142,6 @@
 (defn fpenultcol [ncols] (dec ncols))
 (defn fantecol   [ncols] (dec (fpenultcol ncols)))
 
-#_(def columns (range 0 ncols))
-#_(def rows (range (if use-numrow? 0 1) nrows))
-
-#_(def alpha (/ pi 12))
-#_(def beta (/ pi 36))
-
-#_(def tenting-angle (/ pi 9))
-#_(def thumb-tenting-angle (/ pi 24))
-
-#_(def z-offset 18)
-#_(def thumb-offset [-48 -45 (+ z-offset 27)])
-
 (defn fthumb-offset [c]
   (let [thumb-offset-x (get c :configuration-thumb-offset-x)
         thumb-offset-y (get c :configuration-thumb-offset-y)
@@ -981,6 +969,9 @@
           #_(thumbcaps c))
    (usb-holder-hole c)))
 
+(defn dactyl-top-left [c]
+  (mirror [-1 0 0] (dactyl-top-right c)))
+
 (def c
   {:configuration-ncols 5
    :configuration-use-numrow? false
@@ -993,7 +984,8 @@
    :configuration-thumb-tenting-angle (/ pi 24)
    :configuration-thumb-offset-x -48
    :configuration-thumb-offset-y -45
-   :configuration-thumb-offset-z 27})
+   :configuration-thumb-offset-z 27
+   :configuration-show-caps? false})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
       (write-scad (dactyl-top-right c)))

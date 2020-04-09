@@ -67,7 +67,7 @@
                             <option value=30>pi/30</option>
                         </select>
                         <label for="tenting-angle">Tenting Angle</label>
-                        <select id="tenting-angle" name="tenting-angle" value=12>
+                        <select id="tenting-angle" name="tenting-angle" value=9>
                             <option value=15>pi/15</option>
                             <option value=14>pi/14</option>
                             <option value=13>pi/13</option>
@@ -132,14 +132,19 @@
                             <option value=10>10 mm</option>
                         </select>
                     </fieldset>
-                    <label for="Miscelania">
+                    <label for="miscelania">
                         <h3>Miscelania</h3>
                     </label>
-                    <fieldset name="keycaps" id="keycaps">
-                        <label for="show-keycaps">Show Keycaps?</label>
+                    <fieldset name="miscelania" id="miscelania">
+                        <!--label for="show-keycaps">Show Keycaps?</label>
                         <select id="show-keycaps" name="show-keycaps">
                             <option value="false">No</option>
                             <option value="true">Yes</option>
+                        </select-->
+                        <label for="right-side">Right side or left side?</label>
+                        <select id="right-side" name="right-side">
+                            <option value="true">Right</option>
+                            <option value="false">Left</option>
                         </select>
                     </fieldset>
                     <input class="button-primary" type="submit" name="generate-case" value="Generate Case">

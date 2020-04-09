@@ -15,14 +15,20 @@
 (defn parse-bool [s]
   (Boolean/valueOf s))
 
-(defn generate-case-dl [confs]
-  (write-scad (dl/dactyl-top-right confs)))
+(defn generate-case-dl [confs is-right?]
+  (write-scad (if is-right?
+                (dl/dactyl-top-right confs)
+                (dl/dactyl-top-left confs))))
 
-(defn generate-case-dm [confs]
-  (write-scad (dm/model-right confs)))
+(defn generate-case-dm [confs is-right?]
+  (write-scad (if is-right?
+                (dm/model-right confs)
+                (dm/model-left confs))))
 
-(defn generate-plate-dm [confs]
-  (write-scad (dm/right-plate confs)))
+(defn generate-plate-dm [confs is-right?]
+  (write-scad (if is-right?
+                (dm/plate-right confs)
+                (dm/plate-left confs))))
 
 (defn home [_]
   (render-file "index.html" {}))
@@ -34,36 +40,37 @@
   (render-file "lightcycle.html" {}))
 
 (defn generate-manuform [req]
-  (let [params (:form-params req)
-        param-ncols (parse-int (get params "ncols"))
-        param-nrows (parse-int (get params "nrows"))
-        param-minidox (parse-bool (get params "minidox"))
-        param-last-row-count (case (get params "last-row")
+  (let [p (:form-params req)
+        param-ncols (parse-int (get p "ncols"))
+        param-nrows (parse-int (get p "nrows"))
+        param-minidox (parse-bool (get p "minidox"))
+        param-last-row-count (case (get p "last-row")
                                "zero" :zero
                                "full" :full
                                :two)
-        keyswitch-type (get params "switch-type")
+        keyswitch-type (get p "switch-type")
         param-use-alps (case keyswitch-type "alps" true false)
         param-side-nub (case keyswitch-type "mx" true false)
-        param-inner-column (parse-bool (get params "inner-column"))
+        param-inner-column (parse-bool (get p "inner-column"))
 
-        param-alpha (parse-int (get params "alpha"))
-        param-beta (parse-int (get params "beta"))
-        param-centercol (parse-int (get params "centercol"))
-        param-tenting-angle (parse-int (get params "tenting-angle"))
+        param-alpha (parse-int (get p "alpha"))
+        param-beta (parse-int (get p "beta"))
+        param-centercol (parse-int (get p "centercol"))
+        param-tenting-angle (parse-int (get p "tenting-angle"))
 
-        param-trrs-connector (parse-bool (get params "trrs-connector"))
-        param-use-promicro-usb-hole (parse-bool (get params "usb-hole"))
+        param-trrs-connector (parse-bool (get p "trrs-connector"))
+        param-use-promicro-usb-hole (parse-bool (get p "usb-hole"))
 
-        param-hotswap (parse-bool (get params "hotswap"))
-        param-ortho (parse-bool (get params "ortho"))
-        param-keyboard-z-offset (parse-int (get params "keyboard-z-offset"))
-        param-wide-pinky (parse-bool (get params "wide-pinky"))
-        param-wire-post (parse-bool (get params "wire-post"))
-        param-screw-inserts (parse-bool (get params "screw-inserts"))
-        param-show-keycaps (parse-bool (get params "show-keycaps"))
-        param-wrist-rest (parse-bool (get params "wrist-rest"))
-        param-generate-plate (get params "generate-plate")
+        param-hotswap (parse-bool (get p "hotswap"))
+        param-ortho (parse-bool (get p "ortho"))
+        param-keyboard-z-offset (parse-int (get p "keyboard-z-offset"))
+        param-wide-pinky (parse-bool (get p "wide-pinky"))
+        param-wire-post (parse-bool (get p "wire-post"))
+        param-screw-inserts (parse-bool (get p "screw-inserts"))
+        param-show-keycaps (parse-bool (get p "show-keycaps"))
+        param-wrist-rest (parse-bool (get p "wrist-rest"))
+        param-generate-plate (get p "generate-plate")
+        is-right? (parse-bool (get p "right-side"))
         generate-plate? (some? param-generate-plate)
         c {:configuration-nrows param-nrows
            :configuration-ncols param-ncols
@@ -90,8 +97,8 @@
            :configuration-use-screw-inserts? param-screw-inserts
            :configuration-use-wrist-rest? param-wrist-rest}
         generated-scad (if generate-plate?
-                         (generate-plate-dm c)
-                         (generate-case-dm c))]
+                         (generate-plate-dm c is-right?)
+                         (generate-case-dm c is-right?))]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}
@@ -113,6 +120,7 @@
         param-z-offset (parse-int (get p "z-offset"))
         param-thumb-offset-x (parse-int (get p "thumb-offset-x"))
         param-thumb-offset-y (parse-int (get p "thumb-offset-y"))
+        is-right? (parse-bool (get p "right-side"))
         param-thumb-offset-z (parse-int (get p "thumb-offset-z"))
         c {:configuration-ncols param-ncols
            :configuration-use-numrow? param-use-numrow?
@@ -127,7 +135,7 @@
            :configuration-thumb-offset-x (- 0 param-thumb-offset-x)
            :configuration-thumb-offset-y (- 0 param-thumb-offset-y)
            :configuration-thumb-offset-z param-thumb-offset-z}
-        generated-scad (generate-case-dl c)]
+        generated-scad (generate-case-dl c is-right?)]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}

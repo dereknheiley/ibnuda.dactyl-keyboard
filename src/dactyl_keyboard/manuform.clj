@@ -951,15 +951,15 @@
                 (partial inner-key-place confs)
                 (partial left-key-place confs)) (dec y) -1 web-post))))
     (wall-brace (partial key-place confs (if use-inner-column? -1 0) 0) 0 1 web-post-tl
-                  (partial (if use-inner-column?
-                             (partial inner-key-place confs)
-                             (partial left-key-place confs)) 0 1)  0 1 web-post)
+                (partial (if use-inner-column?
+                           (partial inner-key-place confs)
+                           (partial left-key-place confs)) 0 1)  0 1 web-post)
     (wall-brace (partial (if use-inner-column?
-                             (partial inner-key-place confs)
-                             (partial left-key-place confs)) 0 1)  0 1 web-post
-                  (partial (if use-inner-column?
-                             (partial inner-key-place confs)
-                             (partial left-key-place confs)) 0 1) -1 0 web-post))))
+                           (partial inner-key-place confs)
+                           (partial left-key-place confs)) 0 1)  0 1 web-post
+                (partial (if use-inner-column?
+                           (partial inner-key-place confs)
+                           (partial left-key-place confs)) 0 1) -1 0 web-post))))
 (defn front-wall [confs]
   (let [ncols (get confs :configuration-ncols)
         nrows (get confs :configuration-nrows)
@@ -1574,13 +1574,19 @@
          (usb-holder-hole c))))
      (translate [0 0 -60] (cube 350 350 120)))))
 
-(defn right-plate [c]
+(defn model-left [c]
+  (mirror [-1 0 0] (model-right c)))
+
+(defn plate-right [c]
   (cut (translate [0 0 -0.1]
                   (difference (union (case-walls c)
                                      (rj9-holder c)
                                      (usb-holder c)
                                      (screw-insert-outers c))
                               (translate [0 0 -10] (screw-insert-screw-holes c))))))
+
+(defn plate-left [c]
+  (mirror [-1 0 0] (plate-right c)))
 
 (def c (hash-map :configuration-nrows 4
                  :configuration-ncols 5
