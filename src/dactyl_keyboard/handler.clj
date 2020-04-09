@@ -126,6 +126,12 @@
            :configuration-use-numrow? param-use-numrow?
            :configuration-use-lastrow? param-use-lastrow?
            :configuration-thumb-count param-thumb-count
+           ; TODO: fix this
+           :configuration-create-side-nub? false
+           ; TODO: fix this
+           :configuration-use-alps? false
+           ; TODO: fix this
+           :configuration-use-hotswap? false
 
            :configuration-alpha (/ pi param-alpha)
            :configuration-beta (/ pi param-beta)
