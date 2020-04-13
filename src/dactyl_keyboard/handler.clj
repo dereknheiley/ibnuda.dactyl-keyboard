@@ -138,6 +138,7 @@
         param-thumb-offset-y (parse-int (get p "thumb-offset-y"))
         is-right? (parse-bool (get p "right-side"))
         param-thumb-offset-z (parse-int (get p "thumb-offset-z"))
+        param-use-external-holder (parse-bool (get p "external-holder"))
         c {:configuration-ncols param-ncols
            :configuration-use-numrow? param-use-numrow?
            :configuration-use-lastrow? param-use-lastrow?
@@ -156,7 +157,8 @@
            :configuration-thumb-tenting-angle (/ pi param-thumb-tenting-angle)
            :configuration-thumb-offset-x (- 0 param-thumb-offset-x)
            :configuration-thumb-offset-y (- 0 param-thumb-offset-y)
-           :configuration-thumb-offset-z param-thumb-offset-z}
+           :configuration-thumb-offset-z param-thumb-offset-z
+           :configuration-param-use-external-holder param-use-external-holder}
         generated-scad (generate-case-dl c is-right?)]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
