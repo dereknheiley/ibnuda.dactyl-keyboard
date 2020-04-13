@@ -1143,7 +1143,7 @@
          (union
           (translate [1, xyz,1] (case-walls c))))))
 
-(defn wrist-rest-build [c]
+(defn integrated-wrist-rest-build [c]
   (difference
    (->> (union
          (->> (wrist-rest-base c)
@@ -1167,10 +1167,13 @@
         use-screw-inserts? (get c :configuration-use-screw-inserts?)
         use-trrs? (get c :configuration-use-trrs?)
         use-wire-post? (get c :configuration-use-wire-post?)
-        use-wrist-rest? (get c :configuration-use-wrist-rest?)]
+        use-wrist-rest? (get c :configuration-use-wrist-rest?)
+        use-integrated-wrist-rest? (get c :configuration-integrated-wrist-rest?)]
     (difference
      (union
-      (if use-wrist-rest? (wrist-rest-build c) ())
+      (if use-wrist-rest?
+        (if use-integrated-wrist-rest? (integrated-wrist-rest-build c) ())
+        ())
       (if show-caps? (caps c) ())
       (if show-caps? (thumbcaps c) ())
       (if-not use-external-holder?
@@ -1185,9 +1188,7 @@
       (thumb-connectors c)
       (difference
        (union (case-walls c)
-              (if use-screw-inserts?
-                (screw-insert-outers screw-placement c)
-                ())
+              (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
               (if-not use-external-holder?
                 (do
                   (if use-promicro-usb-hole?
@@ -1195,18 +1196,12 @@
                            (trrs-usb-holder-holder c))
                     (union (usb-holder fusb-holder-position c)
                            (pro-micro-holder c)))
-                  (if use-trrs?
-                    (trrs-holder c)
-                    ()))
+                  (if use-trrs? (trrs-holder c) ()))
                 ()))
-       (if use-screw-inserts?
-         (screw-insert-holes screw-placement c)
-         ())
+       (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
        (if-not use-external-holder?
          (do
-           (if use-trrs?
-             (trrs-holder-hole c)
-             (rj9-space frj9-start c))
+           (if use-trrs? (trrs-holder-hole c) (rj9-space frj9-start c))
            (if use-promicro-usb-hole?
              (union (trrs-usb-holder-space c)
                     (trrs-usb-jack c))
@@ -1230,6 +1225,12 @@
 
 (defn plate-left [c]
   (mirror [-1 0 0] (plate-right c)))
+
+(defn wrist-rest-right [c]
+  (wrist-rest-base c))
+
+(defn wrist-rest-left [c]
+  (mirror [-1 0 0] (wrist-rest-base c)))
 
 (def c {:configuration-nrows 4
         :configuration-ncols 5

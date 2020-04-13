@@ -30,6 +30,11 @@
                 (dm/plate-right confs)
                 (dm/plate-left confs))))
 
+(defn generate-wrist-rest-dm [confs is-right?]
+  (write-scad (if is-right?
+                (dm/wrist-rest-right confs)
+                (dm/wrist-rest-left confs))))
+
 (defn home [_]
   (render-file "index.html" {}))
 
@@ -70,9 +75,15 @@
         param-screw-inserts (parse-bool (get p "screw-inserts"))
         param-show-keycaps (parse-bool (get p "show-keycaps"))
         param-wrist-rest (parse-bool (get p "wrist-rest"))
-        param-generate-plate (get p "generate-plate")
+        param-integrated-wrist-rest (parse-bool (get p "integrated-wrist-rest"))
         is-right? (parse-bool (get p "right-side"))
+        
+        param-generate-plate (get p "generate-plate")
+        param-generate-wrist-rest (get p "generate-wrist-rest")
+        
         generate-plate? (some? param-generate-plate)
+        generate-wrist-rest? (some? param-generate-wrist-rest)
+        
         c {:configuration-nrows param-nrows
            :configuration-ncols param-ncols
            :configuration-minidox-style? param-minidox
@@ -97,10 +108,13 @@
            :configuration-use-wide-pinky? param-wide-pinky
            :configuration-use-wire-post? param-wire-post
            :configuration-use-screw-inserts? param-screw-inserts
-           :configuration-use-wrist-rest? param-wrist-rest}
+           :configuration-use-wrist-rest? param-wrist-rest
+           :configuration-integrated-wrist-rest? param-integrated-wrist-rest}
         generated-scad (if generate-plate?
                          (generate-plate-dm c is-right?)
-                         (generate-case-dm c is-right?))]
+                         (if generate-wrist-rest?
+                           (generate-wrist-rest-dm c is-right?)
+                           (generate-case-dm c is-right?)))]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}
