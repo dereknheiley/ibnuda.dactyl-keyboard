@@ -25,6 +25,22 @@
         function setergodox() {
             setkeyboard(6, 5, "false", "true", "full", "true");
         }
+
+        function toggle_connectors_fields() {
+            const use_external_holder = document.getElementById("external-holder").value;
+            const impacted_ids = ["trrs-connector", "usb-hole"];
+            if (use_external_holder === "true") {
+                impacted_ids.forEach(id => {
+                    document.querySelector("label[for='" + id + "']").style.display = 'none'; // Hide the label
+                    document.querySelector("select[id='" + id + "']").style.display = 'none'; // Hide the select
+                });
+            } else {
+                impacted_ids.forEach(id => {
+                    document.querySelector("label[for='" + id + "']").style.display = 'block'; // Show the label
+                    document.querySelector("select[id='" + id + "']").style.display = 'block'; // Hide the select
+                });
+            }
+        }
     </script>
 </head>
 
@@ -120,6 +136,11 @@
                         <h3>Connectors</h3>
                     </label>
                     <fieldset name="connector" id="connector">
+                        <label for="external-holder">Use loligaggers' external holder ?</label>
+                        <select id="external-holder" name="external-holder" onchange="toggle_connectors_fields()">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
                         <label for="trrs-connector">Connector</label>
                         <select id="trrs-connector" name="trrs-connector">
                             <option value="false">RJ9</option>

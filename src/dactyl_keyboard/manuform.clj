@@ -1063,6 +1063,23 @@
                (- (second (teensy-top-xy c)) 1)
                (/ (+ 6 teensy-width) 2)])))
 
+; Offsets for the controller/trrs external holder cutout
+(defn external-holder-offset [c]
+  (case (get c :configuration-nrows)
+    4 -3.5
+    5 0
+    6 2.2))
+
+; Cutout for controller/trrs jack external holder
+(defn external-holder-ref [c]
+  (key-position c 0 0 (map - (wall-locate2  0  -1) [0 (/ mount-height 2) 0])))
+(defn external-holder-position [c]
+  (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first (external-holder-ref c)) (second (external-holder-ref c)) 2]))
+(def external-holder-cube
+  (cube 28.666 30 12.6))
+(defn external-holder-space [c]
+  (translate (map + (external-holder-position c) [-1.5 (* -1 wall-thickness) 3]) external-holder-cube))
+
 (defn screw-insert [c column row bottom-radius top-radius height]
   (let [lastcol (flastcol (get c :configuration-ncols))
         lastrow (flastrow (get c :configuration-nrows))
@@ -1145,6 +1162,7 @@
 (defn model-right [c]
   (let [use-inner-column? (get c :configuration-use-inner-column?)
         show-caps? (get c :configuration-show-caps?)
+        use-external-holder? (get c :configuration-param-use-external-holder)
         use-promicro-usb-hole? (get c :configuration-use-promicro-usb-hole?)
         use-screw-inserts? (get c :configuration-use-screw-inserts?)
         use-trrs? (get c :configuration-use-trrs?)
@@ -1155,8 +1173,11 @@
       (if use-wrist-rest? (wrist-rest-build c) ())
       (if show-caps? (caps c) ())
       (if show-caps? (thumbcaps c) ())
-      (if use-wire-post? (wire-posts c) ())
-      (if-not use-trrs? (rj9-holder frj9-start c) ())
+      (if-not use-external-holder?
+        (do
+          (if use-wire-post? (wire-posts c) ())
+          (if-not use-trrs? (rj9-holder frj9-start c) ()))
+        ())
       (if use-inner-column? (inner-key-holes c) ())
       (key-holes c)
       (thumb c)
@@ -1167,24 +1188,31 @@
               (if use-screw-inserts?
                 (screw-insert-outers screw-placement c)
                 ())
-              (if use-promicro-usb-hole?
-                (union (pro-micro-holder c)
-                       (trrs-usb-holder-holder c))
-                (union (usb-holder fusb-holder-position c)
-                       (pro-micro-holder c)))
-              (if use-trrs?
-                (trrs-holder c)
+              (if-not use-external-holder?
+                (do
+                  (if use-promicro-usb-hole?
+                    (union (pro-micro-holder c)
+                           (trrs-usb-holder-holder c))
+                    (union (usb-holder fusb-holder-position c)
+                           (pro-micro-holder c)))
+                  (if use-trrs?
+                    (trrs-holder c)
+                    ()))
                 ()))
        (if use-screw-inserts?
          (screw-insert-holes screw-placement c)
          ())
-       (if use-trrs?
-         (trrs-holder-hole c)
-         (rj9-space frj9-start c))
-       (if use-promicro-usb-hole?
-         (union (trrs-usb-holder-space c)
-                (trrs-usb-jack c))
-         (usb-holder-hole fusb-holder-position c))))
+       (if-not use-external-holder?
+         (do
+           (if use-trrs?
+             (trrs-holder-hole c)
+             (rj9-space frj9-start c))
+           (if use-promicro-usb-hole?
+             (union (trrs-usb-holder-space c)
+                    (trrs-usb-jack c))
+             (usb-holder-hole fusb-holder-position c)))
+         (external-holder-space c))
+       ))
      (translate [0 0 -60] (cube 350 350 120)))))
 
 (defn model-left [c]
@@ -1227,6 +1255,7 @@
         :configuration-use-wire-post? false
         :configuration-use-screw-inserts? true
         :configuration-use-wrist-rest? false})
+
 
 #_(spit "things/right.scad"
       (write-scad (model-right c)))

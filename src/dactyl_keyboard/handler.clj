@@ -58,6 +58,7 @@
         param-centercol (parse-int (get p "centercol"))
         param-tenting-angle (parse-int (get p "tenting-angle"))
 
+        param-use-external-holder (parse-bool (get p "external-holder"))
         param-trrs-connector (parse-bool (get p "trrs-connector"))
         param-use-promicro-usb-hole (parse-bool (get p "usb-hole"))
 
@@ -85,6 +86,7 @@
            :configuration-centercol param-centercol
            :configuration-tenting-angle (/ pi param-tenting-angle)
 
+           :configuration-param-use-external-holder param-use-external-holder
            :configuration-use-promicro-usb-hole?  param-use-promicro-usb-hole
            :configuration-use-trrs? param-trrs-connector
 
