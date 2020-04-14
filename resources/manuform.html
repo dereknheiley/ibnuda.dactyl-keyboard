@@ -25,6 +25,44 @@
         function setergodox() {
             setkeyboard(6, 5, "false", "true", "full", "true");
         }
+
+        function toggle_connectors_fields() {
+            const use_external_holder = document.getElementById("external-holder").value;
+            const impacted_ids = ["trrs-connector", "usb-hole"];
+            if (use_external_holder === "true") {
+                impacted_ids.forEach(id => {
+                    document.querySelector("label[for='" + id + "']").style.display = 'none'; // Hide the label
+                    document.querySelector("select[id='" + id + "']").style.display = 'none'; // Hide the select
+                });
+            } else {
+                impacted_ids.forEach(id => {
+                    document.querySelector("label[for='" + id + "']").style.display = 'block'; // Show the label
+                    document.querySelector("select[id='" + id + "']").style.display = 'block'; // Hide the select
+                });
+            }
+        }
+
+        function toggle_wrist_rest_type_fields() {
+            const use_wrist_rest = document.getElementById("wrist-rest").value;
+            if (use_wrist_rest === "false") {
+                document.querySelector("label[for='integrated-wrist-rest']").style.display = 'none'; // Hide the label
+                document.querySelector("select[id='integrated-wrist-rest']").style.display = 'none'; // Hide the select
+                document.querySelector("input[name='generate-wrist-rest']").style.display  = 'none'; // Hide the input
+            } else {
+                document.querySelector("label[for='integrated-wrist-rest']").style.display = 'block'; // Show the label
+                document.querySelector("select[id='integrated-wrist-rest']").style.display = 'block'; // Show the select
+                toggle_generate_wrist_rest_button();
+            }
+        }
+
+        function toggle_generate_wrist_rest_button() {
+            const integrated_wrist_rest = document.getElementById("integrated-wrist-rest").value;
+            if (integrated_wrist_rest === "true") {
+                document.querySelector("input[name='generate-wrist-rest']").style.display  = 'none'; // Hide the button
+            } else {
+                document.querySelector("input[name='generate-wrist-rest']").style.display  = 'block'; // Show the button
+            }
+        }
     </script>
 </head>
 
@@ -120,6 +158,11 @@
                         <h3>Connectors</h3>
                     </label>
                     <fieldset name="connector" id="connector">
+                        <label for="external-holder">Use loligagger's external holder ?</label>
+                        <select id="external-holder" name="external-holder" onchange="toggle_connectors_fields()">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
                         <label for="trrs-connector">Connector</label>
                         <select id="trrs-connector" name="trrs-connector">
                             <option value="false">RJ9</option>
@@ -181,8 +224,13 @@
                             <option value="false">No</option>
                             <option value="true">Yes</option>
                         </select>
-                        <label for="wrist-rest">Integrated Wrist Rest?</label>
-                        <select id="wrist-rest" name="wrist-rest">
+                        <label for="wrist-rest">Wrist Rest?</label>
+                        <select id="wrist-rest" name="wrist-rest" onchange="toggle_wrist_rest_type_fields()">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                        <label for="integrated-wrist-rest">Integrated Wrist Rest?</label>
+                        <select id="integrated-wrist-rest" name="integrated-wrist-rest" onchange="toggle_generate_wrist_rest_button()">
                             <option value="false">No</option>
                             <option value="true">Yes</option>
                         </select>
@@ -194,6 +242,7 @@
                     </fieldset>
                     <input class="button-primary" type="submit" name="generate-case" value="Generate Case">
                     <input class="button-primary" type="submit" name="generate-plate" value="Generate Plate">
+                    <input class="button-primary" type="submit" name="generate-wrist-rest" value="Generate wrist rest">
                 </form>
             </div>
         </div>

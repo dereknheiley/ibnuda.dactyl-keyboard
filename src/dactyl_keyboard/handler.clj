@@ -30,6 +30,11 @@
                 (dm/plate-right confs)
                 (dm/plate-left confs))))
 
+(defn generate-wrist-rest-dm [confs is-right?]
+  (write-scad (if is-right?
+                (dm/wrist-rest-right confs)
+                (dm/wrist-rest-left confs))))
+
 (defn home [_]
   (render-file "index.html" {}))
 
@@ -58,6 +63,7 @@
         param-centercol (parse-int (get p "centercol"))
         param-tenting-angle (parse-int (get p "tenting-angle"))
 
+        param-use-external-holder (parse-bool (get p "external-holder"))
         param-trrs-connector (parse-bool (get p "trrs-connector"))
         param-use-promicro-usb-hole (parse-bool (get p "usb-hole"))
 
@@ -69,9 +75,15 @@
         param-screw-inserts (parse-bool (get p "screw-inserts"))
         param-show-keycaps (parse-bool (get p "show-keycaps"))
         param-wrist-rest (parse-bool (get p "wrist-rest"))
-        param-generate-plate (get p "generate-plate")
+        param-integrated-wrist-rest (parse-bool (get p "integrated-wrist-rest"))
         is-right? (parse-bool (get p "right-side"))
+        
+        param-generate-plate (get p "generate-plate")
+        param-generate-wrist-rest (get p "generate-wrist-rest")
+        
         generate-plate? (some? param-generate-plate)
+        generate-wrist-rest? (some? param-generate-wrist-rest)
+        
         c {:configuration-nrows param-nrows
            :configuration-ncols param-ncols
            :configuration-minidox-style? param-minidox
@@ -85,6 +97,7 @@
            :configuration-centercol param-centercol
            :configuration-tenting-angle (/ pi param-tenting-angle)
 
+           :configuration-param-use-external-holder param-use-external-holder
            :configuration-use-promicro-usb-hole?  param-use-promicro-usb-hole
            :configuration-use-trrs? param-trrs-connector
 
@@ -95,10 +108,13 @@
            :configuration-use-wide-pinky? param-wide-pinky
            :configuration-use-wire-post? param-wire-post
            :configuration-use-screw-inserts? param-screw-inserts
-           :configuration-use-wrist-rest? param-wrist-rest}
+           :configuration-use-wrist-rest? param-wrist-rest
+           :configuration-integrated-wrist-rest? param-integrated-wrist-rest}
         generated-scad (if generate-plate?
                          (generate-plate-dm c is-right?)
-                         (generate-case-dm c is-right?))]
+                         (if generate-wrist-rest?
+                           (generate-wrist-rest-dm c is-right?)
+                           (generate-case-dm c is-right?)))]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}
@@ -122,6 +138,7 @@
         param-thumb-offset-y (parse-int (get p "thumb-offset-y"))
         is-right? (parse-bool (get p "right-side"))
         param-thumb-offset-z (parse-int (get p "thumb-offset-z"))
+        param-use-external-holder (parse-bool (get p "external-holder"))
         c {:configuration-ncols param-ncols
            :configuration-use-numrow? param-use-numrow?
            :configuration-use-lastrow? param-use-lastrow?
@@ -140,7 +157,8 @@
            :configuration-thumb-tenting-angle (/ pi param-thumb-tenting-angle)
            :configuration-thumb-offset-x (- 0 param-thumb-offset-x)
            :configuration-thumb-offset-y (- 0 param-thumb-offset-y)
-           :configuration-thumb-offset-z param-thumb-offset-z}
+           :configuration-thumb-offset-z param-thumb-offset-z
+           :configuration-param-use-external-holder param-use-external-holder}
         generated-scad (generate-case-dl c is-right?)]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"

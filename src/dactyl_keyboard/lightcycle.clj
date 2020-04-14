@@ -783,6 +783,18 @@
   (let [use-numrow? (get c :configuration-use-numrow?)]
     [-10 (if use-numrow? 55 35) 0]))
 
+; Offsets for the controller/trrs external holder cutout
+(defn external-holder-offset [c]
+  (let [use-external-holder? (get c :configuration-param-use-external-holder)]
+    (if use-external-holder? 0 -3.5)))
+
+; Cutout for controller/trrs jack holder
+(def external-holder-ref [-40 45 0])
+(def external-holder-cube   (cube 28.666 30 12.6))
+(defn external-holder-position [c]
+  (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first external-holder-ref) (second external-holder-ref) 2]))
+(defn external-holder-space [c]
+  (translate (map + (external-holder-position c) [-1.5 -2 3]) external-holder-cube))
 
 (defn screw-insert
   "Places screw insert to its place.
@@ -797,31 +809,38 @@
   ())
 
 (defn new-case [c]
-  (difference
-   (union (front-wall c)
-          (right-wall c)
-          (back-wall c)
-          (left-wall c)
-          (thumb-back-wall c)
-          (thumb-left-wall c)
-          (thumb-front-wall c)
-          (usb-holder fusb-holder-position c))
-   (rj9-space frj9-start c)))
+  (let [use-external-holder? (get c :configuration-param-use-external-holder)]
+    (difference
+     (union (front-wall c)
+            (right-wall c)
+            (back-wall c)
+            (left-wall c)
+            (thumb-back-wall c)
+            (thumb-left-wall c)
+            (thumb-front-wall c)
+            (if-not use-external-holder? (usb-holder fusb-holder-position c) ()))
+     (if-not use-external-holder? (rj9-space frj9-start c) ()))))
 
 ;;;;;;;;;;;;;;;;
 ;;Final Export ;;
 ;;;;;;;;;;;;;;;;;;
 
 (defn dactyl-top-right [c]
-  (difference
-   (union (key-holes c)
-          (connectors c)
-          (thumb c)
-          (new-case c)
-          (rj9-holder frj9-start c)
-          #_(if (get c :configuration-show-caps?) (caps c) ())
-          #_(if (get c :configuration-show-caps?) (thumbcaps c) ()))
-   (usb-holder-hole fusb-holder-position c)))
+  (let [use-external-holder? (get c :configuration-param-use-external-holder)]
+    (if-not use-external-holder?
+      (difference
+       (union (key-holes c)
+              (connectors c)
+              (thumb c)
+              (new-case c)
+              (rj9-holder frj9-start c)
+              #_(if (get c :configuration-show-caps?) (caps c) ())
+              #_(if (get c :configuration-show-caps?) (thumbcaps c) ()))
+       (usb-holder-hole fusb-holder-position c))
+      (union (key-holes c)
+             (connectors c)
+             (thumb c)
+             (difference (new-case c) (external-holder-space c))))))
 
 (defn dactyl-top-left [c]
   (mirror [-1 0 0] (dactyl-top-right c)))
