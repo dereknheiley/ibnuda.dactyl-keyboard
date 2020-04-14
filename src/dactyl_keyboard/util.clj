@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [use import])
   (:require [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
-            [dactyl-keyboard.common :refer :all]))
+            [dactyl-keyboard.common :as common]))
 
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
@@ -30,14 +30,14 @@
   "It computes the radius of the row's curve. It takes the value of `pi` divided
    by `alpha` to compute the said radius."
   [alpha]
-  (+ (/ (/ (+ mount-height extra-height) 2)
+  (+ (/ (/ (+ common/mount-height common/extra-height) 2)
         (Math/sin (/ alpha 2)))
-     cap-top-height))
+     common/cap-top-height))
 
 (defn fcolumn-radius
   "It computes the radius of the column's curve. It takes the value of `pi` divided
    by `beta` to compute the said radius."
   [beta]
-  (+ (/ (/ (+ mount-width extra-width) 2)
+  (+ (/ (/ (+ common/mount-width common/extra-width) 2)
         (Math/sin (/ beta 2)))
-     cap-top-height))
+     common/cap-top-height))

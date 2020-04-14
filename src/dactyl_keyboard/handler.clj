@@ -20,6 +20,11 @@
                 (dl/dactyl-top-right confs)
                 (dl/dactyl-top-left confs))))
 
+(defn generate-plate-dl [confs is-right?]
+  (write-scad (if is-right?
+                (dl/dactyl-plate-right confs)
+                (dl/dactyl-plate-left confs))))
+
 (defn generate-case-dm [confs is-right?]
   (write-scad (if is-right?
                 (dm/model-right confs)
@@ -83,7 +88,7 @@
         
         generate-plate? (some? param-generate-plate)
         generate-wrist-rest? (some? param-generate-wrist-rest)
-        
+
         c {:configuration-nrows param-nrows
            :configuration-ncols param-ncols
            :configuration-minidox-style? param-minidox
@@ -139,6 +144,9 @@
         is-right? (parse-bool (get p "right-side"))
         param-thumb-offset-z (parse-int (get p "thumb-offset-z"))
         param-use-external-holder (parse-bool (get p "external-holder"))
+        param-generate-plate (get p "generate-plate")
+        generate-plate? (some? param-generate-plate)
+
         c {:configuration-ncols param-ncols
            :configuration-use-numrow? param-use-numrow?
            :configuration-use-lastrow? param-use-lastrow?
@@ -159,7 +167,9 @@
            :configuration-thumb-offset-y (- 0 param-thumb-offset-y)
            :configuration-thumb-offset-z param-thumb-offset-z
            :configuration-param-use-external-holder param-use-external-holder}
-        generated-scad (generate-case-dl c is-right?)]
+        generated-scad (if generate-plate?
+                         (generate-plate-dl c is-right?)
+                         ( generate-case-dl c is-right?))]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}

@@ -845,6 +845,19 @@
 (defn dactyl-top-left [c]
   (mirror [-1 0 0] (dactyl-top-right c)))
 
+(defn dactyl-plate-right [c]
+  (cut
+   (translate [0 0 -0.1]
+              (difference (union (new-case c)
+                                 (rj9-holder frj9-start c)
+                                 (usb-holder fusb-holder-position c)
+                                 #_(screw-insert-outers screw-placement c))
+                          #_(translate [0 0 -10]
+                                     #_(screw-insert-screw-holes screw-placement c))))))
+
+(defn dactyl-plate-left [c]
+  (mirror [-1 0 0] (dactyl-plate-right c)))
+
 (def c
   {:configuration-ncols 5
    :configuration-use-numrow? false
@@ -863,5 +876,8 @@
    :configuration-thumb-offset-z 27
    :configuration-show-caps? false})
 
-(spit "things/lightcycle-cherry-top-right.scad"
+#_(spit "things/lightcycle-cherry-top-right.scad"
       (write-scad (dactyl-top-right c)))
+
+#_(spit "things/light-cycle-plate-right.scad"
+      (write-scad (dactyl-plate-right c)))

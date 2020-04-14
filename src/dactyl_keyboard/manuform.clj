@@ -42,7 +42,7 @@
 ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-xy-offset 5)
 ; wall thickness parameter; originally 5
-(def wall-thickness 2)
+(def wall-thickness 3)
 
 ;; Settings for column-style == :fixed 
 ;; The defaults roughly match Maltron settings
@@ -1217,9 +1217,9 @@
   (cut
    (translate [0 0 -0.1]
               (difference (union (case-walls c)
-                                 (rj9-holder c)
-                                 (usb-holder c)
-                                 (screw-insert-outers c))
+                                 (rj9-holder frj9-start c)
+                                 (usb-holder fusb-holder-position c)
+                                 (screw-insert-outers screw-placement c))
                           (translate [0 0 -10]
                                      (screw-insert-screw-holes screw-placement c))))))
 
