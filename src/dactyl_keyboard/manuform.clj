@@ -1246,7 +1246,7 @@
         :configuration-use-promicro-usb-hole? false
         :configuration-use-trrs? false
 
-        :configuration-use-hotswap? false
+        :configuration-use-hotswap? true
         :configuration-ortho? false
         :configuration-use-inner-column? false
         :configuration-keyboard-z-offset 4
@@ -1254,7 +1254,7 @@
         :configuration-last-row-count :two
         :configuration-use-wide-pinky? false
         :configuration-use-wire-post? false
-        :configuration-use-screw-inserts? true
+        :configuration-use-screw-inserts? false
         :configuration-use-wrist-rest? false})
 
 

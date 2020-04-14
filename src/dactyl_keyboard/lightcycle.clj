@@ -528,6 +528,7 @@
 (defn right-wall [c]
   (let [ncols (get c :configuration-ncols)
         use-lastrow? (get c :configuration-use-lastrow?)
+        use-numrow? (get c :configuration-use-numrow?)
         penultcol (fpenultcol ncols)
         antecol (fantecol ncols)
         rows (frows c)
@@ -556,12 +557,12 @@
 
      (apply union
             (concat
-             (for [x (range 1 lastrow)]
+             (for [x (range (if use-numrow? 0 1) lastrow)]
                (union
                 (hull (place (right-wall-column c) x (translate [-1 0 1] (wall-sphere-bottom 1/2)))
                       (key-place c penultcol x web-post-br)
                       (key-place c penultcol x web-post-tr))))
-             (for [x (range 1 cornerrow)]
+             (for [x (range (if use-numrow? 0 1) cornerrow)]
                (union
                 (hull (place (right-wall-column c) x (translate [-1 0 1] (wall-sphere-bottom 1/2)))
                       (place (right-wall-column c) (inc x) (translate [-1 0 1] (wall-sphere-bottom 1/2)))
@@ -863,9 +864,9 @@
    :configuration-use-numrow? false
    :configuration-use-lastrow? false
    :configuration-create-side-nub? false
-   :configuration-use-alps? true
+   :configuration-use-alps? false
    :configuration-use-hotswap? true
-   :configuration-thumb-count :two
+   :configuration-thumb-count :three
    :configuration-alpha (/ pi 12)
    :configuration-beta (/ pi 36)
    :configuration-z-offset 18
@@ -876,7 +877,7 @@
    :configuration-thumb-offset-z 27
    :configuration-show-caps? false})
 
-#_(spit "things/lightcycle-cherry-top-right.scad"
+(spit "things/lightcycle-cherry-top-right.scad"
       (write-scad (dactyl-top-right c)))
 
 #_(spit "things/light-cycle-plate-right.scad"
