@@ -122,7 +122,8 @@
           (for [column (drop-last columns)
                 row rows
                 :when (or (not= column 0)
-                          (not= row lastrow))]
+                          (and (= column 0)
+                               (< row (if use-lastrow? cornerrow lastrow))))]
             (triangle-hulls
              (key-place c (inc column) row web-post-tl)
              (key-place c column row web-post-tr)
@@ -133,7 +134,6 @@
           (for [column columns
                 row (drop-last rows)
                 :when (or (not= column 0)
-                          #_(not= row cornerrow)
                           (not (and (= column 0)
                                     (> row 2))))]
             (triangle-hulls
@@ -145,8 +145,8 @@
           ;; Diagonal connections
           (for [column (drop-last columns)
                 row (drop-last rows)
-                :when (or (not= column 0)
-                          (not= row cornerrow))]
+                :when (not (and (= column 0)
+                                (> row cornerrow)))]
             (triangle-hulls
              (key-place c column row web-post-br)
              (key-place c column (inc row) web-post-tr)
@@ -296,7 +296,6 @@
        :two (triangle-hulls (thumb-place c 0 -1/2 (thumb-br 2))
                             (key-place   c 1 cornerrow web-post-bl)
                             (thumb-place c 0 -1/2 (thumb-tr 2))
-                            (key-place   c 1    4 web-post-tl)
                             (key-place   c 1    3 web-post-bl)
                             (thumb-place c 0 -1/2 (thumb-tr 2))
                             (key-place   c 0    3 web-post-br)
@@ -330,10 +329,10 @@
      (thumb-layout c (rotate (/ Math/PI 2) [0 0 1] (single-plate c)))
      (color [1 0 0] (thumb-connectors c))
 
-     (case thumb-count
+     #_(case thumb-count
        :five (union
               (thumb-place c 0 -1/2 (extended-plates 2))
-              (thumb-place c 1 -1/2 double-plates))
+              (thumb-place c 1 -1/2 (extended-plates 2)))
        :three (thumb-place c 1   1  (extended-plates 1))
        ()))))
 
@@ -579,20 +578,21 @@
 (defn left-wall [c]
   (let [thumb-count (get c :configuration-thumb-count)
         rows (frows c)
+        use-numrow? (get c :configuration-use-numrow?)
         place (partial case-place c)
         thumb-where (case thumb-count :two 0 1)
         finish-left-wall (case thumb-count :two 2.6666 1.6666)]
     (union
      (apply union
-            (for [x (range-inclusive (dec (first rows)) (- finish-left-wall wall-step) wall-step)]
-              (hull (place left-wall-column x wall-sphere-top-front)
-                    (place left-wall-column (+ x wall-step) wall-sphere-top-front)
-                    (place left-wall-column x wall-sphere-bottom-front)
-                    (place left-wall-column (+ x wall-step) wall-sphere-bottom-front))))
+              (for [x (range-inclusive (dec (first rows)) (- finish-left-wall wall-step) wall-step)]
+                (hull (place left-wall-column x wall-sphere-top-front)
+                      (place left-wall-column (+ x wall-step) wall-sphere-top-front)
+                      (place left-wall-column x wall-sphere-bottom-front)
+                      (place left-wall-column (+ x wall-step) wall-sphere-bottom-front))))
      (apply union
-            (for [x (range-inclusive (dec (first rows)) (- finish-left-wall wall-step) wall-step)]
-              (bottom-hull (place left-wall-column x wall-sphere-bottom-front)
-                           (place left-wall-column (+ x wall-step) wall-sphere-bottom-front))))
+              (for [x (range-inclusive (dec (first rows)) (- finish-left-wall wall-step) wall-step)]
+                (bottom-hull (place left-wall-column x wall-sphere-bottom-front)
+                             (place left-wall-column (+ x wall-step) wall-sphere-bottom-front))))
      (hull (place left-wall-column (dec (first rows)) wall-sphere-top-front)
            (place left-wall-column (dec (first rows)) wall-sphere-bottom-front)
            (place left-wall-column (back-y c) wall-sphere-top-back)
@@ -600,10 +600,12 @@
 
      (bottom-hull (place left-wall-column (dec (first rows)) wall-sphere-bottom-front)
                   (place left-wall-column (back-y c) wall-sphere-bottom-back))
-     #_(color [0 1 0] (hull (place left-wall-column 0 (translate [1 -1 1] wall-sphere-bottom-back))
+     (if use-numrow?
+       (color [0 0 1] (hull (place left-wall-column 0 (translate [1 -1 1] wall-sphere-bottom-back))
                             (place left-wall-column 1 (translate [1 0 1] wall-sphere-bottom-back))
-                            (key-place 0 0 web-post-tl)
-                            (key-place 0 0 web-post-bl)))
+                            (key-place c 0 0 web-post-tl)
+                            (key-place c 0 1 web-post-tl)))
+       ())
      (color [0 1 0] (hull (place left-wall-column 1 (translate [1 -1 1] wall-sphere-bottom-back))
                           (place left-wall-column 2 (translate [1 0 1] wall-sphere-bottom-back))
                           (key-place c 0 1 web-post-tl)
@@ -618,7 +620,7 @@
                           (key-place c 0 3 web-post-tl)))
      (hull (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
            (thumb-place c 1 thumb-where web-post-tr)
-           (key-place   c 0 3 (case thumb-count :two web-post-bl web-post-tl )))
+           (key-place   c 0 3 (case thumb-count :two web-post-bl web-post-tl)))
      (hull (place left-wall-column finish-left-wall (translate [1 0 1] wall-sphere-bottom-front))
            (thumb-place c 1 thumb-where web-post-tr)
            (thumb-place c 1/2 (thumb-back-y c) (translate [0 -1 1] wall-sphere-bottom-back))))))
@@ -747,7 +749,7 @@
            (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
            (case-place c 0.5 cornerrow wall-sphere-top-front))
      (hull (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
-                  (case-place c 0.5 cornerrow wall-sphere-top-front))
+           (case-place c 0.5 cornerrow wall-sphere-top-front))
      (bottom-hull (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
                   (case-place c 0.7 cornerrow wall-sphere-bottom-front))
      (hull (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
@@ -865,7 +867,7 @@
    :configuration-use-lastrow? false
    :configuration-create-side-nub? false
    :configuration-use-alps? false
-   :configuration-use-hotswap? true
+   :configuration-use-hotswap? false
    :configuration-thumb-count :three
    :configuration-alpha (/ pi 12)
    :configuration-beta (/ pi 36)
