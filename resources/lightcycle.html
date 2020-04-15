@@ -30,6 +30,7 @@
                         <label for="thumb-count">Thumb key count?</label>
                         <select id="thumb-count" name="thumb-count">
                             <option value="5">5</option>
+                            <option value="6">6</option>
                             <option value="3">3</option>
                             <option value="2">2</option>
                         </select>
@@ -50,16 +51,9 @@
                     <fieldset name="curvature" id=curvature>
                         <label for="alpha">Column's Curvature</label>
                         <select id="alpha" name="alpha">
-                            <option value=12>pi/12</option>
-                            <option value=13>pi/13</option>
-                            <option value=14>pi/14</option>
-                            <option value=15>pi/15</option>
-                            <option value=16>pi/16</option>
-                            <option value=17>pi/17</option>
-                            <option value=18>pi/18</option>
-                            <option value=19>pi/19</option>
-                            <option value=20>pi/20</option>
-                            <option value=21>pi/21</option>
+                            {% for cc in column-curvature %}
+                                <option value={{cc}}>pi/{{cc}}</option>
+                            {% endfor %}
                         </select>
                         <label for="beta">Row's Curvature</label>
                         <select id="beta" name="beta">
@@ -68,27 +62,15 @@
                         </select>
                         <label for="tenting-angle">Tenting Angle</label>
                         <select id="tenting-angle" name="tenting-angle" value=9>
-                            <option value=15>pi/15</option>
-                            <option value=14>pi/14</option>
-                            <option value=13>pi/13</option>
-                            <option value=12>pi/12</option>
-                            <option value=11>pi/11</option>
-                            <option value=10>pi/10</option>
-                            <option value=9>pi/9</option>
-                            <option value=8>pi/8</option>
-                            <option value=7>pi/7</option>
+                            {% for ta in tenting-angle %}
+                                <option value={{ta}}>pi/{{ta}}</option>
+                            {% endfor %}
                         </select>
                         <label for="thumb-tenting-angle">Thumb Tenting Angle</label>
                         <select id="thumb-tenting-angle" name="thumb-tenting-angle">
-                            <option value=24>pi/24</option>
-                            <option value=23>pi/23</option>
-                            <option value=22>pi/22</option>
-                            <option value=21>pi/21</option>
-                            <option value=20>pi/20</option>
-                            <option value=19>pi/19</option>
-                            <option value=18>pi/18</option>
-                            <option value=17>pi/17</option>
-                            <option value=16>pi/16</option>
+                            {% for tta in thumb-tenting-angle %}
+                                <option value={{tta}}>pi/{{tta}}</option>
+                            {% endfor %}
                         </select>
                     </fieldset>
                     <label for="connector">
@@ -129,17 +111,9 @@
                     <fieldset name="case-form" id="case-form">
                         <label for="z-offset">Height Offset</label>
                         <select id="z-offset" name="z-offset">
-                            <option value=18>18 mm</option>
-                            <option value=20>20 mm</option>
-                            <option value=22>22 mm</option>
-                            <option value=24>24 mm</option>
-                            <option value=26>26 mm</option>
-                            <option value=28>28 mm</option>
-                            <option value=30>30 mm</option>
-                            <option value=16>16 mm</option>
-                            <option value=14>14 mm</option>
-                            <option value=12>12 mm</option>
-                            <option value=10>10 mm</option>
+                            {% for ho in height-offset %}
+                                <option value={{ho}}>{{ho}}mm</option>
+                            {% endfor %}
                         </select>
                     </fieldset>
                     <label for="miscelania">

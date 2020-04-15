@@ -44,10 +44,16 @@
   (render-file "index.html" {}))
 
 (defn manuform [_]
-  (render-file "manuform.html" {}))
+  (render-file "manuform.html" {:column-curvature (range 12 22)
+                                :tenting-angle (range 15 6 -1)
+                                :thumb-tenting-angle (range 24 15 -1)
+                                :height-offset (range 4 16 2)}))
 
 (defn lightcycle [_]
-  (render-file "lightcycle.html" {}))
+  (render-file "lightcycle.html" {:column-curvature (range 12 22)
+                                  :tenting-angle (range 15 6 -1)
+                                  :thumb-tenting-angle (range 24 15 -1)
+                                  :height-offset (range 10 32 2)}))
 
 (defn generate-manuform [req]
   (let [p (:form-params req)
@@ -169,7 +175,7 @@
            :configuration-param-use-external-holder param-use-external-holder}
         generated-scad (if generate-plate?
                          (generate-plate-dl c is-right?)
-                         ( generate-case-dl c is-right?))]
+                         (generate-case-dl c is-right?))]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}

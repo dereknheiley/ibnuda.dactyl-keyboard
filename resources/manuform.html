@@ -121,16 +121,9 @@
                     <fieldset name="curvature" id=curvature>
                         <label for="alpha">Column's Curvature</label>
                         <select id="alpha" name="alpha">
-                            <option value=12>pi/12</option>
-                            <option value=13>pi/13</option>
-                            <option value=14>pi/14</option>
-                            <option value=15>pi/15</option>
-                            <option value=16>pi/16</option>
-                            <option value=17>pi/17</option>
-                            <option value=18>pi/18</option>
-                            <option value=19>pi/19</option>
-                            <option value=20>pi/20</option>
-                            <option value=21>pi/21</option>
+                            {% for cc in column-curvature %}
+                                <option value={{cc}}>pi/{{cc}}</option>
+                            {% endfor %}
                         </select>
                         <label for="beta">Row's Curvature</label>
                         <select id="beta" name="beta">
@@ -146,12 +139,9 @@
                         </select>
                         <label for="tenting-angle">Tenting Angle</label>
                         <select id="tenting-angle" name="tenting-angle">
-                            <option value=12>pi/12</option>
-                            <option value=11>pi/11</option>
-                            <option value=10>pi/10</option>
-                            <option value=9>pi/9</option>
-                            <option value=8>pi/8</option>
-                            <option value=7>pi/7</option>
+                            {% for ta in tenting-angle %}
+                                <option value={{ta}}>pi/{{ta}}</option>
+                            {% endfor %}
                         </select>
                     </fieldset>
                     <label for="connector">
@@ -196,13 +186,9 @@
                         </select>
                         <label for="keyboard-z-offset">Height Offset</label>
                         <select id="keyboard-z-offset" name="keyboard-z-offset">
-                            <option value=4>4 mm</option>
-                            <option value=6>6 mm</option>
-                            <option value=8>8 mm</option>
-                            <option value=10>10 mm</option>
-                            <option value=12>12 mm</option>
-                            <option value=14>14 mm</option>
-                            <option value=16>16 mm</option>
+                            {% for ho in height-offset %}
+                                <option value={{ho}}>{{ho}}mm</option>
+                            {% endfor %}
                         </select>
                         <label for="wire-post">Wire Posts?</label>
                         <select id="wire-post" name="wire-post">
