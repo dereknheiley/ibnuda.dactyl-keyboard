@@ -838,12 +838,27 @@
          (translate [(first position) (second position) (/ height 2)]))))
 
 (defn screw-placement [c bottom-radius top-radius height]
-  (let [lastrow (if (get c :configuration-use-lastrow?) 4.0 3.6)
-        lastcol (* (get c :configuration-ncols) 0.82)]
-    (union (screw-insert c -1.5    5       bottom-radius top-radius height)
-           (screw-insert c -0.5    1       bottom-radius top-radius height)
-           (screw-insert c  2      lastrow bottom-radius top-radius height)
-           (screw-insert c lastcol 1.6     bottom-radius top-radius height))))
+  (let [lastrow (if (get c :configuration-use-lastrow?) 4 3.55)
+        toprow (if (get c :configuration-use-numrow?) -0.12 0.8)
+        ncols (get c :configuration-ncols)
+        ncold-coefficient (case ncols
+                            4 0.77
+                            5 0.8
+                            6 0.82)
+        lastcol (* ncols ncold-coefficient)
+        middlecol (case ncols
+                    4 2
+                    5 1.7
+                    6 2)
+        middlerow (case ncols
+                    4 1.5
+                    5 3
+                    6 3)]
+    (union (screw-insert c -1.5      4.9       bottom-radius top-radius height)
+           (screw-insert c 2         toprow    bottom-radius top-radius height)
+           (screw-insert c -0.75     2         bottom-radius top-radius height)
+           (screw-insert c middlerow lastrow   bottom-radius top-radius height)
+           (screw-insert c lastcol   middlecol bottom-radius top-radius height))))
 
 (defn new-case [c]
   (let [use-external-holder? (get c :configuration-use-external-holder?)]
