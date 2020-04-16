@@ -15,7 +15,6 @@
             [lein-ring "0.12.5"]]
   :ring {:handler dactyl-keyboard.handler/app
          :port 3030
-         :auto-refresh? true
          :auto-reload? true}
   :profiles {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
                                   [ring/ring-mock "0.3.2"]]}})
