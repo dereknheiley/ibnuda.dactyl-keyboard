@@ -222,8 +222,8 @@
 (defn thumb-layout [c shape]
   (let [thumb-count (get c :configuration-thumb-count)]
     (union
-     (thumb-place c 0 -1/2 (union shape (extended-plates 2)))
-     (thumb-place c 1 -1/2 (union shape (extended-plates 2)))
+     (thumb-place c 0 -1/2 (union shape double-plates))
+     (thumb-place c 1 -1/2 (union shape double-plates))
      (case thumb-count
        :six (union
               (thumb-place c 1  1 (union shape (extended-plates 1)))
