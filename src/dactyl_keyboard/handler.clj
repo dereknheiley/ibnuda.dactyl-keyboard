@@ -51,8 +51,8 @@
 
 (defn lightcycle [_]
   (render-file "lightcycle.html" {:column-curvature (range 12 22)
-                                  :tenting-angle (range 15 6 -1)
-                                  :thumb-tenting-angle (range 24 15 -1)
+                                  :tenting-angle (range 12 6 -1)
+                                  :thumb-tenting-angle (range 24 11 -1)
                                   :height-offset (range 10 32 2)}))
 
 (defn generate-manuform [req]
@@ -108,13 +108,13 @@
            :configuration-centercol param-centercol
            :configuration-tenting-angle (/ pi param-tenting-angle)
 
-           :configuration-param-use-external-holder param-use-external-holder
+           :configuration-use-external-holder? param-use-external-holder
            :configuration-use-promicro-usb-hole?  param-use-promicro-usb-hole
            :configuration-use-trrs? param-trrs-connector
 
            :configuration-use-hotswap? param-hotswap
            :configuration-ortho? param-ortho
-           :configuration-keyboard-z-offset param-keyboard-z-offset
+           :configuration-z-offset param-keyboard-z-offset
            :configuration-show-caps? param-show-keycaps
            :configuration-use-wide-pinky? param-wide-pinky
            :configuration-use-wire-post? param-wire-post
@@ -153,6 +153,7 @@
         param-use-external-holder (parse-bool (get p "external-holder"))
         param-generate-plate (get p "generate-plate")
         generate-plate? (some? param-generate-plate)
+        param-screw-inserts (parse-bool (get p "screw-inserts"))
 
         c {:configuration-ncols param-ncols
            :configuration-use-numrow? param-use-numrow?
@@ -173,7 +174,9 @@
            :configuration-thumb-offset-x (- 0 param-thumb-offset-x)
            :configuration-thumb-offset-y (- 0 param-thumb-offset-y)
            :configuration-thumb-offset-z param-thumb-offset-z
-           :configuration-param-use-external-holder param-use-external-holder}
+           :configuration-use-external-holder? param-use-external-holder
+           
+           :configuration-use-screw-inserts? param-screw-inserts}
         generated-scad (if generate-plate?
                          (generate-plate-dl c is-right?)
                          (generate-case-dl c is-right?))]

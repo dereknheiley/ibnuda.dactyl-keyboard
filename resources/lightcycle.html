@@ -61,7 +61,7 @@
                             <option value=30>pi/30</option>
                         </select>
                         <label for="tenting-angle">Tenting Angle</label>
-                        <select id="tenting-angle" name="tenting-angle" value=9>
+                        <select id="tenting-angle" name="tenting-angle" value="pi/12">
                             {% for ta in tenting-angle %}
                                 <option value={{ta}}>pi/{{ta}}</option>
                             {% endfor %}
@@ -102,6 +102,7 @@
                         <select id="thumb-offset-z" name="thumb-offset-z">
                             <option value="27">Default</option>
                             <option value="23">Lower to body</option>
+                            <option value="19">Even lower to body</option>
                             <option value="31">Higher to body</option>
                         </select>
                     </fieldset>
@@ -129,6 +130,11 @@
                         <select id="right-side" name="right-side">
                             <option value="true">Right</option>
                             <option value="false">Left</option>
+                        </select>
+                        <label for="screw-inserts">Screw inserts</label>
+                        <select id="screw-inserts" name="screw-inserts">
+                            <option value="false">No screw inserts</option>
+                            <option value="true">Screw inserts</option>
                         </select>
                     </fieldset>
                     <input class="button-primary" type="submit" name="generate-case" value="Generate Case">

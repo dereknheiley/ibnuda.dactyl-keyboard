@@ -1,6 +1,7 @@
 (ns dactyl-keyboard.common
   (:refer-clojure :exclude [use import])
-  (:require [scad-clj.scad :refer :all]
+  (:require [clojure.core.matrix :refer [array matrix mmul]]
+            [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]))
 
 ; common parts between the two boards.
@@ -26,9 +27,146 @@
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
 
 ;;;;;;;;;;;;;;;;;
-;; Switch Hole ;;
+;; placement function ;;
 ;;;;;;;;;;;;;;;;;
 
+(defn dm-column-offset
+  "Determines how much 'stagger' the columns are for dm.
+   0 = inner index finger's column.
+   1 = index finger's column.
+   2 = middle finger's column.
+   3 = ring finger's column.
+   4 >= pinky finger's column.
+   [x y z] means that it will be staggered by 'x'mm in X axis (left/right),
+   'y'mm in Y axis (front/back), and 'z'mm in Z axis (up/down). "
+  [ortho? column]
+  (if ortho?
+    (cond (= column 2)  [0   0    -6.5]
+          (>= column 4) [0   0     6]
+          :else         [0   0     0])
+    (cond (= column 2)  [0   2.82 -6.5]
+          (>= column 4) [0  -13    6]
+          :else         [0   0     0])))
+
+(defn fcenterrow
+  "Determines where should the center (bottom-most point in the row's curve)
+   of the row located at. And most people would want to have the center
+   at the homerow. Why does it subtract the value by 3? Because this codebase
+   starts the row from the higher row (F row -> num row -> top row)
+   and the homerow is number 3 from the last after thumb and bottom row."
+  [nrows]
+  (- nrows 3))
+
+(defn flastrow
+  "Determines where the last row should be located at."
+  [nrows]
+  (- nrows 1))
+(defn fcornerrow
+  "Determines where the penultimate row should be located at."
+  [nrows]
+  (- nrows 2))
+(defn fmiddlerow
+  "Should be replaced with `fcenterrow`."
+  [nrows]
+  (- nrows 3))
+(defn flastcol
+  "Determines where the last column should be located at. With 0 being inner index
+   finger, 1 being index finger, and so on."
+  [ncols]
+  (- ncols 1))
+
+(defn frow-radius
+  "It computes the radius of the row's curve. It takes the value of `pi` divided
+   by `alpha` to compute the said radius."
+  [alpha]
+  (+ (/ (/ (+ mount-height extra-height) 2)
+        (Math/sin (/ alpha 2)))
+     cap-top-height))
+
+(defn fcolumn-radius
+  "It computes the radius of the column's curve. It takes the value of `pi` divided
+   by `beta` to compute the said radius."
+  [beta]
+  (+ (/ (/ (+ mount-width extra-width) 2)
+        (Math/sin (/ beta 2)))
+     cap-top-height))
+
+; when set `use-wide-pinky?`,
+; you will get 1.5u keys for the outermost pinky keys.
+(defn offset-for-column
+  "This function is used to give additional spacing for the column.
+   Main use case is to make the outer pinky keys use 1.5u."
+  [c col row]
+  (let [use-wide-pinky? (get c :configuration-use-wide-pinky?)
+        nrows (get c :configuration-nrows 5)
+        ncols (get c :configuration-ncols)
+        lastrow (flastrow nrows)
+        lastcol (flastcol ncols)]
+    (if (and use-wide-pinky?
+             (not= row lastrow)
+             (= col lastcol))
+      5.5
+      0)))
+
+; this is the helper function to 'place' the keys on the defined curve
+; of the board.
+(defn apply-key-geometry
+  "Helps to place the keys in the determined where a key should be placed
+   and rotated in xyz coordinate based on its position (row and column).
+   It is the implementation detail of `key-place`."
+  [c translate-fn rotate-x-fn rotate-y-fn column row shape]
+  (let [alpha (get c :configuration-alpha)
+        beta (get c :configuration-beta)
+        centercol (get c :configuration-centercol 2)
+        centerrow (fcenterrow (get c :configuration-nrows 5))
+        ortho? (get c :configuration-ortho?)
+        tenting-angle (get c :configuration-tenting-angle)
+        keyboard-z-offset (get c :configuration-z-offset)
+        column-angle (* beta (- centercol column))
+        placed-shape (->> shape
+                          (translate-fn [(offset-for-column c
+                                                            column
+                                                            row)
+                                         0
+                                         (- (frow-radius alpha))])
+                          (rotate-x-fn  (* alpha (- centerrow row)))
+                          (translate-fn [0 0 (frow-radius alpha)])
+                          (translate-fn [0 0 (- (fcolumn-radius beta))])
+                          (rotate-y-fn  column-angle)
+                          (translate-fn [0 0 (fcolumn-radius beta)])
+                          (translate-fn (dm-column-offset ortho? column)))]
+    (->> placed-shape
+         (rotate-y-fn  tenting-angle)
+         (translate-fn [0 0 keyboard-z-offset]))))
+
+(defn rotate-around-x [angle position]
+  (mmul
+   [[1 0 0]
+    [0 (Math/cos angle) (- (Math/sin angle))]
+    [0 (Math/sin angle)    (Math/cos angle)]]
+   position))
+
+(defn rotate-around-y [angle position]
+  (mmul
+   [[(Math/cos angle)     0 (Math/sin angle)]
+    [0                    1 0]
+    [(- (Math/sin angle)) 0 (Math/cos angle)]]
+   position))
+
+(def left-wall-x-offset 10)
+(def left-wall-z-offset  3)
+
+(defn key-position [c column row position]
+  (apply-key-geometry c (partial map +) rotate-around-x rotate-around-y column row position))
+
+(defn left-key-position [c row direction]
+  (map -
+       (key-position c 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0])
+       [left-wall-x-offset 0 left-wall-z-offset]))
+
+;;;;;;;;;;;;;;;;;
+;; Switch Hole ;;
+;;;;;;;;;;;;;;;;;
 ; each and every single switch hole is defined by this function.
 (defn single-plate
   "Defines the form of switch hole. It determines the whether it uses
@@ -171,6 +309,21 @@
 (def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 (def web-post-br (translate [(- (/ mount-width 2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 
+; length of the first downward-sloping part of the wall (negative)
+(def wall-z-offset -15)
+; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+(def wall-xy-offset 5)
+; wall thickness parameter; originally 5
+(def wall-thickness 3)
+
+(defn wall-locate1 [dx dy]
+  [(* dx wall-thickness) (* dy wall-thickness) -1])
+(defn wall-locate2 [dx dy]
+  [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
+(defn wall-locate3 [dx dy]
+  [(* dx (+ wall-xy-offset wall-thickness))
+   (* dy (+ wall-xy-offset wall-thickness))
+   wall-z-offset])
 ;; connectors
 (def rj9-cube
   (cube 14.78 13 22.38))
@@ -238,6 +391,23 @@
   "TODO: doc."
   [placement-function c]
   (placement-function c 1.7 1.7 350))
+
+(defn screw-insert [c column row bottom-radius top-radius height]
+  (let [lastcol (flastcol (get c :configuration-ncols))
+        lastrow (flastrow (get c :configuration-nrows 5))
+        shift-right (= column lastcol)
+        shift-left  (= column 0)
+        shift-up    (and (not (or shift-right shift-left)) (= row 0))
+        shift-down  (and (not (or shift-right shift-left)) (>= row lastrow))
+        position    (if shift-up
+                      (key-position c column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
+                      (if shift-down
+                        (key-position c column row (map - (wall-locate2  0 -1) [0 (/ mount-height 2) 0]))
+                        (if shift-left
+                          (map + (left-key-position c row 0) (wall-locate3 -1 0))
+                          (key-position c column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))]
+    (->> (screw-insert-shape bottom-radius top-radius height)
+         (translate [(first position) (second position) (/ height 2)]))))
 
 (def wrist-rest-back-height 29)
 (def wrist-rest-angle 0)

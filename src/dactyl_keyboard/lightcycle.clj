@@ -1,6 +1,7 @@
 (ns dactyl-keyboard.lightcycle
   (:refer-clojure :exclude [use import])
-  (:require [scad-clj.scad :refer :all]
+  (:require [clojure.core.matrix :refer [array matrix mmul]]
+            [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
             [dactyl-keyboard.util :refer :all]
             [dactyl-keyboard.common :refer :all]))
@@ -16,11 +17,11 @@
         row-end (if use-lastrow? 5 4)]
     (range row-start row-end)))
 
-(defn flastrow [use-lastrow?]
+(defn flastrow-lightcycle [use-lastrow?]
   (if use-lastrow? 5 4))
-(defn fcornerrow [use-lastrow?]
+(defn fcornerrow-lightcycle [use-lastrow?]
   (if use-lastrow? 4 3))
-(defn fmiddlerow [use-lastrow?]
+(defn fmiddlerow-lightcycle [use-lastrow?]
   (if use-lastrow? 3 2))
 
 (defn fpenultcol [ncols] (dec ncols))
@@ -43,12 +44,11 @@
         beta (get c :configuration-beta)
         tenting-angle (get c :configuration-tenting-angle)
         z-offset (get c :configuration-z-offset)
-        row-placed-shape (->> shape
-                              (translate [0 0 (- (frow-radius alpha))])
-                              (rotate (* alpha (- 2 row)) [1 0 0])
-                              (translate [0 0 (frow-radius alpha)]))
         column-angle (* beta (- 2 column))
-        placed-shape (->> row-placed-shape
+        placed-shape (->> shape
+                          (translate [0 0 (- (frow-radius alpha))])
+                          (rotate (* alpha (- 2 row)) [1 0 0])
+                          (translate [0 0 (frow-radius alpha)])
                           (translate [0 0 (- (fcolumn-radius beta))])
                           (rotate column-angle [0 1 0])
                           (translate [0 0 (fcolumn-radius beta)])
@@ -62,14 +62,13 @@
         beta (get c :configuration-beta)
         tenting-angle (get c :configuration-tenting-angle)
         z-offset (get c :configuration-z-offset)
-        
-        row-placed-shape (->> shape
-                              (translate [0 0 (- (frow-radius alpha))])
-                              (rotate (* alpha (- 2 row)) [1 0 0])
-                              (translate [0 0 (frow-radius alpha)]))
+
         column-offset [0 -4.35 5.64]
         column-angle (* beta (- 2 column))
-        placed-shape (->> row-placed-shape
+        placed-shape (->> shape
+                          (translate [0 0 (- (frow-radius alpha))])
+                          (rotate (* alpha (- 2 row)) [1 0 0])
+                          (translate [0 0 (frow-radius alpha)])
                           (translate [0 0 (- (fcolumn-radius beta))])
                           (rotate column-angle [0 1 0])
                           (translate [0 0 (fcolumn-radius beta)])
@@ -84,19 +83,19 @@
         rotation-for-keyhole (if use-alps? 0 270)
         columns (range 0 ncols)
         rows (frows c)]
-  (apply union
-         (for [column columns
-               row rows
-               :when (not (and (= column 0) (> row 3)))]
-           (->> (single-plate c)
-                (rotate (deg2rad rotation-for-keyhole) [0 0 1])
-                (key-place c column row))))))
+    (apply union
+           (for [column columns
+                 row rows
+                 :when (not (and (= column 0) (> row 3)))]
+             (->> (single-plate c)
+                  (rotate (deg2rad rotation-for-keyhole) [0 0 1])
+                  (key-place c column row))))))
 
 (defn caps [c]
   (let [ncols (get c :configuration-ncols)
         columns (range 0 ncols)
         rows (frows c)
-        lastrow (flastrow (get c :configuration-use-lastrow?))]
+        lastrow (flastrow-lightcycle (get c :configuration-use-lastrow?))]
     (apply union
            (for [column columns
                  row rows
@@ -114,76 +113,76 @@
         ncols (get c :configuration-ncols)
         columns (range 0 ncols)
         rows (frows c)
-        lastrow (flastrow use-lastrow?)
-        cornerrow (fcornerrow use-lastrow?)]
-  (apply union
-         (concat
+        lastrow (flastrow-lightcycle use-lastrow?)
+        cornerrow (fcornerrow-lightcycle use-lastrow?)]
+    (apply union
+           (concat
           ;; Row connections
-          (for [column (drop-last columns)
-                row rows
-                :when (or (not= column 0)
-                          (and (= column 0)
-                               (< row (if use-lastrow? cornerrow lastrow))))]
-            (triangle-hulls
-             (key-place c (inc column) row web-post-tl)
-             (key-place c column row web-post-tr)
-             (key-place c (inc column) row web-post-bl)
-             (key-place c column row web-post-br)))
+            (for [column (drop-last columns)
+                  row rows
+                  :when (or (not= column 0)
+                            (and (= column 0)
+                                 (< row (if use-lastrow? cornerrow lastrow))))]
+              (triangle-hulls
+               (key-place c (inc column) row web-post-tl)
+               (key-place c column row web-post-tr)
+               (key-place c (inc column) row web-post-bl)
+               (key-place c column row web-post-br)))
 
           ;; Column connections
-          (for [column columns
-                row (drop-last rows)
-                :when (or (not= column 0)
-                          (not (and (= column 0)
-                                    (> row 2))))]
-            (triangle-hulls
-             (key-place c column row web-post-bl)
-             (key-place c column row web-post-br)
-             (key-place c column (inc row) web-post-tl)
-             (key-place c column (inc row) web-post-tr)))
+            (for [column columns
+                  row (drop-last rows)
+                  :when (or (not= column 0)
+                            (not (and (= column 0)
+                                      (> row 2))))]
+              (triangle-hulls
+               (key-place c column row web-post-bl)
+               (key-place c column row web-post-br)
+               (key-place c column (inc row) web-post-tl)
+               (key-place c column (inc row) web-post-tr)))
 
           ;; Diagonal connections
-          (for [column (drop-last columns)
-                row (drop-last rows)
-                :when (not (and (= column 0)
-                                (> row cornerrow)))]
-            (triangle-hulls
-             (key-place c column row web-post-br)
-             (key-place c column (inc row) web-post-tr)
-             (key-place c (inc column) row web-post-bl)
-             (key-place c (inc column) (inc row) web-post-tl)))))))
+            (for [column (drop-last columns)
+                  row (drop-last rows)
+                  :when (not (and (= column 0)
+                                  (> row cornerrow)))]
+              (triangle-hulls
+               (key-place c column row web-post-br)
+               (key-place c column (inc row) web-post-tr)
+               (key-place c (inc column) row web-post-bl)
+               (key-place c (inc column) (inc row) web-post-tl)))))))
 
 ;;;;;;;;;;;;
 ;; Thumbs ;;
 ;;;;;;;;;;;;
 
 (defn thumb-place [c column row shape]
-    (let [beta (get c :configuration-beta)
-          alpha (get c :configuration-alpha)
-          thumb-tenting-angle (get c :configuration-thumb-tenting-angle)
-          thumb-offset (fthumb-offset c)
-          cap-top-height (+ plate-thickness sa-profile-key-height)
-          row-radius (+ (/ (/ (+ mount-height 1) 2)
-                           (Math/sin (/ alpha 2)))
-                        cap-top-height)
-          column-radius (+ (/ (/ (+ mount-width 2) 2)
-                              (Math/sin (/ beta 2)))
-                           cap-top-height)
-          #_(+ (/ (/ (+ pillar-width 5) 2)
-                  (Math/sin (/ beta 2)))
-               cap-top-height)]
-      (->> shape
-           (translate [0 0 (- row-radius)])
-           (rotate (* alpha row) [1 0 0])
-           (translate [0 0 row-radius])
-           (translate [0 0 (- column-radius)])
-           (rotate (* column beta) [0 1 0])
-           (translate [0 0 column-radius])
-           (translate [mount-width 0 0])
-           (rotate (* pi (- 1/4 3/16)) [0 0 1])
-           #_(rotate beta [1 1 0])
-           (rotate thumb-tenting-angle [1 1 0])
-           (translate thumb-offset))))
+  (let [beta (get c :configuration-beta)
+        alpha (get c :configuration-alpha)
+        thumb-tenting-angle (get c :configuration-thumb-tenting-angle)
+        thumb-offset (fthumb-offset c)
+        cap-top-height (+ plate-thickness sa-profile-key-height)
+        row-radius (+ (/ (/ (+ mount-height 1) 2)
+                         (Math/sin (/ alpha 2)))
+                      cap-top-height)
+        column-radius (+ (/ (/ (+ mount-width 2) 2)
+                            (Math/sin (/ beta 2)))
+                         cap-top-height)
+        #_(+ (/ (/ (+ pillar-width 5) 2)
+                (Math/sin (/ beta 2)))
+             cap-top-height)]
+    (->> shape
+         (translate [0 0 (- row-radius)])
+         (rotate (* alpha row) [1 0 0])
+         (translate [0 0 row-radius])
+         (translate [0 0 (- column-radius)])
+         (rotate (* column beta) [0 1 0])
+         (translate [0 0 column-radius])
+         (translate [mount-width 0 0])
+         (rotate (* pi (- 1/4 3/16)) [0 0 1])
+         #_(rotate beta [1 1 0])
+         (rotate thumb-tenting-angle [1 1 0])
+         (translate thumb-offset))))
 
 (defn thumb-2x-column [c shape]
   (thumb-place c 0 -1/2 (rotate (/ pi 1) [0 0 1] shape)))
@@ -196,8 +195,10 @@
   (union (thumb-place c 2 -3/4 shape)
          (thumb-place c 2  3/4 shape)))
 
+(defn extended-plate-height [size] (/ (- (* (+ 1 sa-length) size) mount-height) 2))
+
 (def double-plates
-  (let [plate-height (/ (- sa-double-length mount-height) 2)
+  (let [plate-height (extended-plate-height 2) #_(/ (- sa-double-length mount-height) 2)
         top-plate (->> (cube mount-width plate-height web-thickness)
                        (translate [0 (/ (+ plate-height mount-height) 2)
                                    (- plate-thickness (/ web-thickness 2))]))
@@ -209,8 +210,6 @@
                                       (color [1 0 0 1/2])))
         top-plate (difference top-plate stabilizer-cutout)]
     (color [1 0 0] (union top-plate (mirror [0 1 0] top-plate)))))
-
-(defn extended-plate-height [size] (/ (- (* (+ 1 sa-length) size) mount-height) 2))
 
 (defn extended-plates [size]
   (let [plate-height (extended-plate-height size)
@@ -226,10 +225,10 @@
      (thumb-place c 1 -1/2 (union shape double-plates))
      (case thumb-count
        :six (union
-              (thumb-place c 1  1 (union shape (extended-plates 1)))
-              (thumb-place c 2  1 (union shape (extended-plates 1)))
-              (thumb-place c 2  0 (union shape (extended-plates 1)))
-              (thumb-place c 2 -1 shape))
+             (thumb-place c 1  1 (union shape (extended-plates 1)))
+             (thumb-place c 2  1 (union shape (extended-plates 1)))
+             (thumb-place c 2  0 (union shape (extended-plates 1)))
+             (thumb-place c 2 -1 shape))
        :five (union
               (thumb-place c 1    1 (union shape (extended-plates 1)))
               (thumb-place c 2 -3/4 (union shape (extended-plates 1.5)))
@@ -255,7 +254,7 @@
 (defn thumb-connectors [c]
   (let [thumb-count (get c :configuration-thumb-count)
         use-lastrow? (get c :configuration-use-lastrow?)
-        cornerrow (fcornerrow use-lastrow?)
+        cornerrow (fcornerrow-lightcycle use-lastrow?)
         thumb-tl #(->> web-post-tl
                        (translate [0 (extended-plate-height %) 0]))
         thumb-bl #(->> web-post-bl
@@ -363,11 +362,11 @@
      (color [1 0 0] (thumb-connectors c))
 
      #_(case thumb-count
-       :five (union
-              (thumb-place c 0 -1/2 (extended-plates 2))
-              (thumb-place c 1 -1/2 (extended-plates 2)))
-       :three (thumb-place c 1   1  (extended-plates 1))
-       ()))))
+         :five (union
+                (thumb-place c 0 -1/2 (extended-plates 2))
+                (thumb-place c 1 -1/2 (extended-plates 2)))
+         :three (thumb-place c 1   1  (extended-plates 1))
+         ()))))
 
 ;;;;;;;;;;
 ;; Case ;;
@@ -444,8 +443,8 @@
 (defn front-wall [c]
   (let [use-lastrow? (get c :configuration-use-lastrow?)
         ncols (get c :configuration-ncols)
-        lastrow (flastrow use-lastrow?)
-        cornerrow (fcornerrow use-lastrow?)
+        lastrow (flastrow-lightcycle use-lastrow?)
+        cornerrow (fcornerrow-lightcycle use-lastrow?)
         penultcol (fpenultcol ncols)
         antecol (fantecol ncols)
         step wall-step ;;0.1
@@ -563,8 +562,8 @@
         use-numrow? (get c :configuration-use-numrow?)
         penultcol (fpenultcol ncols)
         rows (frows c)
-        lastrow (flastrow use-lastrow?)
-        cornerrow (fcornerrow use-lastrow?)
+        lastrow (flastrow-lightcycle use-lastrow?)
+        cornerrow (fcornerrow-lightcycle use-lastrow?)
         wall-stop (if use-lastrow? cornerrow cornerrow)
         place (partial case-place c)]
     (union
@@ -747,7 +746,7 @@
 (defn thumb-front-wall [c]
   (let [thumb-count (get c :configuration-thumb-count)
         use-lastrow? (get c :configuration-use-lastrow?)
-        cornerrow (fcornerrow use-lastrow?)
+        cornerrow (fcornerrow-lightcycle use-lastrow?)
         step wall-step ;;0.1
         wall-sphere-top-fronttep 0.05 ;;0.05
         place (partial thumb-place c)
@@ -763,15 +762,15 @@
         thumb-range (case thumb-count :five 5/2 :six 5/2 3/2)]
     (union
      (apply union
-              (for [x (range-inclusive thumb-right-wall (- (+ thumb-range 0.05) step) step)]
-                (hull (place x thumb-front-row wall-sphere-top-front)
-                      (place (+ x step) thumb-front-row wall-sphere-top-front)
-                      (place x thumb-front-row wall-sphere-bottom-front)
-                      (place (+ x step) thumb-front-row wall-sphere-bottom-front))))
+            (for [x (range-inclusive thumb-right-wall (- (+ thumb-range 0.05) step) step)]
+              (hull (place x thumb-front-row wall-sphere-top-front)
+                    (place (+ x step) thumb-front-row wall-sphere-top-front)
+                    (place x thumb-front-row wall-sphere-bottom-front)
+                    (place (+ x step) thumb-front-row wall-sphere-bottom-front))))
      (apply union
-              (for [x (range-inclusive thumb-right-wall (- (+ thumb-range 0.05) step) step)]
-                (bottom-hull (place x thumb-front-row wall-sphere-bottom-front)
-                             (place (+ x step) thumb-front-row wall-sphere-bottom-front))))
+            (for [x (range-inclusive thumb-right-wall (- (+ thumb-range 0.05) step) step)]
+              (bottom-hull (place x thumb-front-row wall-sphere-bottom-front)
+                           (place (+ x step) thumb-front-row wall-sphere-bottom-front))))
 
      (hull (place thumb-right-wall thumb-front-row wall-sphere-top-front)
            (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
@@ -819,31 +818,35 @@
 
 ; Offsets for the controller/trrs external holder cutout
 (defn external-holder-offset [c]
-  (let [use-external-holder? (get c :configuration-param-use-external-holder)]
+  (let [use-external-holder? (get c :configuration-use-external-holder?)]
     (if use-external-holder? 0 -3.5)))
 
 ; Cutout for controller/trrs jack holder
 (def external-holder-ref [-40 45 0])
-(def external-holder-cube   (cube 28.666 30 12.6))
+(def external-holder-cube   (cube 28.666 80 12.6))
 (defn external-holder-position [c]
   (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first external-holder-ref) (second external-holder-ref) 2]))
 (defn external-holder-space [c]
   (translate (map + (external-holder-position c) [-1.5 -2 3]) external-holder-cube))
 
-(defn screw-insert
+#_(defn screw-insert
   "Places screw insert to its place.
    TODO: write me."
   [c column row bottom-radius top-radius height]
-  ())
+  (let [position (key-position c column row (map + (wall-locate2 0 0) [0 (/ mount-height 2) 0]))]
+    (->> (screw-insert-shape bottom-radius top-radius height)
+         (translate [(first position) (second position) (/ height 2)]))))
 
-(defn screw-placement
-  "Places all screw inserts to their places.
-   TODO: write me."
-  [c bottom-radius top-radius height]
-  ())
+(defn screw-placement [c bottom-radius top-radius height]
+  (let [lastrow (if (get c :configuration-use-lastrow?) 4.0 3.6)
+        lastcol (* (get c :configuration-ncols) 0.82)]
+    (union (screw-insert c -1.5    5       bottom-radius top-radius height)
+           (screw-insert c -0.5    1       bottom-radius top-radius height)
+           (screw-insert c  2      lastrow bottom-radius top-radius height)
+           (screw-insert c lastcol 1.6     bottom-radius top-radius height))))
 
 (defn new-case [c]
-  (let [use-external-holder? (get c :configuration-param-use-external-holder)]
+  (let [use-external-holder? (get c :configuration-use-external-holder?)]
     (difference
      (union (front-wall c)
             (right-wall c)
@@ -852,7 +855,9 @@
             (thumb-back-wall c)
             (thumb-left-wall c)
             (thumb-front-wall c)
-            (if-not use-external-holder? (usb-holder fusb-holder-position c) ()))
+            (if-not use-external-holder?
+              (usb-holder fusb-holder-position c)
+              ()))
      (if-not use-external-holder? (rj9-space frj9-start c) ()))))
 
 ;;;;;;;;;;;;;;;;
@@ -860,21 +865,30 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defn dactyl-top-right [c]
-  (let [use-external-holder? (get c :configuration-param-use-external-holder)]
+  (let [use-external-holder? (get c :configuration-use-external-holder?)
+        use-screw-inserts? (get c :configuration-use-screw-inserts?)]
     (if-not use-external-holder?
-      (difference
-       (union (key-holes c)
-              (connectors c)
-              (thumb c)
-              (new-case c)
-              (rj9-holder frj9-start c)
-              #_(if (get c :configuration-show-caps?) (caps c) ())
-              #_(if (get c :configuration-show-caps?) (thumbcaps c) ()))
-       (usb-holder-hole fusb-holder-position c))
+      (union
+       (difference
+        (union (key-holes c)
+               (connectors c)
+               (thumb c)
+               (new-case c)
+               (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
+               #_(if (get c :configuration-show-caps?) (caps c) ())
+               #_(if (get c :configuration-show-caps?) (thumbcaps c) ()))
+        (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
+        (translate [0 0 -60] (cube 350 350 120))
+        (usb-holder-hole fusb-holder-position c))
+       (rj9-holder frj9-start c))
       (union (key-holes c)
              (connectors c)
+             (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
              (thumb c)
-             (difference (new-case c) (external-holder-space c))))))
+             (difference (new-case c)
+                         (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
+                         (external-holder-space c)
+                         (translate [0 0 -60] (cube 350 350 120)))))))
 
 (defn dactyl-top-left [c]
   (mirror [-1 0 0] (dactyl-top-right c)))
@@ -887,7 +901,7 @@
                                  (usb-holder fusb-holder-position c)
                                  #_(screw-insert-outers screw-placement c))
                           #_(translate [0 0 -10]
-                                     #_(screw-insert-screw-holes screw-placement c))))))
+                                       #_(screw-insert-screw-holes screw-placement c))))))
 
 (defn dactyl-plate-left [c]
   (mirror [-1 0 0] (dactyl-plate-right c)))
@@ -905,13 +919,15 @@
    :configuration-z-offset 18
    :configuration-tenting-angle (/ pi 7)
    :configuration-thumb-tenting-angle (/ pi 12)
+   :configuration-use-external-holder? true
+   :configuration-use-screw-inserts? true
    :configuration-thumb-offset-x -48
    :configuration-thumb-offset-y -45
    :configuration-thumb-offset-z 27
    :configuration-show-caps? true})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
-      (write-scad (dactyl-top-right c)))
+        (write-scad (dactyl-top-right c)))
 
 #_(spit "things/light-cycle-plate-right.scad"
-      (write-scad (dactyl-plate-right c)))
+        (write-scad (dactyl-plate-right c)))

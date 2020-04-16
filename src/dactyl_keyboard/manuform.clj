@@ -1,31 +1,11 @@
 (ns dactyl-keyboard.manuform
   (:refer-clojure :exclude [use import])
-  (:require [clojure.core.matrix :refer [array matrix mmul]]
-            [scad-clj.scad :refer :all]
+  (:require [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
             [dactyl-keyboard.util :refer :all]
             [dactyl-keyboard.common :refer :all]))
 
 (def column-style :standard)
-
-(defn column-offset
-  "Determines how much 'stagger' the columns are
-   0 = inner index finger's column.
-   1 = index finger's column.
-   2 = middle finger's column.
-   3 = ring finger's column.
-   4 >= pinky finger's column.
-   [x y z] means that it will be staggered by 'x'mm in X axis (left/right),
-   'y'mm in Y axis (front/back), and 'z'mm in Z axis (up/down). "
-  [ortho? column]
-  (if ortho?
-    (cond (= column 2)  [0   0    -6.5]
-          (>= column 4) [0   0     6]
-          :else         [0   0     0])
-    (cond (= column 2)  [0   2.82 -6.5]
-          (>= column 4) [0  -13    6]
-          :else         [0   0     0])))
-
 ; it dictates the location of the thumb cluster.
 ; the first member of the vector is x axis, second one y axis,
 ; while the last one is y axis.
@@ -37,12 +17,6 @@
 ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 ;(def keyboard-z-offset 4)
 
-; length of the first downward-sloping part of the wall (negative)
-(def wall-z-offset -15)
-; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-xy-offset 5)
-; wall thickness parameter; originally 5
-(def wall-thickness 3)
 
 ;; Settings for column-style == :fixed 
 ;; The defaults roughly match Maltron settings
@@ -57,33 +31,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn fcenterrow
-  "Determines where should the center (bottom-most point in the row's curve)
-   of the row located at. And most people would want to have the center
-   at the homerow. Why does it subtract the value by 3? Because this codebase
-   starts the row from the higher row (F row -> num row -> top row)
-   and the homerow is number 3 from the last after thumb and bottom row."
-  [nrows]
-  (- nrows 3))
-
-(defn flastrow
-  "Determines where the last row should be located at."
-  [nrows]
-  (- nrows 1))
-(defn fcornerrow
-  "Determines where the penultimate row should be located at."
-  [nrows]
-  (- nrows 2))
-(defn fmiddlerow
-  "Should be replaced with `fcenterrow`."
-  [nrows]
-  (- nrows 3))
-(defn flastcol
-  "Determines where the last column should be located at. With 0 being inner index
-   finger, 1 being index finger, and so on."
-  [ncols]
-  (- ncols 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Placement Functions ;;
@@ -118,53 +65,6 @@
   [beta centercol]
   (* beta (- centercol 2)))
 
-; when set `use-wide-pinky?`,
-; you will get 1.5u keys for the outermost pinky keys.
-(defn offset-for-column
-  "This function is used to give additional spacing for the column.
-   Main use case is to make the outer pinky keys use 1.5u."
-  [c col row]
-  (let [use-wide-pinky? (get c :configuration-use-wide-pinky?)
-        nrows (get c :configuration-nrows)
-        ncols (get c :configuration-ncols)
-        lastrow (flastrow nrows)
-        lastcol (flastcol ncols)]
-    (if (and use-wide-pinky?
-             (not= row lastrow)
-             (= col lastcol))
-      5.5
-      0)))
-
-; this is the helper function to 'place' the keys on the defined curve
-; of the board.
-(defn apply-key-geometry
-  "Helps to place the keys in the determined where a key should be placed
-   and rotated in xyz coordinate based on its position (row and column).
-   It is the implementation detail of `key-place`."
-  [c translate-fn rotate-x-fn rotate-y-fn column row shape]
-  (let [alpha (get c :configuration-alpha)
-        beta (get c :configuration-beta)
-        centercol (get c :configuration-centercol)
-        centerrow (fcenterrow (get c :configuration-nrows))
-        ortho? (get c :configuration-ortho?)
-        tenting-angle (get c :configuration-tenting-angle)
-        keyboard-z-offset (get c :configuration-keyboard-z-offset)
-        column-angle (* beta (- centercol column))
-        placed-shape (->> shape
-                          (translate-fn [(offset-for-column c
-                                                            column
-                                                            row)
-                                         0
-                                         (- (frow-radius alpha))])
-                          (rotate-x-fn  (* alpha (- centerrow row)))
-                          (translate-fn [0 0 (frow-radius alpha)])
-                          (translate-fn [0 0 (- (fcolumn-radius beta))])
-                          (rotate-y-fn  column-angle)
-                          (translate-fn [0 0 (fcolumn-radius beta)])
-                          (translate-fn (column-offset ortho? column)))]
-    (->> placed-shape
-         (rotate-y-fn  tenting-angle)
-         (translate-fn [0 0 keyboard-z-offset]))))
 
 ; this is the function that puts the key switch holes
 ; based on the row and the column.
@@ -176,24 +76,6 @@
                       (fn [angle obj] (rotate angle [1 0 0] obj))
                       (fn [angle obj] (rotate angle [0 1 0] obj))
                       column row shape))
-
-(defn rotate-around-x [angle position]
-  (mmul
-   [[1 0 0]
-    [0 (Math/cos angle) (- (Math/sin angle))]
-    [0 (Math/sin angle)    (Math/cos angle)]]
-   position))
-
-(defn rotate-around-y [angle position]
-  (mmul
-   [[(Math/cos angle)     0 (Math/sin angle)]
-    [0                    1 0]
-    [(- (Math/sin angle)) 0 (Math/cos angle)]]
-   position))
-
-(defn key-position [c column row position]
-  (apply-key-geometry c (partial map +) rotate-around-x rotate-around-y column row position))
-
 (defn key-holes
   "Determines which keys should be generated based on the configuration."
   [c]
@@ -576,15 +458,6 @@
 ;;;;;;;;;;
 ;; Case ;;
 ;;;;;;;;;;
-
-(def left-wall-x-offset 10)
-(def left-wall-z-offset  3)
-
-(defn left-key-position [c row direction]
-  (map -
-       (key-position c 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0])
-       [left-wall-x-offset 0 left-wall-z-offset]))
-
 (defn inner-key-position [c row direction]
   (map -
        (key-position c -1 row [(* mount-width -0.5) (* direction mount-height 0.5) 0])
@@ -595,15 +468,6 @@
 
 (defn inner-key-place [c row direction shape]
   (translate (inner-key-position c row direction) shape))
-
-(defn wall-locate1 [dx dy]
-  [(* dx wall-thickness) (* dy wall-thickness) -1])
-(defn wall-locate2 [dx dy]
-  [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
-(defn wall-locate3 [dx dy]
-  [(* dx (+ wall-xy-offset wall-thickness))
-   (* dy (+ wall-xy-offset wall-thickness))
-   wall-z-offset])
 
 (defn wall-brace
   "If you want to change the wall, use this.
@@ -1080,23 +944,6 @@
 (defn external-holder-space [c]
   (translate (map + (external-holder-position c) [-1.5 (* -1 wall-thickness) 3]) external-holder-cube))
 
-(defn screw-insert [c column row bottom-radius top-radius height]
-  (let [lastcol (flastcol (get c :configuration-ncols))
-        lastrow (flastrow (get c :configuration-nrows))
-        shift-right (= column lastcol)
-        shift-left  (= column 0)
-        shift-up    (and (not (or shift-right shift-left)) (= row 0))
-        shift-down  (and (not (or shift-right shift-left)) (>= row lastrow))
-        position    (if shift-up
-                      (key-position c column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
-                      (if shift-down
-                        (key-position c column row (map - (wall-locate2  0 -1) [0 (/ mount-height 2) 0]))
-                        (if shift-left
-                          (map + (left-key-position c row 0) (wall-locate3 -1 0))
-                          (key-position c column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))]
-    (->> (screw-insert-shape bottom-radius top-radius height)
-         (translate [(first position) (second position) (/ height 2)]))))
-
 (defn screw-placement [c bottom-radius top-radius height]
   (let [use-wide-pinky? (get c :configuration-use-wide-pinky?)
         use-inner-column? (get c :configuration-use-inner-column?)
@@ -1162,7 +1009,7 @@
 (defn model-right [c]
   (let [use-inner-column? (get c :configuration-use-inner-column?)
         show-caps? (get c :configuration-show-caps?)
-        use-external-holder? (get c :configuration-param-use-external-holder)
+        use-external-holder? (get c :configuration-use-external-holder?)
         use-promicro-usb-hole? (get c :configuration-use-promicro-usb-hole?)
         use-screw-inserts? (get c :configuration-use-screw-inserts?)
         use-trrs? (get c :configuration-use-trrs?)
@@ -1177,7 +1024,7 @@
       (if show-caps? (caps c) ())
       (if show-caps? (thumbcaps c) ())
       (if-not use-external-holder?
-        (do
+        (union
           (if use-wire-post? (wire-posts c) ())
           (if-not use-trrs? (rj9-holder frj9-start c) ()))
         ())
@@ -1190,7 +1037,7 @@
        (union (case-walls c)
               (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
               (if-not use-external-holder?
-                (do
+                (union
                   (if use-promicro-usb-hole?
                     (union (pro-micro-holder c)
                            (trrs-usb-holder-holder c))
@@ -1200,14 +1047,13 @@
                 ()))
        (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
        (if-not use-external-holder?
-         (do
+         (union
            (if use-trrs? (trrs-holder-hole c) (rj9-space frj9-start c))
            (if use-promicro-usb-hole?
              (union (trrs-usb-holder-space c)
                     (trrs-usb-jack c))
              (usb-holder-hole fusb-holder-position c)))
-         (external-holder-space c))
-       ))
+         (external-holder-space c))))
      (translate [0 0 -60] (cube 350 350 120)))))
 
 (defn model-left [c]
@@ -1236,7 +1082,7 @@
         :configuration-ncols 5
         :configuration-create-side-nub? false
         :configuration-use-alps? false
-        :configuration-minidox-style? false
+        :configuration-minidox-style? true
 
         :configuration-alpha (/ pi 12)
         :configuration-beta (/ pi 36)
@@ -1245,21 +1091,21 @@
 
         :configuration-use-promicro-usb-hole? false
         :configuration-use-trrs? false
+        :configuration-use-external-holder? false
 
-        :configuration-use-hotswap? true
+        :configuration-use-hotswap? false
         :configuration-ortho? false
         :configuration-use-inner-column? false
-        :configuration-keyboard-z-offset 4
+        :configuration-z-offset 4
         :configuration-show-caps? false
         :configuration-last-row-count :two
         :configuration-use-wide-pinky? false
         :configuration-use-wire-post? false
-        :configuration-use-screw-inserts? false
+        :configuration-use-screw-inserts? true
         :configuration-use-wrist-rest? false})
 
-
 #_(spit "things/right.scad"
-      (write-scad (model-right c)))
+        (write-scad (model-right c)))
 
 #_(spit "things/right-plate.scad"
       (write-scad (right-plate c)))

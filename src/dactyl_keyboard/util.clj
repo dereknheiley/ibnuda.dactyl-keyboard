@@ -1,8 +1,7 @@
 (ns dactyl-keyboard.util
   (:refer-clojure :exclude [use import])
   (:require [scad-clj.scad :refer :all]
-            [scad-clj.model :refer :all]
-            [dactyl-keyboard.common :as common]))
+            [scad-clj.model :refer :all]))
 
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
@@ -25,19 +24,3 @@
   (apply union
          (map (partial apply hull)
               (partition 3 1 shapes))))
-
-(defn frow-radius
-  "It computes the radius of the row's curve. It takes the value of `pi` divided
-   by `alpha` to compute the said radius."
-  [alpha]
-  (+ (/ (/ (+ common/mount-height common/extra-height) 2)
-        (Math/sin (/ alpha 2)))
-     common/cap-top-height))
-
-(defn fcolumn-radius
-  "It computes the radius of the column's curve. It takes the value of `pi` divided
-   by `beta` to compute the said radius."
-  [beta]
-  (+ (/ (/ (+ common/mount-width common/extra-width) 2)
-        (Math/sin (/ beta 2)))
-     common/cap-top-height))
