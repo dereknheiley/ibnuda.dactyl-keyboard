@@ -139,6 +139,7 @@
         param-thumb-count (case (get p "thumb-count")
                             "2" :two
                             "3" :three
+                            "6" :six
                             :five)
         param-alpha (parse-int (get p "alpha"))
         param-beta (parse-int (get p "beta"))
