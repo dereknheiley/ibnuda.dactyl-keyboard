@@ -862,18 +862,13 @@
 
 (defn new-case [c]
   (let [use-external-holder? (get c :configuration-use-external-holder?)]
-    (difference
-     (union (front-wall c)
-            (right-wall c)
-            (back-wall c)
-            (left-wall c)
-            (thumb-back-wall c)
-            (thumb-left-wall c)
-            (thumb-front-wall c)
-            (if-not use-external-holder?
-              (usb-holder fusb-holder-position c)
-              ()))
-     (if-not use-external-holder? (rj9-space frj9-start c) ()))))
+    (union (front-wall c)
+           (right-wall c)
+           (back-wall c)
+           (left-wall c)
+           (thumb-back-wall c)
+           (thumb-left-wall c)
+           (thumb-front-wall c))))
 
 ;;;;;;;;;;;;;;;;
 ;;Final Export ;;
@@ -882,41 +877,32 @@
 (defn dactyl-top-right [c]
   (let [use-external-holder? (get c :configuration-use-external-holder?)
         use-screw-inserts? (get c :configuration-use-screw-inserts?)]
-    (if-not use-external-holder?
-      (union
-       (difference
-        (union (key-holes c)
-               (connectors c)
-               (thumb c)
-               (new-case c)
-               (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
-               #_(if (get c :configuration-show-caps?) (caps c) ())
-               #_(if (get c :configuration-show-caps?) (thumbcaps c) ()))
-        (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
-        (translate [0 0 -60] (cube 350 350 120))
-        (usb-holder-hole fusb-holder-position c))
-       (rj9-holder frj9-start c))
-      (union (key-holes c)
-             (connectors c)
-             (thumb c)
-             (difference (union (new-case c)
-                                (if use-screw-inserts? (screw-insert-outers screw-placement c) ()))
-                         (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
-                         (external-holder-space c)
-                         (translate [0 0 -60] (cube 350 350 120)))))))
+    (difference
+     (union (key-holes c)
+            (connectors c)
+            (thumb c)
+            (difference (union (new-case c)
+                               (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
+                               (if-not use-external-holder? (usb-holder fusb-holder-position c) ()))
+                        (if-not use-external-holder? 
+                          (union (rj9-space frj9-start c) (usb-holder-hole fusb-holder-position c))
+                          (external-holder-space c))
+                        (if use-screw-inserts? (screw-insert-holes screw-placement c) ()))
+            #_(if (get c :configuration-show-caps?) (caps c) ())
+            #_(if (get c :configuration-show-caps?) (thumbcaps c) ())
+            (if-not use-external-holder? (rj9-holder frj9-start c) ()))
+     (translate [0 0 -60] (cube 350 350 120)))))
 
 (defn dactyl-top-left [c]
   (mirror [-1 0 0] (dactyl-top-right c)))
 
 (defn dactyl-plate-right [c]
-  (cut
-   (translate [0 0 -0.1]
-              (difference (union (new-case c)
-                                 (rj9-holder frj9-start c)
-                                 (usb-holder fusb-holder-position c)
-                                 #_(screw-insert-outers screw-placement c))
-                          #_(translate [0 0 -10]
-                                       #_(screw-insert-screw-holes screw-placement c))))))
+  (let [use-screw-inserts? (get c :configuration-use-screw-inserts?)]
+    (cut
+     (translate [0 0 -0.1]
+                (difference (union (new-case c)
+                                   (if use-screw-inserts? (screw-insert-outers screw-placement c) ()))
+                            (if use-screw-inserts? (translate [0 0 -10] (screw-insert-screw-holes screw-placement c)) ()))))))
 
 (defn dactyl-plate-left [c]
   (mirror [-1 0 0] (dactyl-plate-right c)))

@@ -1038,21 +1038,21 @@
               (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
               (if-not use-external-holder?
                 (union
-                  (if use-promicro-usb-hole?
-                    (union (pro-micro-holder c)
-                           (trrs-usb-holder-holder c))
-                    (union (usb-holder fusb-holder-position c)
-                           (pro-micro-holder c)))
-                  (if use-trrs? (trrs-holder c) ()))
+                 (if use-promicro-usb-hole?
+                   (union (pro-micro-holder c)
+                          (trrs-usb-holder-holder c))
+                   (union (usb-holder fusb-holder-position c)
+                          (pro-micro-holder c)))
+                 (if use-trrs? (trrs-holder c) ()))
                 ()))
        (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
        (if-not use-external-holder?
          (union
-           (if use-trrs? (trrs-holder-hole c) (rj9-space frj9-start c))
-           (if use-promicro-usb-hole?
-             (union (trrs-usb-holder-space c)
-                    (trrs-usb-jack c))
-             (usb-holder-hole fusb-holder-position c)))
+          (if use-trrs? (trrs-holder-hole c) (rj9-space frj9-start c))
+          (if use-promicro-usb-hole?
+            (union (trrs-usb-holder-space c)
+                   (trrs-usb-jack c))
+            (usb-holder-hole fusb-holder-position c)))
          (external-holder-space c))))
      (translate [0 0 -60] (cube 350 350 120)))))
 
@@ -1060,14 +1060,12 @@
   (mirror [-1 0 0] (model-right c)))
 
 (defn plate-right [c]
-  (cut
-   (translate [0 0 -0.1]
-              (difference (union (case-walls c)
-                                 (rj9-holder frj9-start c)
-                                 (usb-holder fusb-holder-position c)
-                                 (screw-insert-outers screw-placement c))
-                          (translate [0 0 -10]
-                                     (screw-insert-screw-holes screw-placement c))))))
+  (let [use-screw-inserts? (get c :configuration-use-screw-inserts?)]
+    (cut
+     (translate [0 0 -0.1]
+                (difference (union (case-walls c)
+                                   (if use-screw-inserts? (screw-insert-outers screw-placement c) ()))
+                            (if use-screw-inserts? (translate [0 0 -10] (screw-insert-screw-holes screw-placement c)) ()))))))
 
 (defn plate-left [c]
   (mirror [-1 0 0] (plate-right c)))
