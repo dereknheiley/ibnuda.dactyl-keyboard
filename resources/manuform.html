@@ -16,12 +16,15 @@
             document.getElementById("last-row").value = lastrow;
             document.getElementById("wide-pinky").value = widepinky;
         }
+
         function setminidox() {
             setkeyboard(5, 4, "true", "false", "zero", "false");
         }
+
         function setcorne() {
             setkeyboard(6, 4, "true", "false", "zero", "false");
         }
+
         function setergodox() {
             setkeyboard(6, 5, "false", "true", "full", "true");
         }
@@ -47,7 +50,7 @@
             if (use_wrist_rest === "false") {
                 document.querySelector("label[for='integrated-wrist-rest']").style.display = 'none'; // Hide the label
                 document.querySelector("select[id='integrated-wrist-rest']").style.display = 'none'; // Hide the select
-                document.querySelector("input[name='generate-wrist-rest']").style.display  = 'none'; // Hide the input
+                document.querySelector("input[name='generate-wrist-rest']").style.display = 'none'; // Hide the input
             } else {
                 document.querySelector("label[for='integrated-wrist-rest']").style.display = 'block'; // Show the label
                 document.querySelector("select[id='integrated-wrist-rest']").style.display = 'block'; // Show the select
@@ -58,9 +61,9 @@
         function toggle_generate_wrist_rest_button() {
             const integrated_wrist_rest = document.getElementById("integrated-wrist-rest").value;
             if (integrated_wrist_rest === "true") {
-                document.querySelector("input[name='generate-wrist-rest']").style.display  = 'none'; // Hide the button
+                document.querySelector("input[name='generate-wrist-rest']").style.display = 'none'; // Hide the button
             } else {
-                document.querySelector("input[name='generate-wrist-rest']").style.display  = 'block'; // Show the button
+                document.querySelector("input[name='generate-wrist-rest']").style.display = 'block'; // Show the button
             }
         }
     </script>
@@ -122,7 +125,7 @@
                         <label for="alpha">Column's Curvature</label>
                         <select id="alpha" name="alpha">
                             {% for cc in column-curvature %}
-                                <option value={{cc}}>pi/{{cc}}</option>
+                            <option value={{cc}}>pi/{{cc}}</option>
                             {% endfor %}
                         </select>
                         <label for="beta">Row's Curvature</label>
@@ -140,7 +143,7 @@
                         <label for="tenting-angle">Tenting Angle</label>
                         <select id="tenting-angle" name="tenting-angle">
                             {% for ta in tenting-angle %}
-                                <option value={{ta}}>pi/{{ta}}</option>
+                            <option value={{ta}}>pi/{{ta}}</option>
                             {% endfor %}
                         </select>
                     </fieldset>
@@ -187,7 +190,7 @@
                         <label for="keyboard-z-offset">Height Offset</label>
                         <select id="keyboard-z-offset" name="keyboard-z-offset">
                             {% for ho in height-offset %}
-                                <option value={{ho}}>{{ho}}mm</option>
+                            <option value={{ho}}>{{ho}}mm</option>
                             {% endfor %}
                         </select>
                         <label for="wire-post">Wire Posts?</label>

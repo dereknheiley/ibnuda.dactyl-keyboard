@@ -330,7 +330,7 @@
 (defn thumb [c]
   (union
    (thumb-1x-layout c  (single-plate c))
-   (thumb-15x-layout c (rotate (/ pi 2) [0 0 1](single-plate c)))
+   (thumb-15x-layout c (rotate (/ pi 2) [0 0 1] (single-plate c)))
    (thumb-15x-layout c larger-plate)))
 
 (def thumb-post-tr
@@ -539,8 +539,8 @@
                              lastcol y 1 0 (wide-post-br use-wide-pinky?)))
            (case row-count
              :full (key-wall-brace c
-                             lastcol lastrow 1 0 (wide-post-tr use-wide-pinky?)
-                             lastcol lastrow 1 0 (wide-post-br use-wide-pinky?))
+                                   lastcol lastrow 1 0 (wide-post-tr use-wide-pinky?)
+                                   lastcol lastrow 1 0 (wide-post-br use-wide-pinky?))
              ())
            (for [y (range 1 lastrow)]
              (key-wall-brace c
@@ -548,8 +548,8 @@
                              lastcol y 1 0 (wide-post-tr use-wide-pinky?)))
            (case row-count
              :full (key-wall-brace c
-                             lastcol (dec lastrow) 1 0 (wide-post-br use-wide-pinky?)
-                             lastcol lastrow       1 0 (wide-post-tr use-wide-pinky?))
+                                   lastcol (dec lastrow) 1 0 (wide-post-br use-wide-pinky?)
+                                   lastcol lastrow       1 0 (wide-post-tr use-wide-pinky?))
              ())
            (key-wall-brace c
                            lastcol (case row-count :full lastrow cornerrow) 0 -1 (wide-post-br use-wide-pinky?)
@@ -559,12 +559,12 @@
   (let [ncols (get c :configuration-ncols)
         lastcol (flastcol ncols)
         use-inner-column? (get c :configuration-use-inner-column?)]
-  (union
-  (for [x (range (if use-inner-column? -1 0) ncols)]
-    (key-wall-brace c x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
-  (for [x (range (if use-inner-column?  0 1) ncols)]
-    (key-wall-brace c x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
-  (key-wall-brace c lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr))))
+    (union
+     (for [x (range (if use-inner-column? -1 0) ncols)]
+       (key-wall-brace c x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
+     (for [x (range (if use-inner-column?  0 1) ncols)]
+       (key-wall-brace c x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
+     (key-wall-brace c lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr))))
 
 (defn left-wall [c]
   (let [nrows (get c :configuration-nrows)
@@ -572,55 +572,55 @@
         cornerrow (fcornerrow nrows)
         use-inner-column? (get c :configuration-use-inner-column?)]
     (union
-    (for [y (range 0 (if use-inner-column? cornerrow lastrow))]
-      (union
-       (wall-brace (partial (if use-inner-column?
-                              (partial inner-key-place c)
-                              (partial left-key-place c))
-                            y  1) -1 0 web-post
-                   (partial (if use-inner-column?
-                              (partial inner-key-place c)
-                              (partial left-key-place c))
-                            y -1) -1 0 web-post)
-       (hull (key-place c (if use-inner-column? -1 0) y web-post-tl)
-             (key-place c (if use-inner-column? -1 0) y web-post-bl)
-             ((if use-inner-column?
-                (partial inner-key-place c)
-                (partial left-key-place c))
-              y  1 web-post)
-             ((if use-inner-column?
-                (partial inner-key-place c)
-                (partial left-key-place c))
-              y -1 web-post))))
-    (for [y (range 1 (if use-inner-column? cornerrow lastrow))]
-      (union
-       (wall-brace (partial (if use-inner-column?
-                              (partial inner-key-place c)
-                              (partial left-key-place c))
-                            (dec y) -1) -1 0 web-post
-                   (partial (if use-inner-column?
-                              (partial inner-key-place c)
-                              (partial left-key-place c))
-                            y        1) -1 0 web-post)
-       (hull (key-place c (if use-inner-column? -1 0) y       web-post-tl)
-             (key-place c (if use-inner-column? -1 0) (dec y) web-post-bl)
-             ((if use-inner-column?
-                (partial inner-key-place c)
-                (partial left-key-place c))
-              y        1 web-post)
-             ((if use-inner-column?
-                (partial inner-key-place c)
-                (partial left-key-place c)) (dec y) -1 web-post))))
-    (wall-brace (partial key-place c (if use-inner-column? -1 0) 0) 0 1 web-post-tl
-                (partial (if use-inner-column?
-                           (partial inner-key-place c)
-                           (partial left-key-place c)) 0 1)  0 1 web-post)
-    (wall-brace (partial (if use-inner-column?
-                           (partial inner-key-place c)
-                           (partial left-key-place c)) 0 1)  0 1 web-post
-                (partial (if use-inner-column?
-                           (partial inner-key-place c)
-                           (partial left-key-place c)) 0 1) -1 0 web-post))))
+     (for [y (range 0 (if use-inner-column? cornerrow lastrow))]
+       (union
+        (wall-brace (partial (if use-inner-column?
+                               (partial inner-key-place c)
+                               (partial left-key-place c))
+                             y  1) -1 0 web-post
+                    (partial (if use-inner-column?
+                               (partial inner-key-place c)
+                               (partial left-key-place c))
+                             y -1) -1 0 web-post)
+        (hull (key-place c (if use-inner-column? -1 0) y web-post-tl)
+              (key-place c (if use-inner-column? -1 0) y web-post-bl)
+              ((if use-inner-column?
+                 (partial inner-key-place c)
+                 (partial left-key-place c))
+               y  1 web-post)
+              ((if use-inner-column?
+                 (partial inner-key-place c)
+                 (partial left-key-place c))
+               y -1 web-post))))
+     (for [y (range 1 (if use-inner-column? cornerrow lastrow))]
+       (union
+        (wall-brace (partial (if use-inner-column?
+                               (partial inner-key-place c)
+                               (partial left-key-place c))
+                             (dec y) -1) -1 0 web-post
+                    (partial (if use-inner-column?
+                               (partial inner-key-place c)
+                               (partial left-key-place c))
+                             y        1) -1 0 web-post)
+        (hull (key-place c (if use-inner-column? -1 0) y       web-post-tl)
+              (key-place c (if use-inner-column? -1 0) (dec y) web-post-bl)
+              ((if use-inner-column?
+                 (partial inner-key-place c)
+                 (partial left-key-place c))
+               y        1 web-post)
+              ((if use-inner-column?
+                 (partial inner-key-place c)
+                 (partial left-key-place c)) (dec y) -1 web-post))))
+     (wall-brace (partial key-place c (if use-inner-column? -1 0) 0) 0 1 web-post-tl
+                 (partial (if use-inner-column?
+                            (partial inner-key-place c)
+                            (partial left-key-place c)) 0 1)  0 1 web-post)
+     (wall-brace (partial (if use-inner-column?
+                            (partial inner-key-place c)
+                            (partial left-key-place c)) 0 1)  0 1 web-post
+                 (partial (if use-inner-column?
+                            (partial inner-key-place c)
+                            (partial left-key-place c)) 0 1) -1 0 web-post))))
 (defn front-wall [c]
   (let [ncols (get c :configuration-ncols)
         nrows (get c :configuration-nrows)
@@ -712,12 +712,12 @@
 
 (defn thumb-corner [c]
   (let [minidox-style? (get c :configuration-minidox-style?)]
-     (if minidox-style?
-       (union (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-tl (partial thumb-ml-place c) -1  0 thumb-post-bl)
-              (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-bl (partial thumb-ml-place c) -1 -1 thumb-post-bl)
-              (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-tl (partial thumb-ml-place c)  0  1 thumb-post-tl))
-       (union (wall-brace (partial thumb-br-place c) -1  0 web-post-bl   (partial thumb-br-place c)  0 -1 web-post-bl)
-              (wall-brace (partial thumb-bl-place c) -1  0 web-post-tl   (partial thumb-bl-place c)  0  1 web-post-tl)))))
+    (if minidox-style?
+      (union (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-tl (partial thumb-ml-place c) -1  0 thumb-post-bl)
+             (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-bl (partial thumb-ml-place c) -1 -1 thumb-post-bl)
+             (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-tl (partial thumb-ml-place c)  0  1 thumb-post-tl))
+      (union (wall-brace (partial thumb-br-place c) -1  0 web-post-bl   (partial thumb-br-place c)  0 -1 web-post-bl)
+             (wall-brace (partial thumb-bl-place c) -1  0 web-post-tl   (partial thumb-bl-place c)  0  1 web-post-tl)))))
 
 (defn thumb-tweener [c]
   (let [minidox-style? (get c :configuration-minidox-style?)
@@ -1025,8 +1025,8 @@
       (if show-caps? (thumbcaps c) ())
       (if-not use-external-holder?
         (union
-          (if use-wire-post? (wire-posts c) ())
-          (if-not use-trrs? (rj9-holder frj9-start c) ()))
+         (if use-wire-post? (wire-posts c) ())
+         (if-not use-trrs? (rj9-holder frj9-start c) ()))
         ())
       (if use-inner-column? (inner-key-holes c) ())
       (key-holes c)
@@ -1106,7 +1106,7 @@
         (write-scad (model-right c)))
 
 #_(spit "things/right-plate.scad"
-      (write-scad (right-plate c)))
+        (write-scad (right-plate c)))
 
 #_(spit "things/right-plate.scad"
         (write-scad

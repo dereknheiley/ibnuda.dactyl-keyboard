@@ -1,7 +1,6 @@
 (ns dactyl-keyboard.lightcycle
   (:refer-clojure :exclude [use import])
-  (:require [clojure.core.matrix :refer [array matrix mmul]]
-            [scad-clj.scad :refer :all]
+  (:require [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
             [dactyl-keyboard.util :refer :all]
             [dactyl-keyboard.common :refer :all]))
@@ -655,15 +654,6 @@
 (defn thumb-back-wall [c]
   (let [thumb-count (get c :configuration-thumb-count)
         step wall-step
-        top-step 0.05
-        front-top-cover (fn [x-start x-end y-start y-end]
-                          (apply union
-                                 (for [x (range-inclusive x-start (- x-end top-step) top-step)
-                                       y (range-inclusive y-start (- y-end top-step) top-step)]
-                                   (hull (thumb-place c x y wall-sphere-top-back)
-                                         (thumb-place c (+ x top-step) y wall-sphere-top-back)
-                                         (thumb-place c x (+ y top-step) wall-sphere-top-back)
-                                         (thumb-place c (+ x top-step) (+ y top-step) wall-sphere-top-back)))))
         local-back-y (thumb-back-y c)
         thumb-range (case thumb-count :five 5/2 :six 5/2 3/2)
         back-thumb-position (case thumb-count :two 0 1)
@@ -748,15 +738,10 @@
         use-lastrow? (get c :configuration-use-lastrow?)
         cornerrow (fcornerrow-lightcycle use-lastrow?)
         step wall-step ;;0.1
-        wall-sphere-top-fronttep 0.05 ;;0.05
         place (partial thumb-place c)
         plate-height (/ (- sa-double-length mount-height) 2)
-        thumb-tl (->> web-post-tl
-                      (translate [0 plate-height 0]))
         thumb-bl (->> web-post-bl
                       (translate [0  (- plate-height) 0]))
-        thumb-tr (->> web-post-tr
-                      (translate [-0 plate-height 0]))
         thumb-br (->> web-post-br
                       (translate [-0 (- plate-height) 0]))
         thumb-range (case thumb-count :five 5/2 :six 5/2 3/2)]
@@ -830,12 +815,12 @@
   (translate (map + (external-holder-position c) [-1.5 -2 3]) external-holder-cube))
 
 #_(defn screw-insert
-  "Places screw insert to its place.
+    "Places screw insert to its place.
    TODO: write me."
-  [c column row bottom-radius top-radius height]
-  (let [position (key-position c column row (map + (wall-locate2 0 0) [0 (/ mount-height 2) 0]))]
-    (->> (screw-insert-shape bottom-radius top-radius height)
-         (translate [(first position) (second position) (/ height 2)]))))
+    [c column row bottom-radius top-radius height]
+    (let [position (key-position c column row (map + (wall-locate2 0 0) [0 (/ mount-height 2) 0]))]
+      (->> (screw-insert-shape bottom-radius top-radius height)
+           (translate [(first position) (second position) (/ height 2)]))))
 
 (defn screw-placement [c bottom-radius top-radius height]
   (let [lastrow (if (get c :configuration-use-lastrow?) 4 3.55)
@@ -861,14 +846,13 @@
            (screw-insert c lastcol   middlecol bottom-radius top-radius height))))
 
 (defn new-case [c]
-  (let [use-external-holder? (get c :configuration-use-external-holder?)]
-    (union (front-wall c)
-           (right-wall c)
-           (back-wall c)
-           (left-wall c)
-           (thumb-back-wall c)
-           (thumb-left-wall c)
-           (thumb-front-wall c))))
+  (union (front-wall c)
+         (right-wall c)
+         (back-wall c)
+         (left-wall c)
+         (thumb-back-wall c)
+         (thumb-left-wall c)
+         (thumb-front-wall c)))
 
 ;;;;;;;;;;;;;;;;
 ;;Final Export ;;
@@ -884,7 +868,7 @@
             (difference (union (new-case c)
                                (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
                                (if-not use-external-holder? (usb-holder fusb-holder-position c) ()))
-                        (if-not use-external-holder? 
+                        (if-not use-external-holder?
                           (union (rj9-space frj9-start c) (usb-holder-hole fusb-holder-position c))
                           (external-holder-space c))
                         (if use-screw-inserts? (screw-insert-holes screw-placement c) ()))

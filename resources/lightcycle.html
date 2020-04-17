@@ -51,9 +51,9 @@
                     <fieldset name="curvature" id=curvature>
                         <label for="alpha">Column's Curvature</label>
                         <select id="alpha" name="alpha">
-                        {% for cc in column-curvature %}
+                            {% for cc in column-curvature %}
                             <option value={{cc}}>pi/{{cc}}</option>
-                        {% endfor %}
+                            {% endfor %}
                         </select>
                         <label for="beta">Row's Curvature</label>
                         <select id="beta" name="beta">
@@ -62,15 +62,15 @@
                         </select>
                         <label for="tenting-angle">Tenting Angle</label>
                         <select id="tenting-angle" name="tenting-angle" value="pi/12">
-                        {% for ta in tenting-angle %}
+                            {% for ta in tenting-angle %}
                             <option value={{ta}}>pi/{{ta}}</option>
-                        {% endfor %}
+                            {% endfor %}
                         </select>
                         <label for="thumb-tenting-angle">Thumb Tenting Angle</label>
                         <select id="thumb-tenting-angle" name="thumb-tenting-angle">
-                        {% for tta in thumb-tenting-angle %}
+                            {% for tta in thumb-tenting-angle %}
                             <option value={{tta}}>pi/{{tta}}</option>
-                        {% endfor %}
+                            {% endfor %}
                         </select>
                     </fieldset>
                     <label for="connector">
@@ -112,9 +112,9 @@
                     <fieldset name="case-form" id="case-form">
                         <label for="z-offset">Height Offset</label>
                         <select id="z-offset" name="z-offset">
-                        {% for ho in height-offset %}
+                            {% for ho in height-offset %}
                             <option value={{ho}}>{{ho}}mm</option>
-                        {% endfor %}
+                            {% endfor %}
                         </select>
                     </fieldset>
                     <label for="miscelania">
