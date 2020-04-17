@@ -29,10 +29,10 @@
                         <input type="number" name="ncols" id="ncols" value=6>
                         <label for="thumb-count">Thumb key count?</label>
                         <select id="thumb-count" name="thumb-count">
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="3">3</option>
                             <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5" selected>5</option>
+                            <option value="6">6</option>
                         </select>
                         <label for="last-row">Use bottom row?</label>
                         <select id="last-row" name="last-row">
@@ -51,9 +51,9 @@
                     <fieldset name="curvature" id=curvature>
                         <label for="alpha">Column's Curvature</label>
                         <select id="alpha" name="alpha">
-                            {% for cc in column-curvature %}
-                                <option value={{cc}}>pi/{{cc}}</option>
-                            {% endfor %}
+                        {% for cc in column-curvature %}
+                            <option value={{cc}}>pi/{{cc}}</option>
+                        {% endfor %}
                         </select>
                         <label for="beta">Row's Curvature</label>
                         <select id="beta" name="beta">
@@ -62,15 +62,15 @@
                         </select>
                         <label for="tenting-angle">Tenting Angle</label>
                         <select id="tenting-angle" name="tenting-angle" value="pi/12">
-                            {% for ta in tenting-angle %}
-                                <option value={{ta}}>pi/{{ta}}</option>
-                            {% endfor %}
+                        {% for ta in tenting-angle %}
+                            <option value={{ta}}>pi/{{ta}}</option>
+                        {% endfor %}
                         </select>
                         <label for="thumb-tenting-angle">Thumb Tenting Angle</label>
                         <select id="thumb-tenting-angle" name="thumb-tenting-angle">
-                            {% for tta in thumb-tenting-angle %}
-                                <option value={{tta}}>pi/{{tta}}</option>
-                            {% endfor %}
+                        {% for tta in thumb-tenting-angle %}
+                            <option value={{tta}}>pi/{{tta}}</option>
+                        {% endfor %}
                         </select>
                     </fieldset>
                     <label for="connector">
@@ -112,9 +112,9 @@
                     <fieldset name="case-form" id="case-form">
                         <label for="z-offset">Height Offset</label>
                         <select id="z-offset" name="z-offset">
-                            {% for ho in height-offset %}
-                                <option value={{ho}}>{{ho}}mm</option>
-                            {% endfor %}
+                        {% for ho in height-offset %}
+                            <option value={{ho}}>{{ho}}mm</option>
+                        {% endfor %}
                         </select>
                     </fieldset>
                     <label for="miscelania">
