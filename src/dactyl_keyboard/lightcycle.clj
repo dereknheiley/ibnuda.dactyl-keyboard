@@ -523,12 +523,12 @@
             (for [x (range-inclusive left-wall-column (- (right-wall-column c) step) step)]
               (bottom-hull (place x (back-y c) wall-sphere-bottom-back)
                            (place (+ x step) (back-y c) wall-sphere-bottom-back))))
-     ;;     (front-top-cover left-wall-column 1.56 back-y (+ back-y 0.06))
-     #_(front-top-cover left-wall-column right-wall-column back-y (+ back-y 0.06))
-     ;;     (front-top-cover 1.56 2.44 back-y (+ back-y 0.06))
-     (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) 0.2))
-     (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) 0.2))
 
+     (if (> ncols 4)
+       (do
+         (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) 0.2))
+         (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) 0.2)))
+       ())
 
      (hull (place left-wall-column (back-y c) (translate [1 -1 1] wall-sphere-bottom-back))
            (place (+ left-wall-column 1) (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
