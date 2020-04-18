@@ -473,7 +473,7 @@
      (top-cover 1.59 2.41 (* cornerrow 0.85) cornerrow) ;; was 3.32
      (top-cover 2.39 3.41 (* cornerrow 0.9) cornerrow)
      (apply union
-            (for [x (range 2 lastrow)]
+            (for [x (range 2 (- lastrow 1))]
               (union
                (hull (place (- x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
                      (place (+ x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
