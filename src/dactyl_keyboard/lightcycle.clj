@@ -801,16 +801,20 @@
   (let [use-numrow? (get c :configuration-use-numrow?)]
     [-10 (if use-numrow? 55 35) 0]))
 
-; Offsets for the controller/trrs external holder cutout
-(defn external-holder-offset [c]
-  (let [use-external-holder? (get c :configuration-use-external-holder?)]
-    (if use-external-holder? 0 -3.5)))
-
 ; Cutout for controller/trrs jack holder
-(def external-holder-ref [-40 45 0])
+(defn external-holder-ref [c]
+  (let [tenting-angle (get c :configuration-tenting-angle)]
+    (case tenting-angle
+      0.4487989505128276  [-27 45]    ;; pi/7
+      0.39269908169872414 [-30 45]    ;; pi/8
+      0.3490658503988659  [-30 45]    ;; pi/9
+      0.3141592653589793  [-33 45]    ;; pi/10
+      0.28559933214452665 [-36 45]    ;; pi/11
+      0.2617993877991494  [-36 45]))) ;; pi/12
+
 (def external-holder-cube   (cube 28.666 80 12.6))
 (defn external-holder-position [c]
-  (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first external-holder-ref) (second external-holder-ref) 2]))
+  (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first (external-holder-ref c)) (second (external-holder-ref c)) 2]))
 (defn external-holder-space [c]
   (translate (map + (external-holder-position c) [-1.5 -2 3]) external-holder-cube))
 
