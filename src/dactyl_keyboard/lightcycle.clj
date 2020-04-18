@@ -801,6 +801,11 @@
   (let [use-numrow? (get c :configuration-use-numrow?)]
     [-10 (if use-numrow? 55 35) 0]))
 
+; Offsets for the controller/trrs external holder cutout	
+(defn external-holder-offset [c]
+  (let [use-external-holder? (get c :configuration-use-external-holder?)]
+    (if use-external-holder? 0 -3.5)))
+
 ; Cutout for controller/trrs jack holder
 (defn external-holder-ref [c]
   (let [tenting-angle (get c :configuration-tenting-angle)]
