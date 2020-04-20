@@ -88,10 +88,10 @@
         param-wrist-rest (parse-bool (get p "wrist-rest"))
         param-integrated-wrist-rest (parse-bool (get p "integrated-wrist-rest"))
         is-right? (parse-bool (get p "right-side"))
-        
+
         param-generate-plate (get p "generate-plate")
         param-generate-wrist-rest (get p "generate-wrist-rest")
-        
+
         generate-plate? (some? param-generate-plate)
         generate-wrist-rest? (some? param-generate-wrist-rest)
 
@@ -175,7 +175,7 @@
            :configuration-thumb-offset-y (- 0 param-thumb-offset-y)
            :configuration-thumb-offset-z param-thumb-offset-z
            :configuration-use-external-holder? param-use-external-holder
-           
+
            :configuration-use-screw-inserts? param-screw-inserts}
         generated-scad (if generate-plate?
                          (generate-plate-dl c is-right?)

@@ -1,7 +1,6 @@
 (ns dactyl-keyboard.lightcycle
   (:refer-clojure :exclude [use import])
-  (:require [clojure.core.matrix :refer [array matrix mmul]]
-            [scad-clj.scad :refer :all]
+  (:require [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
             [dactyl-keyboard.util :refer :all]
             [dactyl-keyboard.common :refer :all]))
@@ -474,7 +473,7 @@
      (top-cover 1.59 2.41 (* cornerrow 0.85) cornerrow) ;; was 3.32
      (top-cover 2.39 3.41 (* cornerrow 0.9) cornerrow)
      (apply union
-            (for [x (range 2 lastrow)]
+            (for [x (range 2 (- lastrow 1))]
               (union
                (hull (place (- x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
                      (place (+ x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
@@ -524,12 +523,12 @@
             (for [x (range-inclusive left-wall-column (- (right-wall-column c) step) step)]
               (bottom-hull (place x (back-y c) wall-sphere-bottom-back)
                            (place (+ x step) (back-y c) wall-sphere-bottom-back))))
-     ;;     (front-top-cover left-wall-column 1.56 back-y (+ back-y 0.06))
-     #_(front-top-cover left-wall-column right-wall-column back-y (+ back-y 0.06))
-     ;;     (front-top-cover 1.56 2.44 back-y (+ back-y 0.06))
-     (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) 0.2))
-     (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) 0.2))
 
+     (if (> ncols 4)
+       (do
+         (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) 0.2))
+         (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) 0.2)))
+       ())
 
      (hull (place left-wall-column (back-y c) (translate [1 -1 1] wall-sphere-bottom-back))
            (place (+ left-wall-column 1) (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
@@ -655,15 +654,6 @@
 (defn thumb-back-wall [c]
   (let [thumb-count (get c :configuration-thumb-count)
         step wall-step
-        top-step 0.05
-        front-top-cover (fn [x-start x-end y-start y-end]
-                          (apply union
-                                 (for [x (range-inclusive x-start (- x-end top-step) top-step)
-                                       y (range-inclusive y-start (- y-end top-step) top-step)]
-                                   (hull (thumb-place c x y wall-sphere-top-back)
-                                         (thumb-place c (+ x top-step) y wall-sphere-top-back)
-                                         (thumb-place c x (+ y top-step) wall-sphere-top-back)
-                                         (thumb-place c (+ x top-step) (+ y top-step) wall-sphere-top-back)))))
         local-back-y (thumb-back-y c)
         thumb-range (case thumb-count :five 5/2 :six 5/2 3/2)
         back-thumb-position (case thumb-count :two 0 1)
@@ -748,15 +738,10 @@
         use-lastrow? (get c :configuration-use-lastrow?)
         cornerrow (fcornerrow-lightcycle use-lastrow?)
         step wall-step ;;0.1
-        wall-sphere-top-fronttep 0.05 ;;0.05
         place (partial thumb-place c)
         plate-height (/ (- sa-double-length mount-height) 2)
-        thumb-tl (->> web-post-tl
-                      (translate [0 plate-height 0]))
         thumb-bl (->> web-post-bl
                       (translate [0  (- plate-height) 0]))
-        thumb-tr (->> web-post-tr
-                      (translate [-0 plate-height 0]))
         thumb-br (->> web-post-br
                       (translate [-0 (- plate-height) 0]))
         thumb-range (case thumb-count :five 5/2 :six 5/2 3/2)]
@@ -816,26 +801,35 @@
   (let [use-numrow? (get c :configuration-use-numrow?)]
     [-10 (if use-numrow? 55 35) 0]))
 
-; Offsets for the controller/trrs external holder cutout
+; Offsets for the controller/trrs external holder cutout	
 (defn external-holder-offset [c]
   (let [use-external-holder? (get c :configuration-use-external-holder?)]
     (if use-external-holder? 0 -3.5)))
 
 ; Cutout for controller/trrs jack holder
-(def external-holder-ref [-40 45 0])
+(defn external-holder-ref [c]
+  (let [tenting-angle (get c :configuration-tenting-angle)]
+    (case tenting-angle
+      0.4487989505128276  [-27 45]    ;; pi/7
+      0.39269908169872414 [-30 45]    ;; pi/8
+      0.3490658503988659  [-30 45]    ;; pi/9
+      0.3141592653589793  [-33 45]    ;; pi/10
+      0.28559933214452665 [-36 45]    ;; pi/11
+      0.2617993877991494  [-36 45]))) ;; pi/12
+
 (def external-holder-cube   (cube 28.666 80 12.6))
 (defn external-holder-position [c]
-  (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first external-holder-ref) (second external-holder-ref) 2]))
+  (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first (external-holder-ref c)) (second (external-holder-ref c)) 2]))
 (defn external-holder-space [c]
   (translate (map + (external-holder-position c) [-1.5 -2 3]) external-holder-cube))
 
 #_(defn screw-insert
-  "Places screw insert to its place.
+    "Places screw insert to its place.
    TODO: write me."
-  [c column row bottom-radius top-radius height]
-  (let [position (key-position c column row (map + (wall-locate2 0 0) [0 (/ mount-height 2) 0]))]
-    (->> (screw-insert-shape bottom-radius top-radius height)
-         (translate [(first position) (second position) (/ height 2)]))))
+    [c column row bottom-radius top-radius height]
+    (let [position (key-position c column row (map + (wall-locate2 0 0) [0 (/ mount-height 2) 0]))]
+      (->> (screw-insert-shape bottom-radius top-radius height)
+           (translate [(first position) (second position) (/ height 2)]))))
 
 (defn screw-placement [c bottom-radius top-radius height]
   (let [lastrow (if (get c :configuration-use-lastrow?) 4 3.55)
@@ -861,19 +855,13 @@
            (screw-insert c lastcol   middlecol bottom-radius top-radius height))))
 
 (defn new-case [c]
-  (let [use-external-holder? (get c :configuration-use-external-holder?)]
-    (difference
-     (union (front-wall c)
-            (right-wall c)
-            (back-wall c)
-            (left-wall c)
-            (thumb-back-wall c)
-            (thumb-left-wall c)
-            (thumb-front-wall c)
-            (if-not use-external-holder?
-              (usb-holder fusb-holder-position c)
-              ()))
-     (if-not use-external-holder? (rj9-space frj9-start c) ()))))
+  (union (front-wall c)
+         (right-wall c)
+         (back-wall c)
+         (left-wall c)
+         (thumb-back-wall c)
+         (thumb-left-wall c)
+         (thumb-front-wall c)))
 
 ;;;;;;;;;;;;;;;;
 ;;Final Export ;;
@@ -882,41 +870,32 @@
 (defn dactyl-top-right [c]
   (let [use-external-holder? (get c :configuration-use-external-holder?)
         use-screw-inserts? (get c :configuration-use-screw-inserts?)]
-    (if-not use-external-holder?
-      (union
-       (difference
-        (union (key-holes c)
-               (connectors c)
-               (thumb c)
-               (new-case c)
-               (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
-               #_(if (get c :configuration-show-caps?) (caps c) ())
-               #_(if (get c :configuration-show-caps?) (thumbcaps c) ()))
-        (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
-        (translate [0 0 -60] (cube 350 350 120))
-        (usb-holder-hole fusb-holder-position c))
-       (rj9-holder frj9-start c))
-      (union (key-holes c)
-             (connectors c)
-             (thumb c)
-             (difference (union (new-case c)
-                                (if use-screw-inserts? (screw-insert-outers screw-placement c) ()))
-                         (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
-                         (external-holder-space c)
-                         (translate [0 0 -60] (cube 350 350 120)))))))
+    (difference
+     (union (key-holes c)
+            (connectors c)
+            (thumb c)
+            (difference (union (new-case c)
+                               (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
+                               (if-not use-external-holder? (usb-holder fusb-holder-position c) ()))
+                        (if-not use-external-holder?
+                          (union (rj9-space frj9-start c) (usb-holder-hole fusb-holder-position c))
+                          (external-holder-space c))
+                        (if use-screw-inserts? (screw-insert-holes screw-placement c) ()))
+            #_(if (get c :configuration-show-caps?) (caps c) ())
+            #_(if (get c :configuration-show-caps?) (thumbcaps c) ())
+            (if-not use-external-holder? (rj9-holder frj9-start c) ()))
+     (translate [0 0 -60] (cube 350 350 120)))))
 
 (defn dactyl-top-left [c]
   (mirror [-1 0 0] (dactyl-top-right c)))
 
 (defn dactyl-plate-right [c]
-  (cut
-   (translate [0 0 -0.1]
-              (difference (union (new-case c)
-                                 (rj9-holder frj9-start c)
-                                 (usb-holder fusb-holder-position c)
-                                 #_(screw-insert-outers screw-placement c))
-                          #_(translate [0 0 -10]
-                                       #_(screw-insert-screw-holes screw-placement c))))))
+  (let [use-screw-inserts? (get c :configuration-use-screw-inserts?)]
+    (cut
+     (translate [0 0 -0.1]
+                (difference (union (new-case c)
+                                   (if use-screw-inserts? (screw-insert-outers screw-placement c) ()))
+                            (if use-screw-inserts? (translate [0 0 -10] (screw-insert-screw-holes screw-placement c)) ()))))))
 
 (defn dactyl-plate-left [c]
   (mirror [-1 0 0] (dactyl-plate-right c)))
