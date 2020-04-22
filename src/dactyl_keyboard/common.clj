@@ -482,7 +482,7 @@
                                         (- wrist-rest-back-height h-offset))
                                      100)])
                   (rotate  (/ (* pi wrist-rest-angle) 180)  [1 0 0])
-                  (rotate  (/ (* pi (wrist-rest-y-angle tenting-angle)) 180)  [0 1 0]))
+                  (rotate  (/ (* pi (wrist-rest-y-angle tenting-angle)) 180)  [1 1 0]))
              (->> (difference
                    wrist-rest
                    (->> (cube 200 200 200)
@@ -490,7 +490,7 @@
                                               (- wrist-rest-back-height h-offset))
                                            (+ 100  wrist-rest-ledge))])
                         (rotate (/ (* pi wrist-rest-angle) 180) [1 0 0])
-                        (rotate (/ (* pi (wrist-rest-y-angle tenting-angle)) 180)  [0 1 0])))))))))
+                        (rotate (/ (* pi (wrist-rest-y-angle tenting-angle)) 180)  [1 1 0])))))))))
 
 (defn rest-case-cuts [c]
   (let [ncols (get c :configuration-ncols)
