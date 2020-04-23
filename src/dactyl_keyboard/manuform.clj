@@ -930,9 +930,13 @@
 ; Offsets for the controller/trrs external holder cutout
 (defn external-holder-offset [c]
   (case (get c :configuration-nrows)
+    1 -9
+    2 -7
+    3 -5
     4 -3.5
     5 0
-    6 2.2))
+    6 2.2
+    5))
 
 ; Cutout for controller/trrs jack external holder
 (defn external-holder-ref [c]
