@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dactyl Generator</title>
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="milligram.min.css">
+    <script>
+        function setkeyboard(ncols, nrows, minidox, innercolumn, lastrow, widepinky) {
+            document.getElementById("ncols").value = ncols;
+            document.getElementById("nrows").value = nrows;
+            document.getElementById("minidox").value = minidox;
+            document.getElementById("inner-column").value = innercolumn;
+            document.getElementById("last-row").value = lastrow;
+            document.getElementById("wide-pinky").value = widepinky;
+        }
+
+        function setminidox() {
+            setkeyboard(5, 4, "true", "false", "zero", "false");
+        }
+
+        function setcorne() {
+            setkeyboard(6, 4, "true", "false", "zero", "false");
+        }
+
+        function setergodox() {
+            setkeyboard(6, 5, "false", "true", "full", "true");
+        }
+
+        function toggle_connectors_fields() {
+            const use_external_holder = document.getElementById("external-holder").value;
+            const impacted_ids = ["trrs-connector", "usb-hole"];
+            if (use_external_holder === "true") {
+                impacted_ids.forEach(id => {
+                    document.querySelector("label[for='" + id + "']").style.display = 'none'; // Hide the label
+                    document.querySelector("select[id='" + id + "']").style.display = 'none'; // Hide the select
+                });
+            } else {
+                impacted_ids.forEach(id => {
+                    document.querySelector("label[for='" + id + "']").style.display = 'block'; // Show the label
+                    document.querySelector("select[id='" + id + "']").style.display = 'block'; // Hide the select
+                });
+            }
+        }
+
+        function toggle_wrist_rest_type_fields() {
+            const use_wrist_rest = document.getElementById("wrist-rest").value;
+            if (use_wrist_rest === "false") {
+                document.querySelector("label[for='integrated-wrist-rest']").style.display = 'none'; // Hide the label
+                document.querySelector("select[id='integrated-wrist-rest']").style.display = 'none'; // Hide the select
+                document.querySelector("input[name='generate-wrist-rest']").style.display = 'none'; // Hide the input
+            } else {
+                document.querySelector("label[for='integrated-wrist-rest']").style.display = 'block'; // Show the label
+                document.querySelector("select[id='integrated-wrist-rest']").style.display = 'block'; // Show the select
+                toggle_generate_wrist_rest_button();
+            }
+        }
+
+        function toggle_generate_wrist_rest_button() {
+            const integrated_wrist_rest = document.getElementById("integrated-wrist-rest").value;
+            if (integrated_wrist_rest === "true") {
+                document.querySelector("input[name='generate-wrist-rest']").style.display = 'none'; // Hide the button
+            } else {
+                document.querySelector("input[name='generate-wrist-rest']").style.display = 'block'; // Show the button
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+        <div class="row">
+            <div class="column column-50 column-offset-25">
+                <p>
+                    Written by <a href="https://github.com/ibnuda">Ibnu D. Aji</a>.
+                    Licenced under the<a href="https://github.com/ibnuda/dactyl-keyboard/tree/refaktor#license"
+                        rel="noopener" target="_blank" title="GNU Affero General Public License Version 3"> GNU
+                        Affero General Public License V3</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

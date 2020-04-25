@@ -1,76 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dactyl Generator</title>
-    <link rel="stylesheet" href="normalize.css">
-    <link rel="stylesheet" href="milligram.min.css">
-    <style>
-        #footer {
-            position: absolute;
-            bottom: 0;
-            width: 90%;
-            height: 2.5rem;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <div class="row">
-            <div class="column column-50 column-offset-25">
-                <br>
-                <br>
-                <br>
-                <h1>Dactyl Generator</h1>
-            </div>
-        </div>
-        <div class="row">
-            <div class="column column-25">
-            </div>
-            <div class="column column-50">
-                <br>
-                <br>
-                <br>
-                <h4>How to use this site:</h4>
-                <ol>
-                    <li>Install <a href="https://www.openscad.org/">OpenSCAD</a>.</li>
-                    <li>Click either button below.</li>
-                    <li>In the respective page, fill the form as you wish</li>
-                    <li>Click "Generate Case" to generate the .scad file for the case</li>
-                    <li>Click "Generate Plate" to generate the .scad file for the bottom</li>
-                </ol>
-            </div>
-        </div>
-        <div class="row">
-            <div class="column column-25">
-            </div>
-            <div class="column column-50">
-                <br>
-                <a href="/lightcycle">
-                    <button>Dactyl Lightcycle</button>
-                </a>
-                <a href="/manuform">
-                    <button>Dactyl Manuform</button>
-                </a>
-            </div>
-        </div>
+{% extends "wrapper.html" %}
+{% block content %}
+<div class="row">
+    <div class="column column-50 column-offset-25">
+        <br>
+        <br>
+        <br>
+        <h1>Dactyl Generator</h1>
     </div>
-    <footer class="footer" id="footer">
-        <div class="row">
-            <div class="column column-50 column-offset-25">
-                <p>
-                    Written by <a href="https://github.com/ibnuda">Ibnu D. Aji</a>.
-                    Provided as is by <a href="https://dactyl.bigcartel.com">Cheap Dactyl</a>.
-                    Licenced under the<a href="https://github.com/ibnuda/dactyl-keyboard/tree/refaktor#license"
-                        rel="noopener" target="_blank" title="GNU Affero General Public License Version 3"> GNU
-                        Affero General Public License V3</a>.
-                </p>
-            </div>
-        </div>
-    </footer>
-</body>
-
-</html>
+</div>
+<div class="row">
+    <div class="column column-50 column-offset-25">
+        <br>
+        <br>
+        <br>
+        <h4>How to use this site:</h4>
+        <ol>
+            <li>Install <a href="https://www.openscad.org/">OpenSCAD</a>.</li>
+            <li>Click either button below.</li>
+            <li>In the respective page, fill the form as you wish</li>
+            <li>Click "Generate Case" to generate the .scad file for the case</li>
+            <li>Click "Generate Plate" to generate the .scad file for the bottom</li>
+        </ol>
+        <a href="/lightcycle">
+            <button>Dactyl Lightcycle</button>
+        </a>
+        <a href="/manuform">
+            <button>Dactyl Manuform</button>
+        </a>
+    </div>
+</div>
+<div class="row">
+    <div class="column column-50 column-offset-25">
+        <br>
+        <br>
+        <p>Or, see the <a href="/example">example builds</a>.</p>
+        <br>
+    </div>
+</div>
+{% endblock %}

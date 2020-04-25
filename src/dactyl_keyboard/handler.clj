@@ -43,6 +43,9 @@
 (defn home [_]
   (render-file "index.html" {}))
 
+(defn example [_]
+  (render-file "example.html" {}))
+
 (defn manuform [_]
   (render-file "manuform.html" {:column-curvature (range 12 22)
                                 :tenting-angle (range 15 6 -1)
@@ -187,6 +190,7 @@
 
 (defroutes app-routes
   (GET "/" [] home)
+  (GET "/example" [] example)
   (GET "/manuform" [] manuform)
   (POST "/manuform" [] generate-manuform)
   (GET "/lightcycle" [] lightcycle)
