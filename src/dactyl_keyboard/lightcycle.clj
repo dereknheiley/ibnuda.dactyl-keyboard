@@ -220,8 +220,8 @@
 (defn thumb-layout [c shape]
   (let [thumb-count (get c :configuration-thumb-count)]
     (union
-     (thumb-place c 0 -1/2 (union shape double-plates))
-     (thumb-place c 1 -1/2 (union shape double-plates))
+     (thumb-place c 0 -1/2 (union shape (extended-plates 2)))
+     (thumb-place c 1 -1/2 (union shape (extended-plates 2)))
      (case thumb-count
        :six (union
              (thumb-place c 1  1 (union shape (extended-plates 1)))
@@ -395,7 +395,7 @@
 (defn range-inclusive [start end step]
   (concat (range start end step) [end]))
 
-(def wall-step 0.5)
+(def wall-step 0.1)
 (def wall-sphere-n 5) ;;Sphere resolution, lower for faster renders
 
 (defn wall-sphere-at [coords]
@@ -473,7 +473,7 @@
      (top-cover 1.59 2.41 (* cornerrow 0.85) cornerrow) ;; was 3.32
      (top-cover 2.39 3.41 (* cornerrow 0.9) cornerrow)
      (apply union
-            (for [x (range 2 (- lastrow 1))]
+            (for [x (range 2 lastrow)]
               (union
                (hull (place (- x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
                      (place (+ x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
@@ -525,9 +525,8 @@
                            (place (+ x step) (back-y c) wall-sphere-bottom-back))))
 
      (if (> ncols 4)
-       (do
-         (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) 0.2))
-         (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) 0.2)))
+       (union (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) 0.2))
+              (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) 0.2)))
        ())
 
      (hull (place left-wall-column (back-y c) (translate [1 -1 1] wall-sphere-bottom-back))
@@ -574,14 +573,13 @@
                                 (hull (place (right-wall-column c) x (wall-sphere-top scale))
                                       (place (right-wall-column c) x (wall-sphere-bottom scale))))))))
 
-     (apply
-      union
-      (map (partial apply hull)
-           (partition 2 1
-                      (for [scale (range-inclusive 0 1 0.01)]
-                        (let [x (scale-to-range wall-stop (back-y c) scale)]
-                          (bottom-hull (place (right-wall-column c) x (wall-sphere-top scale))
-                                       (place (right-wall-column c) x (wall-sphere-bottom scale))))))))
+     (apply union
+            (map (partial apply hull)
+                 (partition 2 1
+                            (for [scale (range-inclusive 0 1 0.01)]
+                              (let [x (scale-to-range wall-stop (back-y c) scale)]
+                                (bottom-hull (place (right-wall-column c) x (wall-sphere-top scale))
+                                             (place (right-wall-column c) x (wall-sphere-bottom scale))))))))
 
      (apply union
             (concat
@@ -638,18 +636,23 @@
      (color [0 1 0] (hull (place left-wall-column 1 (translate [1 -1 1] wall-sphere-bottom-back))
                           (place left-wall-column 2 (translate [1 0 1] wall-sphere-bottom-back))
                           (key-place c 0 1 web-post-tl)
-                          (key-place c 0 1 web-post-bl)))
-     (color [1 0 0] (hull (place left-wall-column 2 (translate [1 0 1] wall-sphere-bottom-back))
-                          (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
                           (key-place c 0 1 web-post-bl)
-                          (key-place c 0 2 web-post-bl)))
-     (color [1 1 0] (hull (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
+                          (key-place c 0 2 web-post-tl)))
+     (color [0 1 0] (hull (place left-wall-column 2 (translate [1 -1 1] wall-sphere-bottom-back))
+                          (place left-wall-column 2 (translate [1  0 1] wall-sphere-bottom-back))
+                          (key-place c 0 2 web-post-tl)
                           (key-place c 0 2 web-post-bl)
-                          (key-place c 0 3 web-post-bl)
+                          (place left-wall-column 3 (translate [1  0 1] wall-sphere-bottom-back))
                           (key-place c 0 3 web-post-tl)))
-     (color [0 0 0] (hull (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
-                          (thumb-place c 1 thumb-where web-post-tr)
-                          (key-place   c 0 3 (case thumb-count :two web-post-bl web-post-tl)))))))
+     (case thumb-count
+       :two (color [0 1 1] (hull (place left-wall-column 3 (translate [1 0 1] wall-sphere-bottom-back))
+                                 (key-place c 0 3 web-post-tl)
+                                 (key-place c 0 3 web-post-bl)
+                                 (place left-wall-column 3.7 (translate [1 0 1] wall-sphere-bottom-back))))
+       (color [0 0 0] (hull (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
+                            (thumb-place c 1 thumb-where web-post-tr)
+                            (place left-wall-column finish-left-wall  (translate [1 -1 1] wall-sphere-bottom-front))
+                            (key-place   c 0 3 (case thumb-count :two web-post-bl web-post-tl))))))))
 
 (defn thumb-back-wall [c]
   (let [thumb-count (get c :configuration-thumb-count)
@@ -672,11 +675,11 @@
      (hull (thumb-place c 1/2 local-back-y wall-sphere-top-back)
            (thumb-place c 1/2 local-back-y wall-sphere-bottom-back)
            (case-place  c left-wall-column thumb-back-to-left-wall-position wall-sphere-top-front))
-     (bottom-hull (thumb-place c 1/2 local-back-y wall-sphere-bottom-back)
-                  (case-place  c left-wall-column (case thumb-count :two 2.7 1.7) wall-sphere-bottom-front))
      (hull (thumb-place c 1/2 local-back-y wall-sphere-bottom-back)
            (case-place  c left-wall-column thumb-back-to-left-wall-position wall-sphere-top-front)
            (case-place  c left-wall-column thumb-back-to-left-wall-position wall-sphere-bottom-front))
+     (bottom-hull (thumb-place c 1/2 local-back-y wall-sphere-bottom-back)
+                  (case-place  c left-wall-column (case thumb-count :two 2.7 1.7) wall-sphere-bottom-front))
      (hull
       (thumb-place c 1/2 (thumb-back-y c) wall-sphere-bottom-back)
       (thumb-place c 1 back-thumb-position web-post-tr)
@@ -912,12 +915,12 @@
    :configuration-beta (/ pi 36)
    :configuration-z-offset 18
    :configuration-tenting-angle (/ pi 7)
-   :configuration-thumb-tenting-angle (/ pi 12)
-   :configuration-use-external-holder? true
-   :configuration-use-screw-inserts? true
+   :configuration-thumb-tenting-angle (/ pi 9)
+   :configuration-use-external-holder? false
+   :configuration-use-screw-inserts? false
    :configuration-thumb-offset-x -48
    :configuration-thumb-offset-y -45
-   :configuration-thumb-offset-z 27
+   :configuration-thumb-offset-z 34
    :configuration-show-caps? true})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"

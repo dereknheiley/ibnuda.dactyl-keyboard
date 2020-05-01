@@ -1,20 +1,13 @@
 {% extends "wrapper.html" %}
 {% block content %}
 <div class="row">
-    <div class="column column-50 column-offset-25">
-        <h1>Dactyl Manuform Generator</h1>
+    <div class="column column-75">
+        <br>
+        <h2>Manuform</h2>
     </div>
 </div>
 <div class="row">
-    <div class="column column-25">
-        <h2>Defaults:</h2>
-        <button onclick="setminidox()">Minidox</button>
-        <br>
-        <button onclick="setcorne()">Corne</button>
-        <br>
-        <button onclick="setergodox()">Ergodox</button>
-    </div>
-    <div class="column column-50">
+    <div class="column column-750">
         <form method="POST" action="/manuform">
             <label for="keys">
                 <h3>Keys</h3>
@@ -148,7 +141,8 @@
                     <option value="false">No</option>
                 </select>
                 <label for="integrated-wrist-rest">Integrated Wrist Rest?</label>
-                <select id="integrated-wrist-rest" name="integrated-wrist-rest" onchange="toggle_generate_wrist_rest_button()">
+                <select id="integrated-wrist-rest" name="integrated-wrist-rest"
+                    onchange="toggle_generate_wrist_rest_button()">
                     <option value="false">No</option>
                     <option value="true">Yes</option>
                 </select>
@@ -168,6 +162,14 @@
             <li><a href="loligagger-external-holder-promicro-v2.stl">Promicro V2</a></li>
             <li><a href="loligagger-external-holder-elite-c-v1.stl">Elite-C V1</a></li>
         </ul>
+    </div>
+    <div class="column column-25">
+        <h3>Defaults:</h3>
+        <button onclick="setminidox()">Minidox</button>
+        <br>
+        <button onclick="setcorne()">Corne</button>
+        <br>
+        <button onclick="setergodox()">Ergodox</button>
     </div>
 </div>
 {% endblock %}

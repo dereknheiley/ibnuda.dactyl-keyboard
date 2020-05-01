@@ -6,17 +6,30 @@
 
 ; common parts between the two boards.
 
-(def extra-width 2.5)
-(def extra-height 1.0)
+(def extra-width
+  "extra width between two keys in a row."
+  2.5)
+(def extra-height
+  "extra height between two keys in a column."
+  1.0)
 
-; Was 14.1, then 14.25
-(def keyswitch-height 14.0)
-(def keyswitch-width 14.0)
+(def keyswitch-height
+  "the y dimension of an mx style keyswitch, in millimeter."
+  14.0)
+(def keyswitch-width
+  "the x dimension of an mx style keyswitch, in millimeter."
+  14.0)
 
-(def alps-width 15.6)
-(def alps-notch-width 15.5)
-(def alps-notch-height 1)
-(def alps-height 13)
+(def alps-width
+  "the x dimension of an alps style keyswitch, in millimeter."
+  15.6)
+(def alps-notch-width
+  15.5)
+(def alps-notch-height
+  1)
+(def alps-height
+  "the y dimension of an alps style keyswitch, in millimeter."
+  13)
 
 (def sa-profile-key-height 12.7)
 
@@ -156,10 +169,24 @@
 (def left-wall-x-offset 10)
 (def left-wall-z-offset  3)
 
-(defn key-position [c column row position]
-  (apply-key-geometry c (partial map +) rotate-around-x rotate-around-y column row position))
+(defn key-position
+  "determines the position of a key based on the
+  configuration, column, row, and position.
+  it takes configuration to determine whether it is the last column
+  and some other options like whether it's a part of a staggered board
+  or not."
+  [c column row position]
+  (apply-key-geometry c
+                      (partial map +)
+                      rotate-around-x
+                      rotate-around-y
+                      column
+                      row
+                      position))
 
-(defn left-key-position [c row direction]
+(defn left-key-position
+  "determines the position of the left column key position."
+  [c row direction]
   (map -
        (key-position c 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0])
        [left-wall-x-offset 0 left-wall-z-offset]))
@@ -167,7 +194,6 @@
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
-; each and every single switch hole is defined by this function.
 (defn single-plate
   "Defines the form of switch hole. It determines the whether it uses
    box or mx style based on the `configuration-create-side-nub?`. It also
@@ -177,6 +203,10 @@
   (let [create-side-nub? (get c :configuration-create-side-nub?)
         use-hotswap? (get c :configuration-use-hotswap?)
         use-alps? (get c :configuration-use-alps?)
+        plate-projection? (get c :configuration-plate-projection? false)
+        alps-fill-in (cube alps-width alps-height plate-thickness)
+        mx-fill-in (cube keyswitch-width keyswitch-height plate-thickness)
+        fill-in (if use-alps? alps-fill-in mx-fill-in)
         top-wall (if use-alps?
                    (->> (cube (+ keyswitch-width 3) 2.2 plate-thickness)
                         (translate [0
@@ -248,6 +278,7 @@
                        (->> plate-half
                             (mirror [1 0 0])
                             (mirror [0 1 0]))
+                       (if plate-projection? fill-in ())
                        (if (and use-hotswap?
                                 (not use-alps?))
                          hotswap-holder
@@ -328,11 +359,14 @@
 (def rj9-cube
   (cube 14.78 13 22.38))
 (defn rj9-position
-  "TODO: doc"
+  "determines the position of the rj9 housing.
+  it takes a function that generates the coordinate of the housing
+  and the configuration."
   [frj9-start c]
   [(first (frj9-start c)) (second (frj9-start c)) 11])
 (defn rj9-space
-  "TODO: doc"
+  "puts the space of the rj9 housing based on function and configuration
+  that is provided."
   [frj9-start c]
   (translate (rj9-position frj9-start c) rj9-cube))
 (defn rj9-holder

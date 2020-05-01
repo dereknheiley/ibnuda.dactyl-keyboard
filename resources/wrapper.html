@@ -7,6 +7,7 @@
     <title>Dactyl Generator</title>
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="milligram.min.css">
+    <link rel="stylesheet" href="main.css">
     <script>
         function setkeyboard(ncols, nrows, minidox, innercolumn, lastrow, widepinky) {
             document.getElementById("ncols").value = ncols;
@@ -70,19 +71,40 @@
 </head>
 
 <body>
-    <div class="container">
-        {% block content %}
-        {% endblock %}
-        <div class="row">
-            <div class="column column-50 column-offset-25">
-                <p>
-                    Written by <a href="https://github.com/ibnuda">Ibnu D. Aji</a>.
+    <div class="wrapper">
+        <nav class="navigation">
+            <section class="container">
+                <a class="navigation-title" href="/" title="Dactyl Generator">
+                    <h1 class="title">Generator</h1>
+                </a>
+                <ul class="navigation-list float-right">
+                    <li class="navigation-item">
+                        <a href="/manuform" class="navigation-link"> Manuform</a>
+                    </li>
+                    <li class="navigation-item">
+                        <a href="/lightcycle" class="navigation-link">Lightcycle</a>
+                    </li>
+                    <li class="navigation-item">
+                        <a href="/example" class="navigation-link">Example</a>
+                    </li>
+                </ul>
+            </section>
+        </nav>
+        <div id="content" class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+        <footer class="footer">
+            <section class="container">
+                <p class="copyright">
+                    Written by<a href="https://github.com/ibnuda" rel="noopener" target="_blank"
+                        title="Rick's GH page."> Ibnu D. Aji</a>.
                     Licenced under the<a href="https://github.com/ibnuda/dactyl-keyboard/tree/refaktor#license"
                         rel="noopener" target="_blank" title="GNU Affero General Public License Version 3"> GNU
                         Affero General Public License V3</a>.
                 </p>
-            </div>
-        </div>
+            </section>
+        </footer>
     </div>
 </body>
 

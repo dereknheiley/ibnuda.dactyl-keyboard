@@ -110,6 +110,7 @@
            :configuration-beta (/ pi param-beta)
            :configuration-centercol param-centercol
            :configuration-tenting-angle (/ pi param-tenting-angle)
+           :configuration-plate-projection? generate-plate?
 
            :configuration-use-external-holder? param-use-external-holder
            :configuration-use-promicro-usb-hole?  param-use-promicro-usb-hole

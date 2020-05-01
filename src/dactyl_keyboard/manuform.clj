@@ -1065,11 +1065,15 @@
 
 (defn plate-right [c]
   (let [use-screw-inserts? (get c :configuration-use-screw-inserts?)]
-    (cut
-     (translate [0 0 -0.1]
-                (difference (union (case-walls c)
-                                   (if use-screw-inserts? (screw-insert-outers screw-placement c) ()))
-                            (if use-screw-inserts? (translate [0 0 -10] (screw-insert-screw-holes screw-placement c)) ()))))))
+    (extrude-linear
+     {:height 3}
+     (project
+      (translate [0 0 -0.1]
+                 (difference (model-right c)
+                             (if use-screw-inserts?
+                               (translate [0 0 -10]
+                                          (screw-insert-screw-holes screw-placement c))
+                               ()))) ))))
 
 (defn plate-left [c]
   (mirror [-1 0 0] (plate-right c)))
@@ -1090,6 +1094,7 @@
         :configuration-beta (/ pi 36)
         :configuration-centercol 4
         :configuration-tenting-angle (/ pi 9)
+        :configuration-plate-projection? false
 
         :configuration-use-promicro-usb-hole? false
         :configuration-use-trrs? false
@@ -1100,7 +1105,7 @@
         :configuration-use-inner-column? false
         :configuration-z-offset 4
         :configuration-show-caps? false
-        :configuration-last-row-count :two
+        :configuration-last-row-count :zero
         :configuration-use-wide-pinky? false
         :configuration-use-wire-post? false
         :configuration-use-screw-inserts? true
@@ -1110,7 +1115,7 @@
         (write-scad (model-right c)))
 
 #_(spit "things/right-plate.scad"
-        (write-scad (right-plate c)))
+        (write-scad (plate-right c)))
 
 #_(spit "things/right-plate.scad"
         (write-scad
