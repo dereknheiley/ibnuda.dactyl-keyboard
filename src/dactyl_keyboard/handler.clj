@@ -1,7 +1,9 @@
 (ns dactyl-keyboard.handler
-  (:require [compojure.core :refer :all]
+  (:require [clojure.data.json :as json]
+            [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [ring.middleware.json :as middleware]
             [scad-clj.model :refer [pi]]
             [scad-clj.scad :refer [write-scad]]
             [selmer.parser :refer [render-file]]
@@ -45,6 +47,9 @@
 
 (defn example [_]
   (render-file "example.html" {}))
+
+(defn api [_]
+  (render-file "json-help.html" {}))
 
 (defn manuform [_]
   (render-file "manuform.html" {:column-curvature (range 12 22)
@@ -148,6 +153,7 @@
         param-alpha (parse-int (get p "alpha"))
         param-beta (parse-int (get p "beta"))
         param-tenting-angle (parse-int (get p "tenting-angle"))
+        param-hotswap (parse-bool (get p "hotswap"))
         param-thumb-tenting-angle (parse-int (get p "thumb-tenting-angle"))
         param-z-offset (parse-int (get p "z-offset"))
         param-thumb-offset-x (parse-int (get p "thumb-offset-x"))
@@ -168,7 +174,7 @@
            ; TODO: fix this
            :configuration-use-alps? false
            ; TODO: fix this
-           :configuration-use-hotswap? false
+           :configuration-use-hotswap? param-hotswap
 
            :configuration-alpha (/ pi param-alpha)
            :configuration-beta (/ pi param-beta)
@@ -189,15 +195,63 @@
                "Content-Disposition" "inline; filename=\"myfile.scad\""}
      :body generated-scad}))
 
+(defn api-generate-manuform [{body :body}]
+  (let [keys (get body :keys)
+        curve (get body :curve)
+        connector (get body :connector)
+        form (get body :form)
+        misc (get body :misc)
+        c {:configuration-ncols (get keys :columns 5)
+           :configuration-nrows (get keys :rows 4)
+           :configuration-minidox-style? (get keys :minidox false)
+           :configuration-last-row-count (keyword (get keys :last-row "two"))
+           :configuration-create-side-nub? (get keys :nubs false)
+           :configuration-use-alps? (get keys :alps false)
+           :configuration-use-inner-column? (get keys :inner-column false)
+
+           :configuration-alpha (/ pi (get curve :alpha 12))
+           :configuration-beta (/ pi (get curve :beta 36))
+           :configuration-centercol (get curve :centercol 4)
+           :configuration-tenting-angle (/ pi (get curve :tenting 15))
+
+           :configuration-use-external-holder? (get connector :external false)
+           :configuration-use-trrs? (get connector :trrs false)
+           :configuration-use-promicro-usb-hole?  (get connector :micro-usb false)
+
+           :configuration-use-hotswap? (get form :hotswap false)
+           :configuration-ortho? (not (get form :stagger true))
+           :configuration-use-wide-pinky? (get form :wide-pinky false)
+           :configuration-z-offset (get form :height-offset 4)
+           :configuration-use-wire-post? (get form :wire-post false)
+           :configuration-use-screw-inserts? (get form :screw-inserts false)
+
+           :configuration-show-caps? (get misc :keycaps false)
+           :configuration-use-wrist-rest? (get misc :wrist-rest false)
+           :configuration-plate-projection? (not (get misc :case true))
+           :configuration-integrated-wrist-rest? (get misc :integrated-wrist-rest false)}
+generated-scad (generate-case-dm c (get misc :right-side true))]
+    {:status 200
+     :headers {"Content-Type" "application/octet-stream"
+               "Content-Disposition" "inline; filename=\"myfile.scad\""}
+     :body generated-scad}))
+
 (defroutes app-routes
   (GET "/" [] home)
   (GET "/example" [] example)
+  (GET "/api" [] api)
   (GET "/manuform" [] manuform)
   (POST "/manuform" [] generate-manuform)
   (GET "/lightcycle" [] lightcycle)
   (POST "/lightcycle" [] generate-lightcycle)
+  (POST "/api/manuform" [] api-generate-manuform)
   (route/resources "/")
   (route/not-found "not found"))
 
-(def app
+#_(def app
   (wrap-defaults app-routes api-defaults))
+
+(def app
+  (-> app-routes
+      (middleware/wrap-json-body {:keywords? true})
+      (middleware/wrap-json-response)
+      (wrap-defaults api-defaults)))

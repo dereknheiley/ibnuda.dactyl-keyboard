@@ -8,6 +8,7 @@
                  [scad-clj "0.5.3"]
                  [compojure "1.6.1"]
                  [ring/ring-defaults "0.3.2"]
+                 [ring/ring-json "0.5.0"]
                  [ring/ring-jetty-adapter "1.8.0"]
                  [selmer "1.12.18"]]
   :plugins [[lein-exec "0.3.7"]

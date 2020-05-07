@@ -1,0 +1,37 @@
+{
+    "keys": {
+        "columns": 5,
+        "rows": 4,
+        "minidox": false,
+        "last-row": "two",
+        "nubs": false,
+        "alps": false,
+        "inner-column": false
+    },
+    "curve": {
+        "alpha": 12,
+        "beta": 36,
+        "centercol": 4,
+        "tenting": 15
+    },
+    "connector": {
+        "external": false,
+        "trrs": false,
+        "micro-usb": false
+    },
+    "form": {
+        "hotswap": false,
+        "stagger": true,
+        "wide-pinky": false,
+        "height-offset": 4,
+        "wire-post": false,
+        "screw-inserts": false
+    },
+    "misc": {
+        "keycaps": false,
+        "wrist-rest": false,
+        "integrated-wrist-rest": false,
+        "right-side": true,
+        "case": true
+    }
+}

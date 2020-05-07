@@ -1,0 +1,28 @@
+{
+    "keys": {
+        "columns": 5,
+        "num-row": false,
+        "last-row": false,
+        "thumb-count": "two"
+    },
+    "curve": {
+        "alpha": 12,
+        "beta": 36,
+        "tenting": 12,
+        "thumb-tenting": 12
+    },
+    "connector": {
+        "external": false
+    },
+    "form": {
+        "hotswap": false,
+        "thumb-offset-x": 52,
+        "thumb-offset-y": 45,
+        "thumb-offset-z": 27,
+        "z-offset": 10
+    },
+    "misc": {
+        "right-side": true,
+        "screw-inserts": false
+    }
+}

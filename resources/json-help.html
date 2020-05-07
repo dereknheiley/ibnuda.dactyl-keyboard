@@ -1,0 +1,51 @@
+{% extends "wrapper.html" %}
+{% block content %}
+<div class="row">
+    <div class="column column-75">
+        <br>
+        <h2>JSON API Help</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="column column-75">
+        <p>This site also accepts json requests for generathing <code>.scad</code> files for manuform and/or lightcycle.</p>
+        <p>You can send them to the following links:</p>
+        <ul>
+            <li><a href="/api/lightcycle">Lightcycle</a></li>
+            <li><a href="/api/manuform">Manuform</a></li>
+        </ul>
+        <p>Using the following <code>.json</code> file templates:</p>
+        <ul>
+            <li><a href="/lightcycle.json"><code>lightcycle.json</code></a></li>
+            <li><a href="/manuform.json"><code>manuform.json</code></a></li>
+        </ul>
+        <p>And folowwing is the explanation and default values for each templates:</p>
+        <ul>
+            <li>Lightcycle
+                <ul>
+                    <li>
+                        <code>keys</code>:
+                        <ul>
+                            <li><code>columns</code>: the number of the columns each side has. Default is <code>5</code></li>
+                            <li><code>num-row</code>: whether it will use a num-row or not. Default is <code>false</code></li>
+                            <li><code>last-row</code>: whether it will use a bottom or not. Default is <code>false</code></li>
+                            <li><code>thumb-count</code>: the number of the thumbkeys each side has. Default is <code>"two"</code>.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <code>curve</code>:
+                        <ul>
+                            <li><code>alpha</code>: the  <code>5</code></li>
+                            <li><code>beta</code>: whether it will use a num-row or not. Default is <code>false</code></li>
+                            <li><code>tenting</code>: whether it will use a bottom or not. Default is <code>false</code></li>
+                            <li><code>thumb-tenting</code>: the number of the thumbkeys each side has. Default is <code>"two"</code>.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
