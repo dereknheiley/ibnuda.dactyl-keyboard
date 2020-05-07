@@ -229,11 +229,44 @@
            :configuration-use-wrist-rest? (get misc :wrist-rest false)
            :configuration-plate-projection? (not (get misc :case true))
            :configuration-integrated-wrist-rest? (get misc :integrated-wrist-rest false)}
-generated-scad (generate-case-dm c (get misc :right-side true))]
+        generated-scad (generate-case-dm c (get misc :right-side true))]
     {:status 200
      :headers {"Content-Type" "application/octet-stream"
                "Content-Disposition" "inline; filename=\"myfile.scad\""}
      :body generated-scad}))
+
+(defn api-generate-lightcycle [{body :body}]
+  (let [keys (get body :keys)
+        curve (get body :curve)
+        connector (get body :connector)
+        form (get body :form)
+        misc (get body :misc)
+        c {:configuration-ncols (get keys :columns 5)
+           :configuration-use-numrow? (get keys :num-row false)
+           :configuration-use-lastrow? (get keys :last-row false)
+           :configuration-thumb-count (keyword (get keys :thumb-count "two"))
+           :configuration-create-side-nub? false
+           :configuration-use-alps? false
+
+           :configuration-alpha (/ pi (get curve :alpha 12))
+           :configuration-beta (/ pi (get curve :beta 36))
+           :configuration-tenting-angle (/ pi (get curve :tenting 12))
+           :configuration-thumb-tenting-angle (/ pi (get curve :thumb-tenting 12))
+
+           :configuration-use-external-holder? (get connector :external false)
+
+           :configuration-use-hotswap? (get form :hotswap false)
+           :configuration-thumb-offset-x (- 0 (get form :thumb-offset-x 52))
+           :configuration-thumb-offset-y (- 0 (get form :thumb-offset-y 45))
+           :configuration-thumb-offset-z (get form :thumb-offset-z 27)
+           :configuration-z-offset (get form :z-offset 10)
+
+           :configuration-use-screw-inserts? (get misc :screw-inserts false)}
+        generated-scad (generate-case-dl c (get misc :right-side true))]
+    {:status 200
+     :headers {"Content-Type" "application/octet-stream"
+               "Content-Disposition" "inline; filename=\"myfile.scad\""}}
+    :body generated-scad))
 
 (defroutes app-routes
   (GET "/" [] home)
@@ -244,11 +277,12 @@ generated-scad (generate-case-dm c (get misc :right-side true))]
   (GET "/lightcycle" [] lightcycle)
   (POST "/lightcycle" [] generate-lightcycle)
   (POST "/api/manuform" [] api-generate-manuform)
+  (POST "/api/lightcycle" [] api-generate-lightcycle)
   (route/resources "/")
   (route/not-found "not found"))
 
 #_(def app
-  (wrap-defaults app-routes api-defaults))
+    (wrap-defaults app-routes api-defaults))
 
 (def app
   (-> app-routes
