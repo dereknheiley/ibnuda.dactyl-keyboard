@@ -38,11 +38,21 @@
     (>= column 4) [0 -5.8 5.64]
     :else [0 0 0]))
 
+(defn manuform-column-offset [column]
+  (cond
+    (= column 2) [0 2.82 -4.5]
+    (>= column 4) [0 -12 5.64]            ; original [0 -5.8 5.64]
+    :else [0 0 0]))
+
 (defn key-place [c column row shape]
   (let [alpha (get c :configuration-alpha)
         beta (get c :configuration-beta)
         tenting-angle (get c :configuration-tenting-angle)
         z-offset (get c :configuration-z-offset)
+        manuform-offset? (get c :configuration-manuform-offset? false)
+        offset (if manuform-offset?
+                 (manuform-column-offset column)
+                 (column-offset column))
         column-angle (* beta (- 2 column))
         placed-shape (->> shape
                           (translate [0 0 (- (frow-radius alpha))])
@@ -51,7 +61,7 @@
                           (translate [0 0 (- (fcolumn-radius beta))])
                           (rotate column-angle [0 1 0])
                           (translate [0 0 (fcolumn-radius beta)])
-                          (translate (column-offset column)))]
+                          (translate offset))]
     (->> placed-shape
          (rotate tenting-angle [0 1 0])
          (translate [0 0 z-offset]))))
@@ -62,7 +72,11 @@
         tenting-angle (get c :configuration-tenting-angle)
         z-offset (get c :configuration-z-offset)
 
-        column-offset [0 -4.35 5.64]
+        manuform-offset? (get c :configuration-manuform-offset? false)
+        column-offset (if (and manuform-offset?
+                                   (> row 2))
+                            [0 -10.35 8.64]
+                            [0 -4.35 8.64])
         column-angle (* beta (- 2 column))
         placed-shape (->> shape
                           (translate [0 0 (- (frow-radius alpha))])
@@ -396,7 +410,7 @@
   (concat (range start end step) [end]))
 
 (def wall-step 0.1)
-(def wall-sphere-n 5) ;;Sphere resolution, lower for faster renders
+(def wall-sphere-n 20) ;;Sphere resolution, lower for faster renders
 
 (defn wall-sphere-at [coords]
   (->> (sphere 1)
@@ -443,6 +457,7 @@
   (let [use-lastrow? (get c :configuration-use-lastrow?)
         ncols (get c :configuration-ncols)
         lastrow (flastrow-lightcycle use-lastrow?)
+        manuform-offset? (get c :configuration-manuform-offset?)
         cornerrow (fcornerrow-lightcycle use-lastrow?)
         penultcol (fpenultcol ncols)
         antecol (fantecol ncols)
@@ -452,7 +467,10 @@
         top-cover (fn [x-start x-end y-start y-end]
                     (top-case-cover place wall-sphere-top-front
                                     x-start x-end y-start y-end
-                                    wall-step))]
+                                    wall-step))
+        index-finger-cover-multiplier (if manuform-offset? 0.8 0.9)
+        middle-finger-cover-multiplier (if manuform-offset? 0.75 0.85)
+        ring-finger-cover-multiplier (if manuform-offset? 0.8 0.9)]
     (union
      (apply union
             (for [x (range-inclusive 0.7 (- (right-wall-column c) step) step)]
@@ -469,9 +487,9 @@
               (hull (place x cornerrow wall-sphere-top-front)
                     (place (+ x step) cornerrow wall-sphere-top-front)
                     (place 0.7 cornerrow wall-sphere-bottom-front))))
-     (top-cover 0.5 1.7 (* cornerrow 0.9) cornerrow)
-     (top-cover 1.59 2.41 (* cornerrow 0.85) cornerrow) ;; was 3.32
-     (top-cover 2.39 3.41 (* cornerrow 0.9) cornerrow)
+     (top-cover 0.5 1.7 (* cornerrow index-finger-cover-multiplier) cornerrow)
+     (top-cover 1.59 2.41 (* cornerrow middle-finger-cover-multiplier) cornerrow) ;; was 3.32
+     (top-cover 2.39 3.41 (* cornerrow ring-finger-cover-multiplier) cornerrow)
      (apply union
             (for [x (range 2 lastrow)]
               (union
@@ -497,6 +515,7 @@
 
 (defn back-wall [c]
   (let [ncols (get c :configuration-ncols)
+        manuform-offset? (get c :configuration-manuform-offset?)
         penultcol (fpenultcol ncols)
         antecol (fantecol ncols)
         rows (frows c)
@@ -511,7 +530,8 @@
                                    (hull (place x y wall-sphere-top-back)
                                          (place (+ x wall-sphere-top-backtep) y wall-sphere-top-back)
                                          (place x (+ y wall-sphere-top-backtep) wall-sphere-top-back)
-                                         (place (+ x wall-sphere-top-backtep) (+ y wall-sphere-top-backtep) wall-sphere-top-back)))))]
+                                         (place (+ x wall-sphere-top-backtep) (+ y wall-sphere-top-backtep) wall-sphere-top-back)))))
+        top-cover-length (if manuform-offset? 0.45 0.3)]
     (union
      (apply union
             (for [x (range-inclusive left-wall-column (- (right-wall-column c) step) step)]
@@ -525,8 +545,8 @@
                            (place (+ x step) (back-y c) wall-sphere-bottom-back))))
 
      (if (> ncols 4)
-       (union (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) 0.2))
-              (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) 0.2)))
+       (union (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) top-cover-length))
+              (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) top-cover-length)))
        ())
 
      (hull (place left-wall-column (back-y c) (translate [1 -1 1] wall-sphere-bottom-back))
@@ -608,7 +628,7 @@
         use-numrow? (get c :configuration-use-numrow?)
         place (partial case-place c)
         thumb-where (case thumb-count :two 0 1)
-        finish-left-wall (case thumb-count :two 2.7 1.6666)]
+        finish-left-wall (case thumb-count :two 2.35 1.6666)]
     (union
      (apply union
             (for [x (range-inclusive (dec (first rows)) (- finish-left-wall wall-step) wall-step)]
@@ -660,7 +680,7 @@
         local-back-y (thumb-back-y c)
         thumb-range (case thumb-count :five 5/2 :six 5/2 3/2)
         back-thumb-position (case thumb-count :two 0 1)
-        thumb-back-to-left-wall-position (case thumb-count :two 2.7 1.6666)]
+        thumb-back-to-left-wall-position (case thumb-count :two 2.35 1.6666)]
     (union
      (apply union
             (for [x (range-inclusive 1/2 (- (+ thumb-range 0.05) step) step)]
@@ -679,7 +699,7 @@
            (case-place  c left-wall-column thumb-back-to-left-wall-position wall-sphere-top-front)
            (case-place  c left-wall-column thumb-back-to-left-wall-position wall-sphere-bottom-front))
      (bottom-hull (thumb-place c 1/2 local-back-y wall-sphere-bottom-back)
-                  (case-place  c left-wall-column (case thumb-count :two 2.7 1.7) wall-sphere-bottom-front))
+                  (case-place  c left-wall-column thumb-back-to-left-wall-position wall-sphere-bottom-front))
      (hull
       (thumb-place c 1/2 (thumb-back-y c) wall-sphere-bottom-back)
       (thumb-place c 1 back-thumb-position web-post-tr)
@@ -911,6 +931,7 @@
    :configuration-use-alps? false
    :configuration-use-hotswap? false
    :configuration-thumb-count :two
+   :configuration-manuform-offset? true
    :configuration-alpha (/ pi 12)
    :configuration-beta (/ pi 36)
    :configuration-z-offset 18

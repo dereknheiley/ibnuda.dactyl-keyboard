@@ -155,6 +155,7 @@
         param-tenting-angle (parse-int (get p "tenting-angle"))
         param-hotswap (parse-bool (get p "hotswap"))
         param-thumb-tenting-angle (parse-int (get p "thumb-tenting-angle"))
+        param-manuform-offset (parse-bool (get p "manuform-offset"))
         param-z-offset (parse-int (get p "z-offset"))
         param-thumb-offset-x (parse-int (get p "thumb-offset-x"))
         param-thumb-offset-y (parse-int (get p "thumb-offset-y"))
@@ -179,6 +180,7 @@
            :configuration-alpha (/ pi param-alpha)
            :configuration-beta (/ pi param-beta)
            :configuration-tenting-angle (/ pi param-tenting-angle)
+           :configuration-manuform-offset? param-manuform-offset
            :configuration-z-offset param-z-offset
            :configuration-thumb-tenting-angle (/ pi param-thumb-tenting-angle)
            :configuration-thumb-offset-x (- 0 param-thumb-offset-x)
@@ -256,6 +258,7 @@
            :configuration-use-external-holder? (get connector :external false)
 
            :configuration-use-hotswap? (get form :hotswap false)
+           :configuration-manuform-offset? (get form :manuform-offset false)
            :configuration-thumb-offset-x (- 0 (get form :thumb-offset-x 52))
            :configuration-thumb-offset-y (- 0 (get form :thumb-offset-y 45))
            :configuration-thumb-offset-z (get form :thumb-offset-z 27)

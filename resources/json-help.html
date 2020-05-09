@@ -20,104 +20,101 @@
             <li><a href="/manuform.json"><code>manuform.json</code></a></li>
         </ul>
         <p>And folowwing is the explanation and default values for each templates:</p>
+        <h3>Lightcycle</h3>
         <ul>
-            <li>Lightcycle
+            <li>
+                <code>keys</code>:
                 <ul>
-                    <li>
-                        <code>keys</code>:
-                        <ul>
-                            <li><code>columns</code>: the number of the columns each side has. Default is <code>5</code></li>
-                            <li><code>num-row</code>: whether it will use a num-row or not. Default is <code>false</code></li>
-                            <li><code>last-row</code>: whether it will use a bottom or not. Default is <code>false</code></li>
-                            <li><code>thumb-count</code>: the number of the thumbkeys each side has. Default is <code>"two"</code>.</li>
-                        </ul>
-                    </li>
-                    <li>
-                        <code>curve</code>:
-                        <ul>
-                            <li><code>alpha</code>: the curvature of each row. Default is <code>12</code></li>
-                            <li><code>beta</code>: the curvature of each column. Default is <code>36</code></li>
-                            <li><code>tenting</code>: the curvature of the body. Default is <code>12</code></li>
-                            <li><code>thumb-tenting</code>: the curvature of the thumb cluster. Default is <code>12</code>.</li>
-                        </ul>
-                    </li>
-                    <li>
-                        <code>connector</code>:
-                        <ul>
-                            <li><code>external</code>: whether it uses an external connector or not. Default is <code>false</code></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <code>form</code>:
-                        <ul>
-                            <li><code>hotswap</code>: whether it uses Dongguan Kaihua Electronics Co., Ltd (originally named Longhua Electronics)'s hotswap socket or not. Default is <code>false</code></li>
-                            <li><code>thumb-offset-x</code>: the offset of the thumb cluster from the alpha cluster in <code>x</code> coordinate. Default is <code>52</code></li>
-                            <li><code>thumb-offset-y</code>: the offset of the thumb cluster from the alpha cluster in <code>y</code> coordinate. Default is <code>42</code></li>
-                            <li><code>thumb-offset-z</code>: the offset of the thumb cluster from the alpha cluster in <code>z</code> coordinate. Default is <code>27</code>.</li>
-                            <li><code>z-offset</code>: the height of the body from the floor. Default is <code>10</code>.</li>
-                        </ul>
-                    </li>
-                    <li>
-                        <code>misc</code>:
-                        <ul>
-                            <li><code>right-side</code>: whether it is the right side or not. Default is <code>true</code></li>
-                            <li><code>screw-inserts</code>: whether it uses the screw inserts or not. Default is <code>false</code></li>
-                        </ul>
-                    </li>
+                    <li><code>columns</code>: the number of the columns each side has. Default is <code>5</code></li>
+                    <li><code>num-row</code>: whether it will use a num-row or not. Default is <code>false</code></li>
+                    <li><code>last-row</code>: whether it will use a bottom or not. Default is <code>false</code></li>
+                    <li><code>thumb-count</code>: the number of the thumbkeys each side has. Default is <code>"two"</code>.</li>
                 </ul>
             </li>
-            <li>Manuform
+            <li>
+                <code>curve</code>:
                 <ul>
-                    <li>
-                        <code>keys</code>:
-                        <ul>
-                            <li><code>columns</code>: the number of the columns each side has. Default is <code>5</code></li>
-                            <li><code>rows</code>: the number of the rows each side has. Default is <code>4</code></li>
-                            <li><code>minidox</code>: whether it uses the minidox style thumb row or not. Default is <code>false</code></li>
-                            <li><code>last-row</code>: the number of keys on the last row. Default is <code>"two"</code>.</li>
-                            <li><code>nubs</code>: whether it uses the nubs on the key holes or not. Default is <code>false</code></li>
-                            <li><code>alps</code>: whether it uses the alps key hole's measurements or not. Default is <code>false</code></li>
-                            <li><code>inner-columns</code>: whether it uses the inner-column or not. Default is <code>false</code></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <code>curve</code>:
-                        <ul>
-                            <li><code>alpha</code>: the curvature of each row. Default is <code>12</code></li>
-                            <li><code>beta</code>: the curvature of each column. Default is <code>36</code></li>
-                            <li><code>centercol</code>: the center curvature of the body. Default is <code>4</code></li>
-                            <li><code>tenting</code>: the curvature of the body. Default is <code>12</code></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <code>connector</code>:
-                        <ul>
-                            <li><code>external</code>: whether it uses an external connector or not. Default is <code>false</code></li>
-                            <li><code>trrs</code>: whether it uses trrs cable as a connector or not. Default is <code>false</code></li>
-                            <li><code>micro-usb</code>: whether it connects to the pc using micro-usb or not. Default is <code>false</code></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <code>form</code>:
-                        <ul>
-                            <li><code>hotswap</code>: whether it uses Dongguan Kaihua Electronics Co., Ltd (originally named Longhua Electronics)'s hotswap socket or not. Default is <code>false</code></li>
-                            <li><code>stagger</code>: whether it has staggered columns or not. Default is <code>true</code></li>
-                            <li><code>wide-pinky</code>: whether it uses wide key (1.5u) on the outermost pinky column or not. Default is <code>true</code></li>
-                            <li><code>height-offset</code>: the height of the body from the floor. Default is <code>4</code>.</li>
-                            <li><code>wire-post</code>: whether it uses wire posts or not. Default is <code>false</code></li>
-                            <li><code>screw-inserts</code>: whether it uses screw inserts or not. Default is <code>false</code></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <code>misc</code>:
-                        <ul>
-                            <li><code>keycaps</code>: whether it shows the keycaps on the model not. Default is <code>false</code></li>
-                            <li><code>wrist-rest</code>: whether it uses wrist rest on not. Default is <code>false</code></li>
-                            <li><code>integrated-wrist-rest</code>: whether it uses integrated wrist rest (connected to the body) on not. Default is <code>false</code></li>
-                            <li><code>right-side</code>: whether it is the right side or not. Default is <code>true</code></li>
-                            <li><code>case</code>: whether it is a case or just the plate. Default is <code>true</code></li>
-                        </ul>
-                    </li>
+                    <li><code>alpha</code>: the curvature of each row. Default is <code>12</code></li>
+                    <li><code>beta</code>: the curvature of each column. Default is <code>36</code></li>
+                    <li><code>tenting</code>: the curvature of the body. Default is <code>12</code></li>
+                    <li><code>thumb-tenting</code>: the curvature of the thumb cluster. Default is <code>12</code>.</li>
+                </ul>
+            </li>
+            <li>
+                <code>connector</code>:
+                <ul>
+                    <li><code>external</code>: whether it uses an external connector or not. Default is <code>false</code></li>
+                </ul>
+            </li>
+            <li>
+                <code>form</code>:
+                <ul>
+                    <li><code>hotswap</code>: whether it uses Dongguan Kaihua Electronics Co., Ltd (originally named Longhua Electronics)'s hotswap socket or not. Default is <code>false</code></li>
+                    <li><code>thumb-offset-x</code>: the offset of the thumb cluster from the alpha cluster in <code>x</code> coordinate. Default is <code>52</code></li>
+                    <li><code>thumb-offset-y</code>: the offset of the thumb cluster from the alpha cluster in <code>y</code> coordinate. Default is <code>42</code></li>
+                    <li><code>thumb-offset-z</code>: the offset of the thumb cluster from the alpha cluster in <code>z</code> coordinate. Default is <code>27</code>.</li>
+                    <li><code>z-offset</code>: the height of the body from the floor. Default is <code>10</code>.</li>
+                    <li><code>manuform-offset</code>: whether it uses Dactyl Manuform's column stagger or not. Default is <code>false</code></li>
+                </ul>
+            </li>
+            <li>
+                <code>misc</code>:
+                <ul>
+                    <li><code>right-side</code>: whether it is the right side or not. Default is <code>true</code></li>
+                    <li><code>screw-inserts</code>: whether it uses the screw inserts or not. Default is <code>false</code></li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Manuform</h3>
+        <ul>
+            <li>
+                <code>keys</code>:
+                <ul>
+                    <li><code>columns</code>: the number of the columns each side has. Default is <code>5</code></li>
+                    <li><code>rows</code>: the number of the rows each side has. Default is <code>4</code></li>
+                    <li><code>minidox</code>: whether it uses the minidox style thumb row or not. Default is <code>false</code></li>
+                    <li><code>last-row</code>: the number of keys on the last row. Default is <code>"two"</code>.</li>
+                    <li><code>nubs</code>: whether it uses the nubs on the key holes or not. Default is <code>false</code></li>
+                    <li><code>alps</code>: whether it uses the alps key hole's measurements or not. Default is <code>false</code></li>
+                    <li><code>inner-columns</code>: whether it uses the inner-column or not. Default is <code>false</code></li>
+                </ul>
+            </li>
+            <li>
+                <code>curve</code>:
+                <ul>
+                    <li><code>alpha</code>: the curvature of each row. Default is <code>12</code></li>
+                    <li><code>beta</code>: the curvature of each column. Default is <code>36</code></li>
+                    <li><code>centercol</code>: the center curvature of the body. Default is <code>4</code></li>
+                    <li><code>tenting</code>: the curvature of the body. Default is <code>12</code></li>
+                </ul>
+            </li>
+            <li>
+                <code>connector</code>:
+                <ul>
+                    <li><code>external</code>: whether it uses an external connector or not. Default is <code>false</code></li>
+                    <li><code>trrs</code>: whether it uses trrs cable as a connector or not. Default is <code>false</code></li>
+                    <li><code>micro-usb</code>: whether it connects to the pc using micro-usb or not. Default is <code>false</code></li>
+                </ul>
+            </li>
+            <li>
+                <code>form</code>:
+                <ul>
+                    <li><code>hotswap</code>: whether it uses Dongguan Kaihua Electronics Co., Ltd (originally named Longhua Electronics)'s hotswap socket or not. Default is <code>false</code></li>
+                    <li><code>stagger</code>: whether it has staggered columns or not. Default is <code>true</code></li>
+                    <li><code>wide-pinky</code>: whether it uses wide key (1.5u) on the outermost pinky column or not. Default is <code>true</code></li>
+                    <li><code>height-offset</code>: the height of the body from the floor. Default is <code>4</code>.</li>
+                    <li><code>wire-post</code>: whether it uses wire posts or not. Default is <code>false</code></li>
+                    <li><code>screw-inserts</code>: whether it uses screw inserts or not. Default is <code>false</code></li>
+                </ul>
+            </li>
+            <li>
+                <code>misc</code>:
+                <ul>
+                    <li><code>keycaps</code>: whether it shows the keycaps on the model not. Default is <code>false</code></li>
+                    <li><code>wrist-rest</code>: whether it uses wrist rest on not. Default is <code>false</code></li>
+                    <li><code>integrated-wrist-rest</code>: whether it uses integrated wrist rest (connected to the body) on not. Default is <code>false</code></li>
+                    <li><code>right-side</code>: whether it is the right side or not. Default is <code>true</code></li>
+                    <li><code>case</code>: whether it is a case or just the plate. Default is <code>true</code></li>
                 </ul>
             </li>
         </ul>

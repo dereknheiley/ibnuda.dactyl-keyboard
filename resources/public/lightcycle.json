@@ -19,7 +19,8 @@
         "thumb-offset-x": 52,
         "thumb-offset-y": 45,
         "thumb-offset-z": 27,
-        "z-offset": 10
+        "z-offset": 10,
+        "manuform-offset": false
     },
     "misc": {
         "right-side": true,
