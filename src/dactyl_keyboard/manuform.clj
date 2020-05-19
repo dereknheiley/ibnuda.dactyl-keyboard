@@ -80,17 +80,17 @@
   "Determines which keys should be generated based on the configuration."
   [c]
   (let [row-count (get c :configuration-last-row-count)
-        ncols (get c :configuration-ncols)
-        nrows (get c :configuration-nrows)
-        lastrow (flastrow nrows)]
+        ncols     (get c :configuration-ncols)
+        nrows     (get c :configuration-nrows)
+        lastrow   (flastrow nrows)]
     (apply union
            (for [column (columns ncols)
-                 row (rows nrows)
-                 :when (case row-count
-                         :zero (not= row lastrow)
-                         :two (or (.contains [2 3] column)
-                                  (not= row lastrow))
-                         :full (or (not (.contains [0 1] column)) (not= row lastrow)))]
+                 row    (rows nrows)
+                 :when  (case row-count
+                          :zero (not= row lastrow)
+                          :two (or (.contains [2 3] column)
+                                   (not= row lastrow))
+                          :full (or (not (.contains [0 1] column)) (not= row lastrow)))]
              (->> (single-plate c)
                   (key-place c column row))))))
 
@@ -112,27 +112,27 @@
 
 (defn caps [c]
   (let [use-inner-column? (get c :configuration-use-inner-column?)
-        row-count (get c :configuration-last-row-count)
-        use-wide-pinky? (get c :configuration-use-wide-pinky?)
-        ncols (get c :configuration-ncols)
-        nrows (get c :configuration-nrows)
-        lastrow (flastrow nrows)
-        cornerrow (fcornerrow nrows)
-        lastcol (flastcol ncols)]
+        row-count         (get c :configuration-last-row-count)
+        use-wide-pinky?   (get c :configuration-use-wide-pinky?)
+        ncols             (get c :configuration-ncols)
+        nrows             (get c :configuration-nrows)
+        lastrow           (flastrow nrows)
+        cornerrow         (fcornerrow nrows)
+        lastcol           (flastcol ncols)]
     (apply
      union
      (for [column (if use-inner-column? (range -1 ncols) (columns ncols))
-           row (rows nrows)
-           :when (case row-count
-                   :zero (not= row lastrow)
-                   :two (or (.contains [2 3] column)
-                            (not= row lastrow))
-                   :full (or (not (.contains [0 1] column)) (not= row lastrow)))
-           :when (if use-inner-column?
-                   (not (and (.contains [-1] column)
-                             (or (= row cornerrow)
-                                 (= row lastrow))))
-                   true)]
+           row    (rows nrows)
+           :when  (case row-count
+                    :zero (not= row lastrow)
+                    :two (or (.contains [2 3] column)
+                             (not= row lastrow))
+                    :full (or (not (.contains [0 1] column)) (not= row lastrow)))
+           :when  (if use-inner-column?
+                    (not (and (.contains [-1] column)
+                              (or (= row cornerrow)
+                                  (= row lastrow))))
+                    true)]
        (->> (sa-cap (if (and use-wide-pinky?
                              (= column lastcol)
                              (not= row lastrow))
@@ -166,27 +166,27 @@
    on the configuration provided."
   [c]
   (let [use-inner-column? (get c :configuration-use-inner-column?)
-        row-count (get c :configuration-last-row-count)
-        ncols (get c :configuration-ncols)
-        nrows (get c :configuration-nrows)
-        lastrow (flastrow nrows)
-        cornerrow (fcornerrow nrows)
-        middlerow (fmiddlerow nrows)]
+        row-count         (get c :configuration-last-row-count)
+        ncols             (get c :configuration-ncols)
+        nrows             (get c :configuration-nrows)
+        lastrow           (flastrow nrows)
+        cornerrow         (fcornerrow nrows)
+        middlerow         (fmiddlerow nrows)]
     (union
      (apply
       union
       (concat
       ;; Row connections
        (for [column (range (if use-inner-column? -1 0) (dec ncols))
-             row (range 0 (inc lastrow))
-             :when (case row-count
-                     :zero (or (not= row lastrow)
-                               (and (= row cornerrow)
-                                    (= column -1)))
-                     :two (or (.contains [2] column)
-                              (not= row lastrow))
-                     :full (not (and (= row lastrow)
-                                     (.contains [-1 0 1] column))))]
+             row    (range 0 (inc lastrow))
+             :when  (case row-count
+                      :zero (or (not= row lastrow)
+                                (and (= row cornerrow)
+                                     (= column -1)))
+                      :two (or (.contains [2] column)
+                               (not= row lastrow))
+                      :full (not (and (= row lastrow)
+                                      (.contains [-1 0 1] column))))]
          (triangle-hulls
           (key-place c (inc column) row web-post-tl)
           (key-place c column row web-post-tr)
@@ -198,12 +198,12 @@
 
       ;; Column connections
        (for [column (if use-inner-column? (inner-columns ncols) (columns ncols))
-             row (range 0 lastrow)
-             :when (case row-count
-                     :zero (not= row cornerrow)
-                     :two (or (not= row cornerrow))
-                     :full (not (and (= row cornerrow)
-                                     (.contains [-1 0 1] column))))]
+             row    (range 0 lastrow)
+             :when  (case row-count
+                      :zero (not= row cornerrow)
+                      :two (or (not= row cornerrow))
+                      :full (not (and (= row cornerrow)
+                                      (.contains [-1 0 1] column))))]
          (triangle-hulls
           (key-place c column row web-post-br)
           (key-place c column row web-post-bl)
@@ -215,13 +215,13 @@
 
       ;; Diagonal connections
        (for [column (range (if use-inner-column? -1 0) (dec ncols))
-             row (range 0 lastrow)
-             :when (case row-count
-                     :full (not (or (and (= row lastrow)
-                                         (.contains [-1 0 1] column))
-                                    (and (= row cornerrow)
-                                         (.contains [-1 0 1] column))))
-                     (or (not= row cornerrow)))]
+             row    (range 0 lastrow)
+             :when  (case row-count
+                      :full (not (or (and (= row lastrow)
+                                          (.contains [-1 0 1] column))
+                                     (and (= row cornerrow)
+                                          (.contains [-1 0 1] column))))
+                      (or (not= row cornerrow)))]
          (triangle-hulls
           (key-place c column row web-post-br)
           (key-place c column (inc row) web-post-tr)
@@ -258,9 +258,9 @@
        (translate (thumborigin configuration))
        (translate [-12 -16 3])))
 (defn thumb-tl-place [c shape]
-  (let [minidox-style? (get c :configuration-minidox-style?)
-        movement (if minidox-style? [-35 -15 -2] [-32 -15 -2])
-        z-rotation (if minidox-style? 20 10)]
+  (let [thumb-count (get c :configuration-thumb-count)
+        movement    [-35 -15 -2]
+        z-rotation  (if (= thumb-count :three) 20 10)]
     (->> shape
          (rotate (deg2rad  10) [1 0 0])
          (rotate (deg2rad -23) [0 1 0])
@@ -275,8 +275,8 @@
        (translate (thumborigin c))
        (translate [-29 -40 -13])))
 (defn thumb-ml-place [c shape]
-  (let [minidox-style? (get c :configuration-minidox-style?)
-        movement (if minidox-style? [-53 -26 -12] [-51 -25 -12])]
+  (let [thumb-count (get c :configuration-thumb-count)
+        movement    (if (= thumb-count :three) [-53 -26 -12] [-51 -25 -12])]
     (->> shape
          (rotate (deg2rad   6) [1 0 0])
          (rotate (deg2rad -34) [0 1 0])
@@ -299,27 +299,31 @@
        (translate [-56.3 -43.3 -23.5])))
 
 (defn thumb-1x-layout [c shape]
-  (let [minidox-style? (get c :configuration-minidox-style?)]
-    (if-not minidox-style?
-      (union
-       (thumb-ml-place c shape)
-       (thumb-mr-place c shape)
-       (thumb-bl-place c shape)
-       (thumb-br-place c shape))
-      ())))
+  (let [thumb-count (get c :configuration-thumb-count)]
+    (case thumb-count
+      :two ()
+      :three ()
+      :four (union (thumb-ml-place c shape)
+                   (thumb-mr-place c shape))
+      (union (thumb-ml-place c shape)
+             (thumb-mr-place c shape)
+             (thumb-br-place c shape)
+             (thumb-bl-place c shape)))))
 
 (defn thumb-15x-layout [c shape]
-  (let [minidox-style? (get c :configuration-minidox-style?)]
-    (union
-     (if minidox-style? (thumb-ml-place c shape) ())
-     (thumb-tr-place c shape)
-     (thumb-tl-place c shape))))
+  (let [thumb-count (get c :configuration-thumb-count)]
+    (case thumb-count
+      :three (union (thumb-tr-place c shape)
+                    (thumb-tl-place c shape)
+                    (thumb-ml-place c shape))
+      (union (thumb-tr-place c shape)
+             (thumb-tl-place c shape)))))
 
 (def larger-plate
   (let [plate-height (/ (- sa-double-length mount-height) 3)
-        top-plate (->> (cube mount-width plate-height web-thickness)
-                       (translate [0 (/ (+ plate-height mount-height) 2)
-                                   (- plate-thickness (/ web-thickness 2))]))]
+        top-plate    (->> (cube mount-width plate-height web-thickness)
+                          (translate [0 (/ (+ plate-height mount-height) 2)
+                                      (- plate-thickness (/ web-thickness 2))]))]
     (union top-plate (mirror [0 1 0] top-plate))))
 
 (defn thumbcaps [c]
@@ -344,116 +348,210 @@
 (def thumb-post-br
   (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -1.15) post-adj) 0] web-post))
 
-(defn thumb-connectors [c]
-  (let [minidox-style? (get c :configuration-minidox-style?)
-        row-count (get c :configuration-last-row-count)
+(defn thumb-connector-two [c]
+  (let [row-count (get c :configuration-last-row-count)
+        lastrow   (flastrow (get c :configuration-nrows))
+        cornerrow (fcornerrow (get c :configuration-nrows))]
+    (union (triangle-hulls
+            (thumb-tl-place c thumb-post-tr)
+            (thumb-tl-place c thumb-post-br)
+            (thumb-tr-place c thumb-post-tl)
+            (thumb-tr-place c thumb-post-bl))
+           (triangle-hulls    ; top two to the main keyboard, starting on the left
+            (thumb-tl-place c thumb-post-tl)
+            (key-place c 0 cornerrow web-post-bl)
+            (thumb-tl-place c thumb-post-tr)
+            (key-place c 0 cornerrow web-post-br)
+            (thumb-tr-place c thumb-post-tl)
+            (key-place c 1 cornerrow web-post-bl)
+            (thumb-tr-place c thumb-post-tr)
+            (key-place c 1 cornerrow web-post-br)
+            (thumb-tr-place c thumb-post-br)
+            (key-place c 2 cornerrow web-post-bl)
+            (case row-count
+              :zero ()
+              (key-place c 2 lastrow web-post-bl))
+            (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-bl)
+            (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-br)
+            (thumb-tr-place c thumb-post-br)
+            (key-place c 3 (case row-count :zero cornerrow lastrow) web-post-bl))
+           (triangle-hulls
+            (key-place c 2 lastrow web-post-tl)
+            (key-place c 2 cornerrow web-post-bl)
+            (key-place c 2 lastrow web-post-tr)
+            (key-place c 2 cornerrow web-post-br)
+            (key-place c 3 cornerrow web-post-bl)) )))
+
+(defn thumb-connector-three [c]
+  (let [row-count (get c :configuration-last-row-count)
+        lastrow   (flastrow (get c :configuration-nrows))
+        cornerrow (fcornerrow (get c :configuration-nrows))]
+    (union
+     (triangle-hulls    ; top two
+      (thumb-tl-place c thumb-post-tr)
+      (thumb-tl-place c thumb-post-br)
+      (thumb-tr-place c thumb-post-tl)
+      (thumb-tr-place c thumb-post-bl)
+      (thumb-tl-place c thumb-post-br)
+      (thumb-tl-place c thumb-post-bl))
+     (triangle-hulls    ; top two to the middle two, starting on the left
+      (thumb-tl-place c thumb-post-tl)
+      (thumb-ml-place c thumb-post-tr)
+      (thumb-tl-place c thumb-post-bl)
+      (thumb-ml-place c thumb-post-br))
+     (triangle-hulls    ; top two to the main keyboard, starting on the left
+      (thumb-tl-place c thumb-post-tl)
+      (key-place c 0 cornerrow web-post-bl)
+      (thumb-tl-place c thumb-post-tr)
+      (key-place c 0 cornerrow web-post-br)
+      (thumb-tr-place c thumb-post-tl)
+      (key-place c 1 cornerrow web-post-bl)
+      (thumb-tr-place c thumb-post-tr)
+      (key-place c 1 cornerrow web-post-br)
+      (thumb-tr-place c thumb-post-br)
+      (key-place c 2 cornerrow web-post-bl)
+      (case row-count
+        :zero ()
+        (key-place c 2 lastrow web-post-bl))
+      (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-bl)
+      (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-br)
+      (thumb-tr-place c thumb-post-br)
+      (key-place c 3 (case row-count :zero cornerrow lastrow) web-post-bl))
+     (triangle-hulls
+      (thumb-tl-place c thumb-post-bl)
+      (thumb-ml-place c thumb-post-br)
+      (thumb-ml-place c thumb-post-bl))
+     (triangle-hulls
+      (key-place c 2 lastrow web-post-tl)
+      (key-place c 2 cornerrow web-post-bl)
+      (key-place c 2 lastrow web-post-tr)
+      (key-place c 2 cornerrow web-post-br)
+      (key-place c 3 cornerrow web-post-bl))
+     (triangle-hulls
+      (key-place c 3 lastrow web-post-tr)
+      (key-place c 4 cornerrow web-post-bl)))))
+
+(defn thumb-connector-four [c]
+  (let [row-count (get c :configuration-last-row-count)
         lastrow (flastrow (get c :configuration-nrows))
         cornerrow (fcornerrow (get c :configuration-nrows))]
-    (if minidox-style?
-      (union
-       (triangle-hulls    ; top two
-        (thumb-tl-place c thumb-post-tr)
-        (thumb-tl-place c thumb-post-br)
-        (thumb-tr-place c thumb-post-tl)
-        (thumb-tr-place c thumb-post-bl)
-        (thumb-tl-place c thumb-post-br)
-        (thumb-tl-place c thumb-post-bl))
-       (triangle-hulls    ; top two to the middle two, starting on the left
-        (thumb-tl-place c thumb-post-tl)
-        (thumb-ml-place c thumb-post-tr)
-        (thumb-tl-place c thumb-post-bl)
-        (thumb-ml-place c thumb-post-br))
-       (triangle-hulls    ; top two to the main keyboard, starting on the left
-        (thumb-tl-place c thumb-post-tl)
-        (key-place c 0 cornerrow web-post-bl)
-        (thumb-tl-place c thumb-post-tr)
-        (key-place c 0 cornerrow web-post-br)
-        (thumb-tr-place c thumb-post-tl)
-        (key-place c 1 cornerrow web-post-bl)
-        (thumb-tr-place c thumb-post-tr)
-        (key-place c 1 cornerrow web-post-br)
-        (thumb-tr-place c thumb-post-br)
-        (key-place c 2 cornerrow web-post-bl)
-        (case row-count
-          :zero ()
-          (key-place c 2 lastrow web-post-bl))
-        (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-bl)
-        (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-br)
-        (thumb-tr-place c thumb-post-br)
-        (key-place c 3 (case row-count :zero cornerrow lastrow) web-post-bl))
-       (triangle-hulls
-        (thumb-tl-place c thumb-post-bl)
-        (thumb-ml-place c thumb-post-br)
-        (thumb-ml-place c thumb-post-bl))
-       (triangle-hulls
-        (key-place c 2 lastrow web-post-tl)
-        (key-place c 2 cornerrow web-post-bl)
-        (key-place c 2 lastrow web-post-tr)
-        (key-place c 2 cornerrow web-post-br)
-        (key-place c 3 cornerrow web-post-bl))
-       (triangle-hulls
-        (key-place c 3 lastrow web-post-tr)
-        (key-place c 4 cornerrow web-post-bl)))
-      (union
-       (triangle-hulls    ; top two
-        (thumb-tl-place c thumb-post-tr)
-        (thumb-tl-place c thumb-post-br)
-        (thumb-tr-place c thumb-post-tl)
-        (thumb-tr-place c thumb-post-bl))
-       (triangle-hulls    ; bottom two on the right
-        (thumb-br-place c web-post-tr)
-        (thumb-br-place c web-post-br)
-        (thumb-mr-place c web-post-tl)
-        (thumb-mr-place c web-post-bl))
-       (triangle-hulls    ; bottom two on the left
-        (thumb-bl-place c web-post-tr)
-        (thumb-bl-place c web-post-br)
-        (thumb-ml-place c web-post-tl)
-        (thumb-ml-place c web-post-bl))
-       (triangle-hulls    ; centers of the bottom four
-        (thumb-br-place c web-post-tl)
-        (thumb-bl-place c web-post-bl)
-        (thumb-br-place c web-post-tr)
-        (thumb-bl-place c web-post-br)
-        (thumb-mr-place c web-post-tl)
-        (thumb-ml-place c web-post-bl)
-        (thumb-mr-place c web-post-tr)
-        (thumb-ml-place c web-post-br))
-       (triangle-hulls    ; top two to the middle two, starting on the left
-        (thumb-tl-place c thumb-post-tl)
-        (thumb-ml-place c web-post-tr)
-        (thumb-tl-place c thumb-post-bl)
-        (thumb-ml-place c web-post-br)
-        (thumb-tl-place c thumb-post-br)
-        (thumb-mr-place c web-post-tr)
-        (thumb-tr-place c thumb-post-bl)
-        (thumb-mr-place c web-post-br)
-        (thumb-tr-place c thumb-post-br))
-       (triangle-hulls    ; top two to the main keyboard, starting on the left
-        (thumb-tl-place c thumb-post-tl)
-        (key-place c 0 cornerrow web-post-bl)
-        (thumb-tl-place c thumb-post-tr)
-        (key-place c 0 cornerrow web-post-br)
-        (thumb-tr-place c thumb-post-tl)
-        (key-place c 1 cornerrow web-post-bl)
-        (thumb-tr-place c thumb-post-tr)
-        (key-place c 1 cornerrow web-post-br)
-        (thumb-tr-place c thumb-post-br)
-        (key-place c 2 cornerrow web-post-bl)
-        (case row-count
-          :zero ()
-          (key-place c 2 lastrow web-post-bl))
-        (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-bl)
-        (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-br)
-        (thumb-tr-place c thumb-post-br)
-        (key-place c 3 (case row-count :zero cornerrow lastrow) web-post-bl))
-       (triangle-hulls
-        (key-place c 1 cornerrow web-post-br)
-        (key-place c 2 lastrow web-post-tl)
-        (key-place c 2 cornerrow web-post-bl)
-        (key-place c 2 lastrow web-post-tr)
-        (key-place c 2 cornerrow web-post-br)
-        (key-place c 3 cornerrow web-post-bl))))))
+    (union (triangle-hulls
+            (thumb-tl-place c thumb-post-tr)
+            (thumb-tl-place c thumb-post-br)
+            (thumb-tr-place c thumb-post-tl)
+            (thumb-tr-place c thumb-post-bl))
+           (triangle-hulls
+            (thumb-mr-place c web-post-tl)
+            (thumb-ml-place c web-post-bl)
+            (thumb-mr-place c web-post-tr)
+            (thumb-ml-place c web-post-br))
+           (triangle-hulls    ; top two to the middle two, starting on the left
+            (thumb-tl-place c thumb-post-tl)
+            (thumb-ml-place c web-post-tr)
+            (thumb-tl-place c thumb-post-bl)
+            (thumb-ml-place c web-post-br)
+            (thumb-tl-place c thumb-post-br)
+            (thumb-mr-place c web-post-tr)
+            (thumb-tr-place c thumb-post-bl)
+            (thumb-mr-place c web-post-br)
+            (thumb-tr-place c thumb-post-br))
+           (triangle-hulls    ; top two to the main keyboard, starting on the left
+            (thumb-tl-place c thumb-post-tl)
+            (key-place c 0 cornerrow web-post-bl)
+            (thumb-tl-place c thumb-post-tr)
+            (key-place c 0 cornerrow web-post-br)
+            (thumb-tr-place c thumb-post-tl)
+            (key-place c 1 cornerrow web-post-bl)
+            (thumb-tr-place c thumb-post-tr)
+            (key-place c 1 cornerrow web-post-br)
+            (thumb-tr-place c thumb-post-br)
+            (key-place c 2 cornerrow web-post-bl)
+            (case row-count
+              :zero ()
+              (key-place c 2 lastrow web-post-bl))
+            (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-bl)
+            (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-br)
+            (thumb-tr-place c thumb-post-br)
+            (key-place c 3 (case row-count :zero cornerrow lastrow) web-post-bl))
+           (triangle-hulls
+            (key-place c 1 cornerrow web-post-br)
+            (key-place c 2 lastrow web-post-tl)
+            (key-place c 2 cornerrow web-post-bl)
+            (key-place c 2 lastrow web-post-tr)
+            (key-place c 2 cornerrow web-post-br)
+            (key-place c 3 cornerrow web-post-bl)))))
+
+(defn thumb-connector-six [c]
+  (let [row-count (get c :configuration-last-row-count)
+        lastrow   (flastrow (get c :configuration-nrows))
+        cornerrow (fcornerrow (get c :configuration-nrows))]
+    (union (triangle-hulls
+            (thumb-tl-place c thumb-post-tr)
+            (thumb-tl-place c thumb-post-br)
+            (thumb-tr-place c thumb-post-tl)
+            (thumb-tr-place c thumb-post-bl))
+           (triangle-hulls    ; bottom two on the right
+            (thumb-br-place c web-post-tr)
+            (thumb-br-place c web-post-br)
+            (thumb-mr-place c web-post-tl)
+            (thumb-mr-place c web-post-bl))
+           (triangle-hulls    ; bottom two on the left
+            (thumb-bl-place c web-post-tr)
+            (thumb-bl-place c web-post-br)
+            (thumb-ml-place c web-post-tl)
+            (thumb-ml-place c web-post-bl))
+           (triangle-hulls    ; centers of the bottom four
+            (thumb-br-place c web-post-tl)
+            (thumb-bl-place c web-post-bl)
+            (thumb-br-place c web-post-tr)
+            (thumb-bl-place c web-post-br)
+            (thumb-mr-place c web-post-tl)
+            (thumb-ml-place c web-post-bl)
+            (thumb-mr-place c web-post-tr)
+            (thumb-ml-place c web-post-br))
+           (triangle-hulls    ; top two to the middle two, starting on the left
+            (thumb-tl-place c thumb-post-tl)
+            (thumb-ml-place c web-post-tr)
+            (thumb-tl-place c thumb-post-bl)
+            (thumb-ml-place c web-post-br)
+            (thumb-tl-place c thumb-post-br)
+            (thumb-mr-place c web-post-tr)
+            (thumb-tr-place c thumb-post-bl)
+            (thumb-mr-place c web-post-br)
+            (thumb-tr-place c thumb-post-br))
+           (triangle-hulls    ; top two to the main keyboard, starting on the left
+            (thumb-tl-place c thumb-post-tl)
+            (key-place c 0 cornerrow web-post-bl)
+            (thumb-tl-place c thumb-post-tr)
+            (key-place c 0 cornerrow web-post-br)
+            (thumb-tr-place c thumb-post-tl)
+            (key-place c 1 cornerrow web-post-bl)
+            (thumb-tr-place c thumb-post-tr)
+            (key-place c 1 cornerrow web-post-br)
+            (thumb-tr-place c thumb-post-br)
+            (key-place c 2 cornerrow web-post-bl)
+            (case row-count
+              :zero ()
+              (key-place c 2 lastrow web-post-bl))
+            (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-bl)
+            (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-br)
+            (thumb-tr-place c thumb-post-br)
+            (key-place c 3 (case row-count :zero cornerrow lastrow) web-post-bl))
+           (triangle-hulls
+            (key-place c 1 cornerrow web-post-br)
+            (key-place c 2 lastrow web-post-tl)
+            (key-place c 2 cornerrow web-post-bl)
+            (key-place c 2 lastrow web-post-tr)
+            (key-place c 2 cornerrow web-post-br)
+            (key-place c 3 cornerrow web-post-bl)))))
+
+(defn thumb-connectors [c]
+  (let [thumb-count (get c :configuration-thumb-count)]
+    (case thumb-count
+      :two (thumb-connector-two c)
+      :three (thumb-connector-three c)
+      :four (thumb-connector-four c)
+      (thumb-connector-six c))))
 
 ;;;;;;;;;;
 ;; Case ;;
@@ -525,11 +623,11 @@
               (partial key-place c x2 y2) dx2 dy2 post2))
 
 (defn right-wall [c]
-  (let [row-count (get c :configuration-last-row-count)
+  (let [row-count       (get c :configuration-last-row-count)
         use-wide-pinky? (get c :configuration-use-wide-pinky?)
-        lastcol (flastcol (get c :configuration-ncols))
-        lastrow (flastrow (get c :configuration-nrows))
-        cornerrow (fcornerrow (get c :configuration-nrows))]
+        lastcol         (flastcol (get c :configuration-ncols))
+        lastrow         (flastrow (get c :configuration-nrows))
+        cornerrow       (fcornerrow (get c :configuration-nrows))]
     (union (key-wall-brace c
                            lastcol 0 0 1 (wide-post-tr use-wide-pinky?)
                            lastcol 0 1 0 (wide-post-tr use-wide-pinky?))
@@ -556,8 +654,8 @@
                            lastcol (case row-count :full lastrow cornerrow) 1  0 (wide-post-br use-wide-pinky?)))))
 
 (defn back-wall [c]
-  (let [ncols (get c :configuration-ncols)
-        lastcol (flastcol ncols)
+  (let [ncols             (get c :configuration-ncols)
+        lastcol           (flastcol ncols)
         use-inner-column? (get c :configuration-use-inner-column?)]
     (union
      (for [x (range (if use-inner-column? -1 0) ncols)]
@@ -567,9 +665,9 @@
      (key-wall-brace c lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr))))
 
 (defn left-wall [c]
-  (let [nrows (get c :configuration-nrows)
-        lastrow (flastrow nrows)
-        cornerrow (fcornerrow nrows)
+  (let [nrows             (get c :configuration-nrows)
+        lastrow           (flastrow nrows)
+        cornerrow         (fcornerrow nrows)
         use-inner-column? (get c :configuration-use-inner-column?)]
     (union
      (for [y (range 0 (if use-inner-column? cornerrow lastrow))]
@@ -622,12 +720,14 @@
                             (partial inner-key-place c)
                             (partial left-key-place c)) 0 1) -1 0 web-post))))
 (defn front-wall [c]
-  (let [ncols (get c :configuration-ncols)
-        nrows (get c :configuration-nrows)
-        lastrow (flastrow nrows)
+  (let [ncols     (get c :configuration-ncols)
+        nrows     (get c :configuration-nrows)
+        lastrow   (flastrow nrows)
         cornerrow (fcornerrow nrows)
         row-count (get c :configuration-last-row-count)]
     (union
+     (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-br
+                 (partial (partial key-place c) 3 (case row-count :zero cornerrow lastrow))  0 -1 web-post-bl)
      (key-wall-brace c
                      3 (case row-count :zero cornerrow lastrow) 0   -1 web-post-bl
                      3 (case row-count :zero cornerrow lastrow) 0.5 -1 web-post-br)
@@ -644,11 +744,11 @@
                        (dec x) (case row-count :full lastrow cornerrow) 0 -1 web-post-br)))))
 
 (defn pinky-connectors [c]
-  (let [row-count (get c :configuration-last-row-count)
+  (let [row-count       (get c :configuration-last-row-count)
         use-wide-pinky? (get c :configuration-use-wide-pinky?)
-        lastcol (flastcol (get c :configuration-ncols))
-        lastrow (flastrow (get c :configuration-nrows))
-        cornerrow (fcornerrow (get c :configuration-nrows))]
+        lastcol         (flastcol (get c :configuration-ncols))
+        lastrow         (flastrow (get c :configuration-nrows))
+        cornerrow       (fcornerrow (get c :configuration-nrows))]
     (if-not use-wide-pinky?
       ()
       (apply union
@@ -667,11 +767,11 @@
                  (key-place c lastcol (inc row) (wide-post-tr use-wide-pinky?)))))))))
 
 (defn pinky-wall [c]
-  (let [row-count (get c :configuration-last-row-count)
+  (let [row-count       (get c :configuration-last-row-count)
         use-wide-pinky? (get c :configuration-use-wide-pinky?)
-        lastcol (flastcol (get c :configuration-ncols))
-        lastrow (flastrow (get c :configuration-nrows))
-        cornerrow (fcornerrow (get c :configuration-nrows))]
+        lastcol         (flastcol (get c :configuration-ncols))
+        lastrow         (flastrow (get c :configuration-nrows))
+        cornerrow       (fcornerrow (get c :configuration-nrows))]
     (if-not use-wide-pinky?
       ()
       (union
@@ -682,75 +782,116 @@
                        lastcol 0 0 1 web-post-tr
                        lastcol 0 0 1 (wide-post-tr use-wide-pinky?))))))
 
+(defn thumb-wall-two [c]
+  (union (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-br
+                     (partial thumb-tr-place c)  0 -1 thumb-post-bl)
+         (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-bl
+                     (partial thumb-tl-place c)  0 -1 thumb-post-br)
+         (wall-brace (partial thumb-tl-place c)  0 -1 thumb-post-br
+                     (partial thumb-tl-place c)  0 -1 thumb-post-bl)
+         (wall-brace (partial thumb-tl-place c)  0 -1 thumb-post-bl
+                     (partial thumb-tl-place c) -1  0 thumb-post-bl)
+         (wall-brace (partial thumb-tl-place c) -1  0 thumb-post-bl
+                     (partial thumb-tl-place c) -1  0 thumb-post-tl)))
+
+(defn thumb-wall-three [c]
+  (union (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-br
+                     (partial thumb-tr-place c)  0 -1 thumb-post-bl)
+         (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-bl
+                     (partial thumb-tl-place c)  0 -1 thumb-post-bl)
+         (wall-brace (partial thumb-tl-place c)  0 -1 thumb-post-bl
+                     (partial thumb-ml-place c) -1 -1 thumb-post-br)
+         (wall-brace (partial thumb-ml-place c) -1 -1 thumb-post-br
+                     (partial thumb-ml-place c)  0 -1 thumb-post-bl)
+         (wall-brace (partial thumb-ml-place c)  0 -1 thumb-post-bl
+                     (partial thumb-ml-place c) -1  0 thumb-post-bl)
+         (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-bl
+                     (partial thumb-ml-place c) -1  0 thumb-post-tl)
+         (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-tl
+                     (partial thumb-ml-place c)  0  1 thumb-post-tl)
+         (wall-brace (partial thumb-ml-place c)  0  1 thumb-post-tr
+                     (partial thumb-ml-place c)  0  1 thumb-post-tl)))
+
+(defn thumb-wall-four [c]
+  (union (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-br
+                     (partial thumb-mr-place c)  0 -1 web-post-br)
+         (wall-brace (partial thumb-mr-place c)  0 -1 web-post-br
+                     (partial thumb-mr-place c)  0 -1 web-post-bl)
+         (wall-brace (partial thumb-mr-place c)  0 -1 web-post-bl
+                     (partial thumb-mr-place c) -1  0 web-post-bl)
+         (wall-brace (partial thumb-mr-place c) -1  0 web-post-bl
+                     (partial thumb-mr-place c) -1  0 web-post-tl)
+         (wall-brace (partial thumb-mr-place c) -1  0 web-post-tl
+                     (partial thumb-ml-place c) -1  0 web-post-bl)
+         (wall-brace (partial thumb-ml-place c) -1  0 web-post-bl
+                     (partial thumb-ml-place c) -1  0 web-post-tl)
+         (wall-brace (partial thumb-ml-place c) -1  0 web-post-tl
+                     (partial thumb-ml-place c)  0  1 web-post-tl)
+         (wall-brace (partial thumb-ml-place c)  0  1 web-post-tl
+                     (partial thumb-ml-place c)  0  1 web-post-tr)))
+
+(defn thumb-wall-six [c]
+  (union (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-br
+                     (partial thumb-mr-place c)  0 -1 web-post-br)
+         (wall-brace (partial thumb-mr-place c)  0 -1 web-post-br
+                     (partial thumb-mr-place c)  0 -1 web-post-bl)
+         (wall-brace (partial thumb-mr-place c)  0 -1 web-post-bl
+                     (partial thumb-br-place c)  0 -1 web-post-br)
+         (wall-brace (partial thumb-br-place c)  0 -1 web-post-br
+                     (partial thumb-br-place c)  0 -1 web-post-bl)
+         (wall-brace (partial thumb-br-place c)  0 -1 web-post-bl
+                     (partial thumb-br-place c) -1  0 web-post-bl)
+         (wall-brace (partial thumb-br-place c) -1  0 web-post-bl
+                     (partial thumb-br-place c) -1  0 web-post-tl)
+         (wall-brace (partial thumb-br-place c) -1  0 web-post-tl
+                     (partial thumb-bl-place c) -1  0 web-post-bl)
+         (wall-brace (partial thumb-bl-place c) -1  0 web-post-bl
+                     (partial thumb-bl-place c) -1  0 web-post-tl)
+         (wall-brace (partial thumb-bl-place c) -1  0 web-post-tl
+                     (partial thumb-bl-place c)  0  1 web-post-tl)
+         (wall-brace (partial thumb-bl-place c)  0  1 web-post-tl
+                     (partial thumb-bl-place c)  0  1 web-post-tr)
+         (wall-brace (partial thumb-bl-place c)  0  1 web-post-tr
+                     (partial thumb-ml-place c)  0  1 web-post-tl)
+         (wall-brace (partial thumb-ml-place c)  0  1 web-post-tl
+                     (partial thumb-ml-place c)  0  1 web-post-tr)))
+
 (defn thumb-wall [c]
-  (let [minidox-style? (get c :configuration-minidox-style?)]
-    (if minidox-style?
-      (union
-       (wall-brace (partial thumb-ml-place c)  0  1 thumb-post-tr
-                   (partial thumb-ml-place c)  0  1 thumb-post-tl)
-       (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-br
-                   (partial thumb-tr-place c)  0 -2 thumb-post-bl)
-       (wall-brace (partial thumb-tr-place c)  0 -2 thumb-post-bl
-                   (partial thumb-tl-place c)  0 -2 thumb-post-bl)
-       (wall-brace (partial thumb-tl-place c)  0 -2 thumb-post-bl
-                   (partial thumb-ml-place c) -1 -1 thumb-post-bl))
-      (union
-       (wall-brace (partial thumb-mr-place c)  0   -1 web-post-br
-                   (partial thumb-tr-place c)  0   -1 thumb-post-br)
-       (wall-brace (partial thumb-mr-place c)  0   -1 web-post-br
-                   (partial thumb-mr-place c)  0   -1 web-post-bl)
-       (wall-brace (partial thumb-br-place c)  0   -1 web-post-br
-                   (partial thumb-br-place c)  0   -1 web-post-bl)
-       (wall-brace (partial thumb-ml-place c) -0.3  1 web-post-tr
-                   (partial thumb-ml-place c)  0    1 web-post-tl)
-       (wall-brace (partial thumb-bl-place c)  0    1 web-post-tr
-                   (partial thumb-bl-place c)  0    1 web-post-tl)
-       (wall-brace (partial thumb-br-place c) -1    0 web-post-tl
-                   (partial thumb-br-place c) -1    0 web-post-bl)
-       (wall-brace (partial thumb-bl-place c) -1    0 web-post-tl
-                   (partial thumb-bl-place c) -1    0 web-post-bl)))))
-
-(defn thumb-corner [c]
-  (let [minidox-style? (get c :configuration-minidox-style?)]
-    (if minidox-style?
-      (union (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-tl (partial thumb-ml-place c) -1  0 thumb-post-bl)
-             (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-bl (partial thumb-ml-place c) -1 -1 thumb-post-bl)
-             (wall-brace (partial thumb-ml-place c) -1  0 thumb-post-tl (partial thumb-ml-place c)  0  1 thumb-post-tl))
-      (union (wall-brace (partial thumb-br-place c) -1  0 web-post-bl   (partial thumb-br-place c)  0 -1 web-post-bl)
-             (wall-brace (partial thumb-bl-place c) -1  0 web-post-tl   (partial thumb-bl-place c)  0  1 web-post-tl)))))
-
-(defn thumb-tweener [c]
-  (let [minidox-style? (get c :configuration-minidox-style?)
-        row-count (get c :configuration-last-row-count)
-        nrows (get c :configuration-nrows)
-        lastrow (flastrow nrows)
-        cornerrow (fcornerrow nrows)]
-    (union
-     (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-br
-                 (partial (partial key-place c) 3 (case row-count :zero cornerrow lastrow))  0 -1 web-post-bl)
-     (if-not minidox-style?
-       (union
-        (wall-brace (partial thumb-mr-place c)  0 -1 web-post-bl  (partial thumb-br-place c)  0 -1 web-post-br)
-        (wall-brace (partial thumb-ml-place c)  0  1 web-post-tl  (partial thumb-bl-place c)  0  1 web-post-tr)
-        (wall-brace (partial thumb-bl-place c) -1  0 web-post-bl  (partial thumb-br-place c) -1  0 web-post-tl))
-       ()))))
+  (let [thumb-count (get c :configuration-thumb-count)]
+    (case thumb-count
+      :two (thumb-wall-two c)
+      :three (thumb-wall-three c)
+      :four (thumb-wall-four c)
+      (thumb-wall-six c))))
 
 (defn second-thumb-to-body [c]
-  (let [minidox-style? (get c :configuration-minidox-style?)
+  (let [thumb-count       (get c :configuration-thumb-count)
         use-inner-column? (get c :configuration-use-inner-column?)
-        nrows (get c :configuration-nrows)
-        cornerrow (fcornerrow nrows)
-        middlerow (fmiddlerow nrows)]
+        nrows             (get c :configuration-nrows)
+        cornerrow         (fcornerrow nrows)
+        middlerow         (fmiddlerow nrows)
+        body-gap-default (bottom-hull
+                          (if use-inner-column?
+                            (inner-key-place c middlerow -1 (translate (wall-locate2 -1 0) web-post))
+                            (left-key-place  c cornerrow -1 (translate (wall-locate2 -1 0) web-post)))
+                          (if use-inner-column?
+                            (inner-key-place c middlerow -1 (translate (wall-locate3 -1 0) web-post))
+                            (left-key-place  c cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
+                          (thumb-ml-place c (translate (wall-locate2 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr)))
+                          (thumb-ml-place c (translate (wall-locate3 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr))))
+        body-gap-two (bottom-hull
+                          (if use-inner-column?
+                            (inner-key-place c middlerow -1 (translate (wall-locate2 -1 0) web-post))
+                            (left-key-place  c cornerrow -1 (translate (wall-locate2 -1 0) web-post)))
+                          (if use-inner-column?
+                            (inner-key-place c middlerow -1 (translate (wall-locate3 -1 0) web-post))
+                            (left-key-place  c cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
+                          (thumb-tl-place c (translate (wall-locate2 -1 0) thumb-post-tl))
+                          (thumb-tl-place c (translate (wall-locate3 -1 0) thumb-post-tl)))]
     (union
-     (bottom-hull
-      (if use-inner-column?
-        (inner-key-place c middlerow -1 (translate (wall-locate2 -1 0) web-post))
-        (left-key-place  c cornerrow -1 (translate (wall-locate2 -1 0) web-post)))
-      (if use-inner-column?
-        (inner-key-place c middlerow -1 (translate (wall-locate3 -1 0) web-post))
-        (left-key-place  c cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
-      (thumb-ml-place c (translate (wall-locate2 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
-      (thumb-ml-place c (translate (wall-locate3 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr))))
+     (case thumb-count
+       :two body-gap-two
+       body-gap-default)
      (hull
       (if use-inner-column?
         (inner-key-place c middlerow -1 (translate (wall-locate2 -1 0) web-post))
@@ -758,8 +899,12 @@
       (if use-inner-column?
         (inner-key-place c middlerow -1 (translate (wall-locate3 -1 0) web-post))
         (left-key-place  c cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
-      (thumb-ml-place c (translate (wall-locate2 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
-      (thumb-ml-place c (translate (wall-locate3 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
+      (case thumb-count
+        :two ()
+        (thumb-ml-place c (translate (wall-locate2 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr))))
+      (case thumb-count
+       :two (thumb-tl-place c (translate (wall-locate3 -1 0) thumb-post-tl) )
+       (thumb-ml-place c (translate (wall-locate3 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr)) ))
       (thumb-tl-place c thumb-post-tl))
      (if use-inner-column?
        (hull
@@ -794,12 +939,13 @@
         (key-place c -1 middlerow web-post-bl)
         (key-place c -1 cornerrow web-post-tr))
        ())
-     (hull
-      (thumb-ml-place c (if minidox-style? thumb-post-tr web-post-tr))
-      (thumb-ml-place c (translate (wall-locate1 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
-      (thumb-ml-place c (translate (wall-locate2 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
-      (thumb-ml-place c (translate (wall-locate3 -0.3 1) (if minidox-style? thumb-post-tr web-post-tr)))
-      (thumb-tl-place c thumb-post-tl)))))
+     (case thumb-count
+       :two ()
+       (hull (thumb-ml-place c (if (= thumb-count :three) thumb-post-tr web-post-tr))
+             (thumb-ml-place c (translate (wall-locate1 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr)))
+             (thumb-ml-place c (translate (wall-locate2 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr)))
+             (thumb-ml-place c (translate (wall-locate3 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr)))
+             (thumb-tl-place c thumb-post-tl))))))
 
 (defn case-walls [c]
   (union
@@ -810,8 +956,6 @@
    (pinky-wall c)
    (pinky-connectors c)
    (thumb-wall c)
-   (thumb-corner c)
-   (thumb-tweener c)
    (second-thumb-to-body c)))
 
 (defn frj9-start [c]
@@ -949,11 +1093,11 @@
   (translate (map + (external-holder-position c) [-1.5 (* -1 wall-thickness) 3]) external-holder-cube))
 
 (defn screw-placement [c bottom-radius top-radius height]
-  (let [use-wide-pinky? (get c :configuration-use-wide-pinky?)
+  (let [use-wide-pinky?   (get c :configuration-use-wide-pinky?)
         use-inner-column? (get c :configuration-use-inner-column?)
-        lastcol (flastcol (get c :configuration-ncols))
-        lastrow (flastrow (get c :configuration-nrows))
-        lastloc (if-not use-wide-pinky? (+ lastcol 0.1) (+ lastcol 0.5))]
+        lastcol           (flastcol (get c :configuration-ncols))
+        lastrow           (flastrow (get c :configuration-nrows))
+        lastloc           (if-not use-wide-pinky? (+ lastcol 0.1) (+ lastcol 0.5))]
     (union (screw-insert c (if use-inner-column? -1 0) 0               bottom-radius top-radius height)
            (screw-insert c (if use-inner-column? -1 0) (- lastrow 0.8) bottom-radius top-radius height)
            (screw-insert c 2                           (+ lastrow 0.2) bottom-radius top-radius height)
@@ -1011,14 +1155,14 @@
    (wrest-wall-cut c)))
 
 (defn model-right [c]
-  (let [use-inner-column? (get c :configuration-use-inner-column?)
-        show-caps? (get c :configuration-show-caps?)
-        use-external-holder? (get c :configuration-use-external-holder?)
-        use-promicro-usb-hole? (get c :configuration-use-promicro-usb-hole?)
-        use-screw-inserts? (get c :configuration-use-screw-inserts?)
-        use-trrs? (get c :configuration-use-trrs?)
-        use-wire-post? (get c :configuration-use-wire-post?)
-        use-wrist-rest? (get c :configuration-use-wrist-rest?)
+  (let [use-inner-column?          (get c :configuration-use-inner-column?)
+        show-caps?                 (get c :configuration-show-caps?)
+        use-external-holder?       (get c :configuration-use-external-holder?)
+        use-promicro-usb-hole?     (get c :configuration-use-promicro-usb-hole?)
+        use-screw-inserts?         (get c :configuration-use-screw-inserts?)
+        use-trrs?                  (get c :configuration-use-trrs?)
+        use-wire-post?             (get c :configuration-use-wire-post?)
+        use-wrist-rest?            (get c :configuration-use-wrist-rest?)
         use-integrated-wrist-rest? (get c :configuration-integrated-wrist-rest?)]
     (difference
      (union
@@ -1084,32 +1228,32 @@
 (defn wrist-rest-left [c]
   (mirror [-1 0 0] (wrist-rest-base c)))
 
-(def c {:configuration-nrows 4
-        :configuration-ncols 5
-        :configuration-create-side-nub? false
-        :configuration-use-alps? false
-        :configuration-minidox-style? true
+(def c {:configuration-nrows                  4
+        :configuration-ncols                  5
+        :configuration-create-side-nub?       false
+        :configuration-use-alps?              false
+        :configuration-thumb-count            :six
 
-        :configuration-alpha (/ pi 12)
-        :configuration-beta (/ pi 36)
-        :configuration-centercol 4
-        :configuration-tenting-angle (/ pi 9)
-        :configuration-plate-projection? false
+        :configuration-alpha                  (/ pi 12)
+        :configuration-beta                   (/ pi 36)
+        :configuration-centercol              4
+        :configuration-tenting-angle          (/ pi 9)
+        :configuration-plate-projection?      false
 
         :configuration-use-promicro-usb-hole? false
-        :configuration-use-trrs? false
-        :configuration-use-external-holder? false
+        :configuration-use-trrs?              false
+        :configuration-use-external-holder?   false
 
-        :configuration-use-hotswap? false
-        :configuration-ortho? false
-        :configuration-use-inner-column? false
-        :configuration-z-offset 4
-        :configuration-show-caps? false
-        :configuration-last-row-count :zero
-        :configuration-use-wide-pinky? false
-        :configuration-use-wire-post? false
-        :configuration-use-screw-inserts? true
-        :configuration-use-wrist-rest? false})
+        :configuration-use-hotswap?           false
+        :configuration-ortho?                 false
+        :configuration-use-inner-column?      false
+        :configuration-z-offset               4
+        :configuration-show-caps?             false
+        :configuration-last-row-count         :two
+        :configuration-use-wide-pinky?        false
+        :configuration-use-wire-post?         false
+        :configuration-use-screw-inserts?     false
+        :configuration-use-wrist-rest?        false})
 
 #_(spit "things/right.scad"
         (write-scad (model-right c)))

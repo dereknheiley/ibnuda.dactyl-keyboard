@@ -67,7 +67,11 @@
   (let [p (:form-params req)
         param-ncols (parse-int (get p "ncols"))
         param-nrows (parse-int (get p "nrows"))
-        param-minidox (parse-bool (get p "minidox"))
+        param-thumb-count (case (get p "thumb-count")
+                            "two" :two
+                            "three" :three
+                            "four" :four
+                            :six)
         param-last-row-count (case (get p "last-row")
                                "zero" :zero
                                "full" :full
@@ -105,7 +109,7 @@
 
         c {:configuration-nrows param-nrows
            :configuration-ncols param-ncols
-           :configuration-minidox-style? param-minidox
+           :configuration-thumb-count param-thumb-count
            :configuration-last-row-count param-last-row-count
            :configuration-create-side-nub? param-side-nub
            :configuration-use-alps? param-use-alps
@@ -205,7 +209,7 @@
         misc (get body :misc)
         c {:configuration-ncols (get keys :columns 5)
            :configuration-nrows (get keys :rows 4)
-           :configuration-minidox-style? (get keys :minidox false)
+           :configuration-thumb-count (keyword (get keys :thumb-count "six"))
            :configuration-last-row-count (keyword (get keys :last-row "two"))
            :configuration-create-side-nub? (get keys :nubs false)
            :configuration-use-alps? (get keys :alps false)
