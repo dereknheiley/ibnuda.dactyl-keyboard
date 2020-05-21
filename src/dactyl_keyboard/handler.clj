@@ -71,6 +71,7 @@
                             "two" :two
                             "three" :three
                             "four" :four
+                            "five" :five
                             :six)
         param-last-row-count (case (get p "last-row")
                                "zero" :zero
