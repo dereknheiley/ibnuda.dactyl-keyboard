@@ -45,75 +45,75 @@
     :else [0 0 0]))
 
 (defn key-place [c column row shape]
-  (let [alpha (get c :configuration-alpha)
-        beta (get c :configuration-beta)
-        tenting-angle (get c :configuration-tenting-angle)
-        z-offset (get c :configuration-z-offset)
+  (let [alpha            (get c :configuration-alpha)
+        beta             (get c :configuration-beta)
+        tenting-angle    (get c :configuration-tenting-angle)
+        z-offset         (get c :configuration-z-offset)
         manuform-offset? (get c :configuration-manuform-offset? false)
-        offset (if manuform-offset?
-                 (manuform-column-offset column)
-                 (column-offset column))
-        column-angle (* beta (- 2 column))
-        placed-shape (->> shape
-                          (translate [0 0 (- (frow-radius alpha))])
-                          (rotate (* alpha (- 2 row)) [1 0 0])
-                          (translate [0 0 (frow-radius alpha)])
-                          (translate [0 0 (- (fcolumn-radius beta))])
-                          (rotate column-angle [0 1 0])
-                          (translate [0 0 (fcolumn-radius beta)])
-                          (translate offset))]
+        offset           (if manuform-offset?
+                           (manuform-column-offset column)
+                           (column-offset column))
+        column-angle     (* beta (- 2 column))
+        placed-shape     (->> shape
+                              (translate [0 0 (- (frow-radius alpha))])
+                              (rotate (* alpha (- 2 row)) [1 0 0])
+                              (translate [0 0 (frow-radius alpha)])
+                              (translate [0 0 (- (fcolumn-radius beta))])
+                              (rotate column-angle [0 1 0])
+                              (translate [0 0 (fcolumn-radius beta)])
+                              (translate offset))]
     (->> placed-shape
          (rotate tenting-angle [0 1 0])
          (translate [0 0 z-offset]))))
 
 (defn case-place [c column row shape]
-  (let [alpha (get c :configuration-alpha)
-        beta (get c :configuration-beta)
-        tenting-angle (get c :configuration-tenting-angle)
-        z-offset (get c :configuration-z-offset)
+  (let [alpha            (get c :configuration-alpha)
+        beta             (get c :configuration-beta)
+        tenting-angle    (get c :configuration-tenting-angle)
+        z-offset         (get c :configuration-z-offset)
 
         manuform-offset? (get c :configuration-manuform-offset? false)
-        column-offset (if (and manuform-offset?
-                                   (> row 2))
-                            [0 -10.35 8.64]
-                            [0 -4.35 8.64])
-        column-angle (* beta (- 2 column))
-        placed-shape (->> shape
-                          (translate [0 0 (- (frow-radius alpha))])
-                          (rotate (* alpha (- 2 row)) [1 0 0])
-                          (translate [0 0 (frow-radius alpha)])
-                          (translate [0 0 (- (fcolumn-radius beta))])
-                          (rotate column-angle [0 1 0])
-                          (translate [0 0 (fcolumn-radius beta)])
-                          (translate column-offset))]
+        column-offset    (if (and manuform-offset?
+                                  (> row 2))
+                           [0 -10.35 8.64]
+                           [0 -4.35 8.64])
+        column-angle     (* beta (- 2 column))
+        placed-shape     (->> shape
+                              (translate [0 0 (- (frow-radius alpha))])
+                              (rotate (* alpha (- 2 row)) [1 0 0])
+                              (translate [0 0 (frow-radius alpha)])
+                              (translate [0 0 (- (fcolumn-radius beta))])
+                              (rotate column-angle [0 1 0])
+                              (translate [0 0 (fcolumn-radius beta)])
+                              (translate column-offset))]
     (->> placed-shape
          (rotate tenting-angle [0 1 0])
          (translate [0 0 z-offset]))))
 
 (defn key-holes [c]
-  (let [ncols (get c :configuration-ncols)
-        use-alps? (get c :configuration-use-alps?)
+  (let [ncols                (get c :configuration-ncols)
+        use-alps?            (get c :configuration-use-alps?)
         rotation-for-keyhole (if use-alps? 0 270)
-        columns (range 0 ncols)
-        rows (frows c)]
+        columns              (range 0 ncols)
+        rows                 (frows c)]
     (apply union
            (for [column columns
-                 row rows
-                 :when (not (and (= column 0) (> row 3)))]
+                 row    rows
+                 :when  (not (and (= column 0) (> row 3)))]
              (->> (single-plate c)
                   (rotate (deg2rad rotation-for-keyhole) [0 0 1])
                   (key-place c column row))))))
 
 (defn caps [c]
-  (let [ncols (get c :configuration-ncols)
+  (let [ncols   (get c :configuration-ncols)
         columns (range 0 ncols)
-        rows (frows c)
+        rows    (frows c)
         lastrow (flastrow-lightcycle (get c :configuration-use-lastrow?))]
     (apply union
            (for [column columns
-                 row rows
-                 :when (or (not= column 0)
-                           (not= row lastrow))]
+                 row    rows
+                 :when  (or (not= column 0)
+                            (not= row lastrow))]
              (->> (sa-cap 1)
                   (key-place c column row))))))
 
@@ -123,19 +123,19 @@
 
 (defn connectors [c]
   (let [use-lastrow? (get c :configuration-use-lastrow?)
-        ncols (get c :configuration-ncols)
-        columns (range 0 ncols)
-        rows (frows c)
-        lastrow (flastrow-lightcycle use-lastrow?)
-        cornerrow (fcornerrow-lightcycle use-lastrow?)]
+        ncols        (get c :configuration-ncols)
+        columns      (range 0 ncols)
+        rows         (frows c)
+        lastrow      (flastrow-lightcycle use-lastrow?)
+        cornerrow    (fcornerrow-lightcycle use-lastrow?)]
     (apply union
            (concat
           ;; Row connections
             (for [column (drop-last columns)
-                  row rows
-                  :when (or (not= column 0)
-                            (and (= column 0)
-                                 (< row (if use-lastrow? cornerrow lastrow))))]
+                  row    rows
+                  :when  (or (not= column 0)
+                             (and (= column 0)
+                                  (< row (if use-lastrow? cornerrow lastrow))))]
               (triangle-hulls
                (key-place c (inc column) row web-post-tl)
                (key-place c column row web-post-tr)
@@ -144,10 +144,10 @@
 
           ;; Column connections
             (for [column columns
-                  row (drop-last rows)
-                  :when (or (not= column 0)
-                            (not (and (= column 0)
-                                      (> row 2))))]
+                  row    (drop-last rows)
+                  :when  (or (not= column 0)
+                             (not (and (= column 0)
+                                       (> row 2))))]
               (triangle-hulls
                (key-place c column row web-post-bl)
                (key-place c column row web-post-br)
@@ -156,9 +156,9 @@
 
           ;; Diagonal connections
             (for [column (drop-last columns)
-                  row (drop-last rows)
-                  :when (not (and (= column 0)
-                                  (> row cornerrow)))]
+                  row    (drop-last rows)
+                  :when  (not (and (= column 0)
+                                   (> row cornerrow)))]
               (triangle-hulls
                (key-place c column row web-post-br)
                (key-place c column (inc row) web-post-tr)
@@ -170,20 +170,17 @@
 ;;;;;;;;;;;;
 
 (defn thumb-place [c column row shape]
-  (let [beta (get c :configuration-beta)
-        alpha (get c :configuration-alpha)
+  (let [beta                (get c :configuration-beta)
+        alpha               (get c :configuration-alpha)
         thumb-tenting-angle (get c :configuration-thumb-tenting-angle)
-        thumb-offset (fthumb-offset c)
-        cap-top-height (+ plate-thickness sa-profile-key-height)
-        row-radius (+ (/ (/ (+ mount-height 1) 2)
-                         (Math/sin (/ alpha 2)))
-                      cap-top-height)
-        column-radius (+ (/ (/ (+ mount-width 2) 2)
-                            (Math/sin (/ beta 2)))
-                         cap-top-height)
-        #_(+ (/ (/ (+ pillar-width 5) 2)
-                (Math/sin (/ beta 2)))
-             cap-top-height)]
+        thumb-offset        (fthumb-offset c)
+        cap-top-height      (+ plate-thickness sa-profile-key-height)
+        row-radius          (+ (/ (/ (+ mount-height 1) 2)
+                                  (Math/sin (/ alpha 2)))
+                               cap-top-height)
+        column-radius       (+ (/ (/ (+ mount-width 2) 2)
+                                  (Math/sin (/ beta 2)))
+                               cap-top-height)]
     (->> shape
          (translate [0 0 (- row-radius)])
          (rotate (* alpha row) [1 0 0])
@@ -211,24 +208,24 @@
 (defn extended-plate-height [size] (/ (- (* (+ 1 sa-length) size) mount-height) 2))
 
 (def double-plates
-  (let [plate-height (extended-plate-height 2) #_(/ (- sa-double-length mount-height) 2)
-        top-plate (->> (cube mount-width plate-height web-thickness)
-                       (translate [0 (/ (+ plate-height mount-height) 2)
-                                   (- plate-thickness (/ web-thickness 2))]))
+  (let [plate-height      (extended-plate-height 2)
+        top-plate         (->> (cube mount-width plate-height web-thickness)
+                               (translate [0 (/ (+ plate-height mount-height) 2)
+                                           (- plate-thickness (/ web-thickness 2))]))
         stabilizer-cutout (union (->> (cube 14.2 3.5 web-thickness)
                                       (translate [0.5 12 (- plate-thickness (/ web-thickness 2))])
                                       (color [1 0 0 1/2]))
                                  (->> (cube 16 3.5 web-thickness)
                                       (translate [0.5 12 (- plate-thickness (/ web-thickness 2) 1.4)])
                                       (color [1 0 0 1/2])))
-        top-plate (difference top-plate stabilizer-cutout)]
+        top-plate         (difference top-plate stabilizer-cutout)]
     (color [1 0 0] (union top-plate (mirror [0 1 0] top-plate)))))
 
 (defn extended-plates [size]
   (let [plate-height (extended-plate-height size)
-        top-plate (->> (cube mount-width plate-height web-thickness)
-                       (translate [0 (/ (+ plate-height mount-height) 2)
-                                   (- plate-thickness (/ web-thickness 2))]))]
+        top-plate    (->> (cube mount-width plate-height web-thickness)
+                          (translate [0 (/ (+ plate-height mount-height) 2)
+                                      (- plate-thickness (/ web-thickness 2))]))]
     (color [0 1 1] (union top-plate (mirror [0 1 0] top-plate)))))
 
 (defn thumb-layout [c shape]
@@ -265,17 +262,17 @@
                    (thumb-place c 2 -1 (sa-cap 1)))))))
 
 (defn thumb-connectors [c]
-  (let [thumb-count (get c :configuration-thumb-count)
+  (let [thumb-count  (get c :configuration-thumb-count)
         use-lastrow? (get c :configuration-use-lastrow?)
-        cornerrow (fcornerrow-lightcycle use-lastrow?)
-        thumb-tl #(->> web-post-tl
-                       (translate [0 (extended-plate-height %) 0]))
-        thumb-bl #(->> web-post-bl
-                       (translate [0 (- (extended-plate-height %)) 0]))
-        thumb-tr #(->> web-post-tr
-                       (translate [0 (extended-plate-height %) 0]))
-        thumb-br #(->> web-post-br
-                       (translate [0 (- (extended-plate-height %)) 0]))]
+        cornerrow    (fcornerrow-lightcycle use-lastrow?)
+        thumb-tl     #(->> web-post-tl
+                           (translate [0 (extended-plate-height %) 0]))
+        thumb-bl     #(->> web-post-bl
+                           (translate [0 (- (extended-plate-height %)) 0]))
+        thumb-tr     #(->> web-post-tr
+                           (translate [0 (extended-plate-height %) 0]))
+        thumb-br     #(->> web-post-br
+                           (translate [0 (- (extended-plate-height %)) 0]))]
     (union
       ;;Connecting the doubles
      (triangle-hulls (thumb-place c 0 -1/2 (thumb-tl 2))
@@ -454,23 +451,23 @@
                  (place-fn (+ x step) (+ y step) sphere)))))
 
 (defn front-wall [c]
-  (let [use-lastrow? (get c :configuration-use-lastrow?)
-        ncols (get c :configuration-ncols)
-        lastrow (flastrow-lightcycle use-lastrow?)
-        manuform-offset? (get c :configuration-manuform-offset?)
-        cornerrow (fcornerrow-lightcycle use-lastrow?)
-        penultcol (fpenultcol ncols)
-        antecol (fantecol ncols)
-        step wall-step ;;0.1
-        wall-step 0.1 ;;0.05
-        place (partial case-place c)
-        top-cover (fn [x-start x-end y-start y-end]
-                    (top-case-cover place wall-sphere-top-front
-                                    x-start x-end y-start y-end
-                                    wall-step))
-        index-finger-cover-multiplier (if manuform-offset? 0.8 0.9)
+  (let [use-lastrow?                   (get c :configuration-use-lastrow?)
+        ncols                          (get c :configuration-ncols)
+        lastrow                        (flastrow-lightcycle use-lastrow?)
+        manuform-offset?               (get c :configuration-manuform-offset?)
+        cornerrow                      (fcornerrow-lightcycle use-lastrow?)
+        penultcol                      (fpenultcol ncols)
+        antecol                        (fantecol ncols)
+        step                           wall-step ;;0.1
+        wall-step                      0.1 ;;0.05
+        place                          (partial case-place c)
+        top-cover                      (fn [x-start x-end y-start y-end]
+                                         (top-case-cover place wall-sphere-top-front
+                                                         x-start x-end y-start y-end
+                                                         wall-step))
+        index-finger-cover-multiplier  (if manuform-offset? 0.8 0.9)
         middle-finger-cover-multiplier (if manuform-offset? 0.75 0.85)
-        ring-finger-cover-multiplier (if manuform-offset? 0.8 0.9)]
+        ring-finger-cover-multiplier   (if manuform-offset? 0.8 0.9)]
     (union
      (apply union
             (for [x (range-inclusive 0.7 (- (right-wall-column c) step) step)]
@@ -514,24 +511,24 @@
            (key-place c 1 cornerrow web-post-br)))))
 
 (defn back-wall [c]
-  (let [ncols (get c :configuration-ncols)
-        manuform-offset? (get c :configuration-manuform-offset?)
-        penultcol (fpenultcol ncols)
-        antecol (fantecol ncols)
-        rows (frows c)
-        back-row (first rows)
-        step wall-step
+  (let [ncols                   (get c :configuration-ncols)
+        manuform-offset?        (get c :configuration-manuform-offset?)
+        penultcol               (fpenultcol ncols)
+        antecol                 (fantecol ncols)
+        rows                    (frows c)
+        back-row                (first rows)
+        step                    wall-step
         wall-sphere-top-backtep 0.05
-        place (partial case-place c)
-        front-top-cover (fn [x-start x-end y-start y-end]
-                          (apply union
-                                 (for [x (range-inclusive x-start (- x-end wall-sphere-top-backtep) wall-sphere-top-backtep)
-                                       y (range-inclusive y-start (- y-end wall-sphere-top-backtep) wall-sphere-top-backtep)]
-                                   (hull (place x y wall-sphere-top-back)
-                                         (place (+ x wall-sphere-top-backtep) y wall-sphere-top-back)
-                                         (place x (+ y wall-sphere-top-backtep) wall-sphere-top-back)
-                                         (place (+ x wall-sphere-top-backtep) (+ y wall-sphere-top-backtep) wall-sphere-top-back)))))
-        top-cover-length (if manuform-offset? 0.45 0.3)]
+        place                   (partial case-place c)
+        front-top-cover         (fn [x-start x-end y-start y-end]
+                                  (apply union
+                                         (for [x (range-inclusive x-start (- x-end wall-sphere-top-backtep) wall-sphere-top-backtep)
+                                               y (range-inclusive y-start (- y-end wall-sphere-top-backtep) wall-sphere-top-backtep)]
+                                           (hull (place x y wall-sphere-top-back)
+                                                 (place (+ x wall-sphere-top-backtep) y wall-sphere-top-back)
+                                                 (place x (+ y wall-sphere-top-backtep) wall-sphere-top-back)
+                                                 (place (+ x wall-sphere-top-backtep) (+ y wall-sphere-top-backtep) wall-sphere-top-back)))))
+        top-cover-length        (if manuform-offset? 0.45 0.3)]
     (union
      (apply union
             (for [x (range-inclusive left-wall-column (- (right-wall-column c) step) step)]
@@ -575,15 +572,15 @@
            (key-place c penultcol back-row web-post-tl)))))
 
 (defn right-wall [c]
-  (let [ncols (get c :configuration-ncols)
+  (let [ncols        (get c :configuration-ncols)
         use-lastrow? (get c :configuration-use-lastrow?)
-        use-numrow? (get c :configuration-use-numrow?)
-        penultcol (fpenultcol ncols)
-        rows (frows c)
-        lastrow (flastrow-lightcycle use-lastrow?)
-        cornerrow (fcornerrow-lightcycle use-lastrow?)
-        wall-stop (if use-lastrow? cornerrow cornerrow)
-        place (partial case-place c)]
+        use-numrow?  (get c :configuration-use-numrow?)
+        penultcol    (fpenultcol ncols)
+        rows         (frows c)
+        lastrow      (flastrow-lightcycle use-lastrow?)
+        cornerrow    (fcornerrow-lightcycle use-lastrow?)
+        wall-stop    (if use-lastrow? cornerrow cornerrow)
+        place        (partial case-place c)]
     (union
      (apply union
             (map (partial apply hull)
@@ -623,11 +620,11 @@
                      (key-place c penultcol cornerrow web-post-br)))])))))
 
 (defn left-wall [c]
-  (let [thumb-count (get c :configuration-thumb-count)
-        rows (frows c)
-        use-numrow? (get c :configuration-use-numrow?)
-        place (partial case-place c)
-        thumb-where (case thumb-count :two 0 1)
+  (let [thumb-count      (get c :configuration-thumb-count)
+        rows             (frows c)
+        use-numrow?      (get c :configuration-use-numrow?)
+        place            (partial case-place c)
+        thumb-where      (case thumb-count :two 0 1)
         finish-left-wall (case thumb-count :two 2.35 1.6666)]
     (union
      (apply union
@@ -675,11 +672,11 @@
                             (key-place   c 0 3 (case thumb-count :two web-post-bl web-post-tl))))))))
 
 (defn thumb-back-wall [c]
-  (let [thumb-count (get c :configuration-thumb-count)
-        step wall-step
-        local-back-y (thumb-back-y c)
-        thumb-range (case thumb-count :five 5/2 :six 5/2 3/2)
-        back-thumb-position (case thumb-count :two 0 1)
+  (let [thumb-count                      (get c :configuration-thumb-count)
+        step                             wall-step
+        local-back-y                     (thumb-back-y c)
+        thumb-range                      (case thumb-count :five 5/2 :six 5/2 3/2)
+        back-thumb-position              (case thumb-count :two 0 1)
         thumb-back-to-left-wall-position (case thumb-count :two 2.35 1.6666)]
     (union
      (apply union
@@ -712,10 +709,10 @@
       (thumb-place c 1 back-thumb-position web-post-tl)))))
 
 (defn thumb-left-wall [c]
-  (let [thumb-count (get c :configuration-thumb-count)
-        step wall-step
-        place (partial thumb-place c)
-        column (case thumb-count :five 2 :six 2 1)
+  (let [thumb-count      (get c :configuration-thumb-count)
+        step             wall-step
+        place            (partial thumb-place c)
+        column           (case thumb-count :five 2 :six 2 1)
         left-wall-length (case thumb-count :two 0.99 1.95)]
     (union
      (apply union
@@ -757,17 +754,17 @@
       (place column -1 web-post-bl)))))
 
 (defn thumb-front-wall [c]
-  (let [thumb-count (get c :configuration-thumb-count)
+  (let [thumb-count  (get c :configuration-thumb-count)
         use-lastrow? (get c :configuration-use-lastrow?)
-        cornerrow (fcornerrow-lightcycle use-lastrow?)
-        step wall-step ;;0.1
-        place (partial thumb-place c)
+        cornerrow    (fcornerrow-lightcycle use-lastrow?)
+        step         wall-step ;;0.1
+        place        (partial thumb-place c)
         plate-height (/ (- sa-double-length mount-height) 2)
-        thumb-bl (->> web-post-bl
-                      (translate [0  (- plate-height) 0]))
-        thumb-br (->> web-post-br
-                      (translate [-0 (- plate-height) 0]))
-        thumb-range (case thumb-count :five 5/2 :six 5/2 3/2)]
+        thumb-bl     (->> web-post-bl
+                          (translate [0  (- plate-height) 0]))
+        thumb-br     (->> web-post-br
+                          (translate [-0 (- plate-height) 0]))
+        thumb-range  (case thumb-count :five 5/2 :six 5/2 3/2)]
     (union
      (apply union
             (for [x (range-inclusive thumb-right-wall (- (+ thumb-range 0.05) step) step)]
@@ -855,22 +852,27 @@
            (translate [(first position) (second position) (/ height 2)]))))
 
 (defn screw-placement [c bottom-radius top-radius height]
-  (let [lastrow (if (get c :configuration-use-lastrow?) 4 3.55)
-        toprow (if (get c :configuration-use-numrow?) -0.12 0.8)
-        ncols (get c :configuration-ncols)
+  (let [lastrow           (if (get c :configuration-use-lastrow?) 4 3.55)
+        toprow            (if (get c :configuration-use-numrow?) -0.12 0.8)
+        ncols             (get c :configuration-ncols)
         ncold-coefficient (case ncols
                             4 0.77
                             5 0.8
-                            6 0.82)
-        lastcol (* ncols ncold-coefficient)
-        middlecol (case ncols
-                    4 2
-                    5 1.7
-                    6 2)
-        middlerow (case ncols
-                    4 1.5
-                    5 3
-                    6 3)]
+                            6 0.82
+                            7 0.9
+                            8 0.91
+                            1)
+        lastcol           (* ncols ncold-coefficient)
+        middlecol         (case ncols
+                            4 2
+                            5 1.7
+                            6 2
+                            2)
+        middlerow         (case ncols
+                            4 1.5
+                            5 3
+                            6 3
+                            3)]
     (union (screw-insert c -1.5      4.9       bottom-radius top-radius height)
            (screw-insert c 2         toprow    bottom-radius top-radius height)
            (screw-insert c -0.75     2         bottom-radius top-radius height)
@@ -924,25 +926,25 @@
   (mirror [-1 0 0] (dactyl-plate-right c)))
 
 (def c
-  {:configuration-ncols 5
-   :configuration-use-numrow? false
-   :configuration-use-lastrow? false
-   :configuration-create-side-nub? false
-   :configuration-use-alps? false
-   :configuration-use-hotswap? false
-   :configuration-thumb-count :two
-   :configuration-manuform-offset? true
-   :configuration-alpha (/ pi 12)
-   :configuration-beta (/ pi 36)
-   :configuration-z-offset 18
-   :configuration-tenting-angle (/ pi 7)
-   :configuration-thumb-tenting-angle (/ pi 9)
+  {:configuration-ncols                5
+   :configuration-use-numrow?          false
+   :configuration-use-lastrow?         false
+   :configuration-create-side-nub?     false
+   :configuration-use-alps?            false
+   :configuration-use-hotswap?         false
+   :configuration-thumb-count          :two
+   :configuration-manuform-offset?     true
+   :configuration-alpha                (/ pi 12)
+   :configuration-beta                 (/ pi 36)
+   :configuration-z-offset             18
+   :configuration-tenting-angle        (/ pi 7)
+   :configuration-thumb-tenting-angle  (/ pi 9)
    :configuration-use-external-holder? false
-   :configuration-use-screw-inserts? false
-   :configuration-thumb-offset-x -48
-   :configuration-thumb-offset-y -45
-   :configuration-thumb-offset-z 34
-   :configuration-show-caps? true})
+   :configuration-use-screw-inserts?   false
+   :configuration-thumb-offset-x       -48
+   :configuration-thumb-offset-y       -45
+   :configuration-thumb-offset-z       34
+   :configuration-show-caps?           true})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
         (write-scad (dactyl-top-right c)))
