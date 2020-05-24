@@ -128,26 +128,26 @@
    and rotated in xyz coordinate based on its position (row and column).
    It is the implementation detail of `key-place`."
   [c translate-fn rotate-x-fn rotate-y-fn column row shape]
-  (let [alpha (get c :configuration-alpha)
-        beta (get c :configuration-beta)
-        centercol (get c :configuration-centercol 2)
-        centerrow (fcenterrow (get c :configuration-nrows 5))
-        ortho? (get c :configuration-ortho?)
-        tenting-angle (get c :configuration-tenting-angle)
+  (let [alpha             (get c :configuration-alpha)
+        beta              (get c :configuration-beta)
+        centercol         (get c :configuration-centercol 2)
+        centerrow         (fcenterrow (get c :configuration-nrows 5))
+        ortho?            (get c :configuration-ortho?)
+        tenting-angle     (get c :configuration-tenting-angle)
         keyboard-z-offset (get c :configuration-z-offset)
-        column-angle (* beta (- centercol column))
-        placed-shape (->> shape
-                          (translate-fn [(offset-for-column c
-                                                            column
-                                                            row)
-                                         0
-                                         (- (frow-radius alpha))])
-                          (rotate-x-fn  (* alpha (- centerrow row)))
-                          (translate-fn [0 0 (frow-radius alpha)])
-                          (translate-fn [0 0 (- (fcolumn-radius beta))])
-                          (rotate-y-fn  column-angle)
-                          (translate-fn [0 0 (fcolumn-radius beta)])
-                          (translate-fn (dm-column-offset ortho? column)))]
+        column-angle      (* beta (- centercol column))
+        placed-shape      (->> shape
+                               (translate-fn [(offset-for-column c
+                                                                 column
+                                                                 row)
+                                              0
+                                              (- (frow-radius alpha))])
+                               (rotate-x-fn  (* alpha (- centerrow row)))
+                               (translate-fn [0 0 (frow-radius alpha)])
+                               (translate-fn [0 0 (- (fcolumn-radius beta))])
+                               (rotate-y-fn  column-angle)
+                               (translate-fn [0 0 (fcolumn-radius beta)])
+                               (translate-fn (dm-column-offset ortho? column)))]
     (->> placed-shape
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))))
@@ -200,80 +200,80 @@
    asks whether it creates hotswap housing or not based on `configuration-use-hotswap?`.
    and determines whether it should use alps cutout or not based on  `configuration-use-alps?`"
   [c]
-  (let [create-side-nub? (get c :configuration-create-side-nub?)
-        use-hotswap? (get c :configuration-use-hotswap?)
-        use-alps? (get c :configuration-use-alps?)
-        plate-projection? (get c :configuration-plate-projection? false)
-        alps-fill-in (cube alps-width alps-height plate-thickness)
-        mx-fill-in (cube keyswitch-width keyswitch-height plate-thickness)
-        fill-in (if use-alps? alps-fill-in mx-fill-in)
-        top-wall (if use-alps?
-                   (->> (cube (+ keyswitch-width 3) 2.2 plate-thickness)
-                        (translate [0
-                                    (+ (/ 2.2 2) (/ alps-height 2))
-                                    (/ plate-thickness 2)]))
-                   (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
-                        (translate [0
-                                    (+ (/ 1.5 2) (/ keyswitch-height 2))
-                                    (/ plate-thickness 2)])))
-        left-wall (if use-alps?
-                    (union (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-                                (translate [(+ (/ 1.5 2) (/ 15.6 2))
-                                            0
-                                            (/ plate-thickness 2)]))
-                           (->> (cube 1.5 (+ keyswitch-height 3) 1.0)
-                                (translate [(+ (/ 1.5 2) (/ alps-notch-width 2))
-                                            0
-                                            (- plate-thickness
-                                               (/ alps-notch-height 2))])))
-                    (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-                         (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
-                                     0
-                                     (/ plate-thickness 2)])))
-        side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
-                      (rotate (/ pi 2) [1 0 0])
-                      (translate [(+ (/ keyswitch-width 2)) 0 1])
-                      (hull (->> (cube 1.5 2.75 plate-thickness)
-                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
-                                             0
-                                             (/ plate-thickness 2)]))))
+  (let [create-side-nub?    (get c :configuration-create-side-nub?)
+        use-hotswap?        (get c :configuration-use-hotswap?)
+        use-alps?           (get c :configuration-use-alps?)
+        plate-projection?   (get c :configuration-plate-projection? false)
+        alps-fill-in        (cube alps-width alps-height plate-thickness)
+        mx-fill-in          (cube keyswitch-width keyswitch-height plate-thickness)
+        fill-in             (if use-alps? alps-fill-in mx-fill-in)
+        top-wall            (if use-alps?
+                              (->> (cube (+ keyswitch-width 3) 2.2 plate-thickness)
+                                   (translate [0
+                                               (+ (/ 2.2 2) (/ alps-height 2))
+                                               (/ plate-thickness 2)]))
+                              (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+                                   (translate [0
+                                               (+ (/ 1.5 2) (/ keyswitch-height 2))
+                                               (/ plate-thickness 2)])))
+        left-wall           (if use-alps?
+                              (union (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+                                          (translate [(+ (/ 1.5 2) (/ 15.6 2))
+                                                      0
+                                                      (/ plate-thickness 2)]))
+                                     (->> (cube 1.5 (+ keyswitch-height 3) 1.0)
+                                          (translate [(+ (/ 1.5 2) (/ alps-notch-width 2))
+                                                      0
+                                                      (- plate-thickness
+                                                         (/ alps-notch-height 2))])))
+                              (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+                                   (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                               0
+                                               (/ plate-thickness 2)])))
+        side-nub            (->> (binding [*fn* 30] (cylinder 1 2.75))
+                                 (rotate (/ pi 2) [1 0 0])
+                                 (translate [(+ (/ keyswitch-width 2)) 0 1])
+                                 (hull (->> (cube 1.5 2.75 plate-thickness)
+                                            (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                                        0
+                                                        (/ plate-thickness 2)]))))
         ; the hole's wall.
-        plate-half (union top-wall
-                          left-wall
-                          (if create-side-nub? (with-fn 100 side-nub) ()))
+        plate-half          (union top-wall
+                                   left-wall
+                                   (if create-side-nub? (with-fn 100 side-nub) ()))
         ; the bottom of the hole.
-        swap-holder (->> (cube (+ keyswitch-width 3) (/ (+ keyswitch-height 3) 2) 3)
-                         (translate [0 (/ (+ keyswitch-height 3) 4) -1.5]))
+        swap-holder         (->> (cube (+ keyswitch-width 3) (/ (+ keyswitch-height 3) 2) 3)
+                                 (translate [0 (/ (+ keyswitch-height 3) 4) -1.5]))
         ; for the main axis
-        main-axis-hole (->> (cylinder (/ 4.0 2) 10)
-                            (with-fn 12))
-        plus-hole (->> (cylinder (/ 3.3 2) 10)
-                       (with-fn 8)
-                       (translate [-3.81 2.54 0]))
-        minus-hole (->> (cylinder (/ 3.3 2) 10)
-                        (with-fn 8)
-                        (translate [2.54 5.08 0]))
-        plus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
-                                (with-fn 8)
-                                (translate [3.81 2.54 0]))
+        main-axis-hole      (->> (cylinder (/ 4.0 2) 10)
+                                 (with-fn 12))
+        plus-hole           (->> (cylinder (/ 3.3 2) 10)
+                                 (with-fn 8)
+                                 (translate [-3.81 2.54 0]))
+        minus-hole          (->> (cylinder (/ 3.3 2) 10)
+                                 (with-fn 8)
+                                 (translate [2.54 5.08 0]))
+        plus-hole-mirrored  (->> (cylinder (/ 3.3 2) 10)
+                                 (with-fn 8)
+                                 (translate [3.81 2.54 0]))
         minus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
                                  (with-fn 8)
                                  (translate [-2.54 5.08 0]))
-        friction-hole (->> (cylinder (/ 1.7 2) 10)
-                           (with-fn 8))
+        friction-hole       (->> (cylinder (/ 1.7 2) 10)
+                                 (with-fn 8))
         friction-hole-right (translate [5 0 0] friction-hole)
-        friction-hole-left (translate [-5 0 0] friction-hole)
-        hotswap-base-shape (->> (cube 19 6.2 3.5)
-                                (translate [0 4 -2.6]))
-        hotswap-holder (difference swap-holder
-                                   main-axis-hole
-                                   plus-hole
-                                   minus-hole
-                                   plus-hole-mirrored
-                                   minus-hole-mirrored
-                                   friction-hole-left
-                                   friction-hole-right
-                                   hotswap-base-shape)]
+        friction-hole-left  (translate [-5 0 0] friction-hole)
+        hotswap-base-shape  (->> (cube 19 6.2 3.5)
+                                 (translate [0 4 -2.6]))
+        hotswap-holder      (difference swap-holder
+                                        main-axis-hole
+                                        plus-hole
+                                        minus-hole
+                                        plus-hole-mirrored
+                                        minus-hole-mirrored
+                                        friction-hole-left
+                                        friction-hole-right
+                                        hotswap-base-shape)]
     (difference (union plate-half
                        (->> plate-half
                             (mirror [1 0 0])
@@ -290,44 +290,58 @@
 (def sa-length 18.25)
 (def sa-double-length 37.5)
 (def sa-cap
-  {1 (let [bl2 (/ 18.5 2)
-           m (/ 17 2)
-           key-cap (hull (->> (polygon [[bl2 bl2] [bl2 (- bl2)] [(- bl2) (- bl2)] [(- bl2) bl2]])
-                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                              (translate [0 0 0.05]))
-                         (->> (polygon [[m m] [m (- m)] [(- m) (- m)] [(- m) m]])
-                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                              (translate [0 0 6]))
-                         (->> (polygon [[6 6] [6 -6] [-6 -6] [-6 6]])
-                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                              (translate [0 0 12])))]
-       (->> key-cap
-            (translate [0 0 (+ 5 plate-thickness)])
-            (color [220/255 163/255 163/255 1])))
-   2 (let [bl2 (/ sa-double-length 2)
-           bw2 (/ 18.25 2)
-           key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
-                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                              (translate [0 0 0.05]))
-                         (->> (polygon [[6 16] [6 -16] [-6 -16] [-6 16]])
-                              (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                              (translate [0 0 12])))]
-       (->> key-cap
-            (translate [0 0 (+ 5 plate-thickness)])
-            (color [127/255 159/255 127/255 1])))
-   1.5 (let [bl2 (/ 18.25 2)
-             bw2 (/ 28 2)
+  {1   (let [bl2     (/ 18.5 2)
+             m       (/ 17 2)
+             key-cap (hull (->> (polygon [[bl2 bl2] [bl2 (- bl2)] [(- bl2) (- bl2)] [(- bl2) bl2]])
+                                (extrude-linear {:height    0.1
+                                                 :twist     0
+                                                 :convexity 0})
+                                (translate [0 0 0.05]))
+                           (->> (polygon [[m m] [m (- m)] [(- m) (- m)] [(- m) m]])
+                                (extrude-linear {:height    0.1
+                                                 :twist     0
+                                                 :convexity 0})
+                                (translate [0 0 6]))
+                           (->> (polygon [[6 6] [6 -6] [-6 -6] [-6 6]])
+                                (extrude-linear {:height    0.1
+                                                 :twist     0
+                                                 :convexity 0})
+                                (translate [0 0 12])))]
+         (->> key-cap
+              (translate [0 0 (+ 5 plate-thickness)])
+              (color [220/255 163/255 163/255 1])))
+   2   (let [bl2     (/ sa-double-length 2)
+             bw2     (/ 18.25 2)
              key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
-                                (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                                (extrude-linear {:height    0.1
+                                                 :twist     0
+                                                 :convexity 0})
+                                (translate [0 0 0.05]))
+                           (->> (polygon [[6 16] [6 -16] [-6 -16] [-6 16]])
+                                (extrude-linear {:height    0.1
+                                                 :twist     0
+                                                 :convexity 0})
+                                (translate [0 0 12])))]
+         (->> key-cap
+              (translate [0 0 (+ 5 plate-thickness)])
+              (color [127/255 159/255 127/255 1])))
+   1.5 (let [bl2     (/ 18.25 2)
+             bw2     (/ 28 2)
+             key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
+                                (extrude-linear {:height    0.1
+                                                 :twist     0
+                                                 :convexity 0})
                                 (translate [0 0 0.05]))
                            (->> (polygon [[11 6] [-11 6] [-11 -6] [11 -6]])
-                                (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                                (extrude-linear {:height    0.1
+                                                 :twist     0
+                                                 :convexity 0})
                                 (translate [0 0 12])))]
          (->> key-cap
               (translate [0 0 (+ 5 plate-thickness)])
               (color [240/255 223/255 175/255 1])))})
 
-(def web-thickness 5)
+(def web-thickness 7)
 (def post-size 0.1)
 (def web-post
   (->> (cube post-size post-size web-thickness)
@@ -427,8 +441,8 @@
   (placement-function c 1.7 1.7 350))
 
 (defn screw-insert [c column row bottom-radius top-radius height]
-  (let [lastcol (flastcol (get c :configuration-ncols))
-        lastrow (flastrow (get c :configuration-nrows 5))
+  (let [lastcol     (flastcol (get c :configuration-ncols))
+        lastrow     (flastrow (get c :configuration-nrows 5))
         shift-right (= column lastcol)
         shift-left  (= column 0)
         shift-up    (and (not (or shift-right shift-left)) (= row 0))
