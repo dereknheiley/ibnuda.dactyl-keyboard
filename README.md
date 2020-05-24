@@ -26,7 +26,11 @@ To deploy it in a computer, follow these steps:
 
 To use old workflow where `change code -> save -> openscad reloads model`,
 uncomment `(spit "things/right.scad" (write-scad (model-right c)))` in
-`src/dactyl_keyboard/dactyl.clj`.
+`src/dactyl_keyboard/dactyl.clj` or `src/dactyl_keyboard/lightcycle.clj`.
+
+## Single Key PCB
+
+If you want to use single key PCB, please use [single pcb](https://github.com/ibnuda/single).
 
 ## License
 
