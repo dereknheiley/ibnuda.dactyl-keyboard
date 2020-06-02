@@ -341,7 +341,7 @@
               (translate [0 0 (+ 5 plate-thickness)])
               (color [240/255 223/255 175/255 1])))})
 
-(def web-thickness 7)
+(def web-thickness 5)
 (def post-size 0.1)
 (def web-post
   (->> (cube post-size post-size web-thickness)

@@ -964,20 +964,20 @@
          (wall-brace (partial thumb-br-place c)  0 -1 web-post-br
                      (partial thumb-br-place c)  0 -1 web-post-bl)
          (wall-brace (partial thumb-br-place c)  0 -1 web-post-bl
-                     (partial thumb-br-place c) -1  0 web-post-bl)
-         (wall-brace (partial thumb-br-place c) -1  0 web-post-bl
-                     (partial thumb-br-place c) -1  0 web-post-tl)
-         (wall-brace (partial thumb-br-place c) -1  0 web-post-tl
-                     (partial thumb-bl-place c) -1  0 web-post-bl)
-         (wall-brace (partial thumb-bl-place c) -1  0 web-post-bl
-                     (partial thumb-bl-place c) -1  0 web-post-tl)
-         (wall-brace (partial thumb-bl-place c) -1  0 web-post-tl
+                     (partial thumb-br-place c) -2  0 web-post-bl)
+         (wall-brace (partial thumb-br-place c) -2  0 web-post-bl
+                     (partial thumb-br-place c) -2  0 web-post-tl)
+         (wall-brace (partial thumb-br-place c) -2  0 web-post-tl
+                     (partial thumb-bl-place c) -2  0 web-post-bl)
+         (wall-brace (partial thumb-bl-place c) -2  0 web-post-bl
+                     (partial thumb-bl-place c) -2  0 web-post-tl)
+         (wall-brace (partial thumb-bl-place c) -2  0 web-post-tl
                      (partial thumb-bl-place c)  0  1 web-post-tl)
          (wall-brace (partial thumb-bl-place c)  0  1 web-post-tl
-                     (partial thumb-bl-place c)  0  1 web-post-tr)
-         (wall-brace (partial thumb-bl-place c)  0  1 web-post-tr
-                     (partial thumb-ml-place c)  0  1 web-post-tl)
-         (wall-brace (partial thumb-ml-place c)  0  1 web-post-tl
+                     (partial thumb-bl-place c) -1.1  1 web-post-tr)
+         (wall-brace (partial thumb-bl-place c) -1.1  1 web-post-tr
+                     (partial thumb-ml-place c) -1.1  1 web-post-tl)
+         (wall-brace (partial thumb-ml-place c) -1.1  1 web-post-tl
                      (partial thumb-ml-place c)  0  1 web-post-tr)))
 
 (defn thumb-wall [c]
@@ -1384,7 +1384,7 @@
         :configuration-alpha                  (/ pi 12)
         :configuration-beta                   (/ pi 36)
         :configuration-centercol              4
-        :configuration-tenting-angle          (/ pi 9)
+        :configuration-tenting-angle          (/ pi 10)
         :configuration-plate-projection?      false
 
         :configuration-use-promicro-usb-hole? false
