@@ -34,8 +34,8 @@
 (def sa-profile-key-height 12.7)
 
 (def plate-thickness 5)
-(def mount-width (+ keyswitch-width 3))
-(def mount-height (+ keyswitch-height 3))
+(def mount-width (+ keyswitch-width 3.5))
+(def mount-height (+ keyswitch-height 3.5))
 
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
 
@@ -204,21 +204,21 @@
         use-hotswap?        (get c :configuration-use-hotswap?)
         use-alps?           (get c :configuration-use-alps?)
         plate-projection?   (get c :configuration-plate-projection? false)
-        alps-fill-in        (cube alps-width alps-height plate-thickness)
-        mx-fill-in          (cube keyswitch-width keyswitch-height plate-thickness)
+        alps-fill-in        (translate [0 0 (/ plate-thickness 2)] (cube alps-width alps-height plate-thickness))
+        mx-fill-in          (translate [0 0 (/ plate-thickness 2)] (cube keyswitch-width keyswitch-height plate-thickness))
         fill-in             (if use-alps? alps-fill-in mx-fill-in)
         top-wall            (if use-alps?
-                              (->> (cube (+ keyswitch-width 3) 2.2 plate-thickness)
+                              (->> (cube (+ keyswitch-width 3) 2.7 plate-thickness)
                                    (translate [0
-                                               (+ (/ 2.2 2) (/ alps-height 2))
+                                               (+ (/ 2.7 2) (/ alps-height 2))
                                                (/ plate-thickness 2)]))
-                              (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+                              (->> (cube (+ keyswitch-width 3) 2 plate-thickness)
                                    (translate [0
-                                               (+ (/ 1.5 2) (/ keyswitch-height 2))
+                                               (+ (/ 2 2) (/ keyswitch-height 2))
                                                (/ plate-thickness 2)])))
         left-wall           (if use-alps?
-                              (union (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-                                          (translate [(+ (/ 1.5 2) (/ 15.6 2))
+                              (union (->> (cube 2 (+ keyswitch-height 3) plate-thickness)
+                                          (translate [(+ (/ 2 2) (/ 15.6 2))
                                                       0
                                                       (/ plate-thickness 2)]))
                                      (->> (cube 1.5 (+ keyswitch-height 3) 1.0)
@@ -226,8 +226,8 @@
                                                       0
                                                       (- plate-thickness
                                                          (/ alps-notch-height 2))])))
-                              (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-                                   (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                              (->> (cube 2 (+ keyswitch-height 3) plate-thickness)
+                                   (translate [(+ (/ 2 2) (/ keyswitch-width 2))
                                                0
                                                (/ plate-thickness 2)])))
         side-nub            (->> (binding [*fn* 30] (cylinder 1 2.75))
@@ -341,7 +341,7 @@
               (translate [0 0 (+ 5 plate-thickness)])
               (color [240/255 223/255 175/255 1])))})
 
-(def web-thickness 5)
+(def web-thickness 7)
 (def post-size 0.1)
 (def web-post
   (->> (cube post-size post-size web-thickness)
