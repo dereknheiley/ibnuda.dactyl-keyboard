@@ -142,7 +142,7 @@
                                         (generate-case-dm c is-right?)))]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" "inline; filename=\"myfile.scad\""}
+               "Content-Disposition" "inline; filename=\"manuform.scad\""}
      :body    generated-scad}))
 
 (defn generate-lightcycle [req]
@@ -154,6 +154,7 @@
                                     "2" :two
                                     "3" :three
                                     "6" :six
+                                    "8" :eight
                                     :five)
         param-alpha               (parse-int (get p "alpha"))
         param-beta                (parse-int (get p "beta"))
@@ -199,7 +200,7 @@
                                     (generate-case-dl c is-right?))]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" "inline; filename=\"myfile.scad\""}
+               "Content-Disposition" "inline; filename=\"lightcycle.scad\""}
      :body    generated-scad}))
 
 (defn api-generate-manuform [{body :body}]
@@ -239,7 +240,7 @@
         generated-scad (generate-case-dm c (get misc :right-side true))]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" "inline; filename=\"myfile.scad\""}
+               "Content-Disposition" "inline; filename=\"manuform.scad\""}
      :body    generated-scad}))
 
 (defn api-generate-lightcycle [{body :body}]
@@ -273,7 +274,7 @@
         generated-scad (generate-case-dl c (get misc :right-side true))]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" "inline; filename=\"myfile.scad\""}}
+               "Content-Disposition" "inline; filename=\"lightcycle.scad\""}}
     :body generated-scad))
 
 (defroutes app-routes

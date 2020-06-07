@@ -231,35 +231,43 @@
 (defn thumb-layout [c shape]
   (let [thumb-count (get c :configuration-thumb-count)]
     (union
-     (thumb-place c 0 -1/2 (union shape (extended-plates 2)))
-     (thumb-place c 1 -1/2 (union shape (extended-plates 2)))
      (case thumb-count
-       :six (union
-             (thumb-place c 1  1 (union shape (extended-plates 1)))
-             (thumb-place c 2  1 (union shape (extended-plates 1)))
-             (thumb-place c 2  0 (union shape (extended-plates 1)))
-             (thumb-place c 2 -1 shape))
-       :five (union
-              (thumb-place c 1    1 (union shape (extended-plates 1)))
-              (thumb-place c 2 -3/4 (union shape (extended-plates 1.5)))
-              (thumb-place c 2  3/4 (union shape (extended-plates 1.5))))
+       :eight (union (thumb-place c 0 -1 (union shape (extended-plates 1)))
+                     (thumb-place c 0  0 (union shape (extended-plates 1)))
+                     (thumb-place c 1 -1 (union shape (extended-plates 1)))
+                     (thumb-place c 1  0 (union shape (extended-plates 1))))
+       (union (thumb-place c 0 -1/2 (union shape (extended-plates 2)))
+              (thumb-place c 1 -1/2 (union shape (extended-plates 2)))))
+     (case thumb-count
+       :two ()
        :three (thumb-place c 1    1 (union shape (extended-plates 1)))
-       ()))))
+       :five (union (thumb-place c 1    1 (union shape (extended-plates 1)))
+                    (thumb-place c 2 -3/4 (union shape (extended-plates 1.5)))
+                    (thumb-place c 2  3/4 (union shape (extended-plates 1.5))))
+       (union (thumb-place c 1  1 (union shape (extended-plates 1)))
+              (thumb-place c 2  1 (union shape (extended-plates 1)))
+              (thumb-place c 2  0 (union shape (extended-plates 1)))
+              (thumb-place c 2 -1 (union shape (extended-plates 1))))))))
 
 (defn thumbcaps [c]
   (let [thumb-count (get c :configuration-thumb-count)]
     (union
-     (thumb-2x-column c (sa-cap 2))
-     (thumb-place c 1 -1/2 (sa-cap 2))
+     (case thumb-count
+       :eight (union (thumb-place c 0 -1 (sa-cap 1))
+                     (thumb-place c 0  0 (sa-cap 1))
+                     (thumb-place c 1 -1 (sa-cap 1))
+                     (thumb-place c 1  0 (sa-cap 1)))
+       (union (thumb-2x-column c (sa-cap 2))
+              (thumb-place c 1 -1/2 (sa-cap 2))))
      (case thumb-count
        :two ()
        :three (thumb-place c 1 1 (sa-cap 1))
        :five (union (thumb-1x-column c (rotate (/ pi 2) [0 0 1] (sa-cap 1.5)))
                     (thumb-place c 1 1 (sa-cap 1)))
-       :six (union (thumb-place c 1  1 (sa-cap 1))
-                   (thumb-place c 2  1 (sa-cap 1))
-                   (thumb-place c 2  0 (sa-cap 1))
-                   (thumb-place c 2 -1 (sa-cap 1)))))))
+       (union (thumb-place c 1  1 (sa-cap 1))
+              (thumb-place c 2  1 (sa-cap 1))
+              (thumb-place c 2  0 (sa-cap 1))
+              (thumb-place c 2 -1 (sa-cap 1)))))))
 
 (defn thumb-connectors [c]
   (let [thumb-count  (get c :configuration-thumb-count)
@@ -273,16 +281,72 @@
                            (translate [0 (extended-plate-height %) 0]))
         thumb-br     #(->> web-post-br
                            (translate [0 (- (extended-plate-height %)) 0]))]
+    ;;Connecting main thumb keys.
     (union
-      ;;Connecting the doubles
-     (triangle-hulls (thumb-place c 0 -1/2 (thumb-tl 2))
-                     (thumb-place c 0 -1/2 (thumb-bl 2))
-                     (thumb-place c 1 -1/2 (thumb-br 2))
-                     (thumb-place c 0 -1/2 (thumb-tl 2))
-                     (thumb-place c 1 -1/2 (thumb-tr 2))
-                     #_(thumb-place c 1  1   (thumb-br 1)))
+     (case thumb-count 
+       :eight (union
+               (triangle-hulls (thumb-place c 0  0  (thumb-bl 1))
+                               (thumb-place c 1  0  (thumb-br 1))
+                               (thumb-place c 0  0  (thumb-tl 1))
+                               (thumb-place c 1  0  (thumb-tr 1)))
+               (triangle-hulls (thumb-place c 0 -1 (thumb-bl 1))
+                               (thumb-place c 1 -1 (thumb-br 1))
+                               (thumb-place c 0 -1 (thumb-tl 1))
+                               (thumb-place c 1 -1 (thumb-tr 1)))
+               (triangle-hulls (thumb-place c 0 -1 (thumb-tl 1))
+                               (thumb-place c 0 -1 (thumb-tr 1))
+                               (thumb-place c 0  0 (thumb-bl 1))
+                               (thumb-place c 0  0 (thumb-br 1)))
+               (triangle-hulls (thumb-place c 1 -1 (thumb-tl 1))
+                               (thumb-place c 1 -1 (thumb-tr 1))
+                               (thumb-place c 1  0 (thumb-bl 1))
+                               (thumb-place c 1  0 (thumb-br 1)))
+               (triangle-hulls (thumb-place c 0 -1 (thumb-tl 1))
+                               (thumb-place c 1 -1 (thumb-tr 1))
+                               (thumb-place c 0  0 (thumb-bl 1))
+                               (thumb-place c 1  0 (thumb-br 1)))
+               )
+       (triangle-hulls (thumb-place c 1 -1/2 (thumb-tl 2))
+                       (thumb-place c 0 -1/2 (thumb-bl 2))
+                       (thumb-place c 1 -1/2 (thumb-br 2))
+                       (thumb-place c 0 -1/2 (thumb-tl 2))
+                       (thumb-place c 1 -1/2 (thumb-tr 2))
+                       #_(thumb-place c 1  1   (thumb-br 1))))
 
      (case thumb-count
+       :eight (union
+               (triangle-hulls (thumb-place c 1  0 (thumb-bl 1))
+                               (thumb-place c 2  0 (thumb-br 1))
+                               (thumb-place c 1  0 (thumb-tl 1))
+                               (thumb-place c 2  0 (thumb-tr 1)))
+               (triangle-hulls (thumb-place c 1 -1 (thumb-bl 1))
+                               (thumb-place c 2 -1 (thumb-br 1))
+                               (thumb-place c 1 -1 (thumb-tl 1))
+                               (thumb-place c 2 -1 (thumb-tr 1)))
+               (triangle-hulls (thumb-place c 1  1 (thumb-bl 1))
+                               (thumb-place c 2  1 (thumb-br 1))
+                               (thumb-place c 1  1 (thumb-tl 1))
+                               (thumb-place c 2  1 (thumb-tr 1)))
+               (triangle-hulls (thumb-place c 2 -1 (thumb-tl 1))
+                               (thumb-place c 2 -1 (thumb-tr 1))
+                               (thumb-place c 2  0 (thumb-bl 1))
+                               (thumb-place c 2  0 (thumb-br 1)))
+               (triangle-hulls (thumb-place c 1  0 (thumb-tl 1))
+                               (thumb-place c 1  0 (thumb-tr 1))
+                               (thumb-place c 1  1 (thumb-bl 1))
+                               (thumb-place c 1  1 (thumb-br 1)))
+               (triangle-hulls (thumb-place c 2  0 (thumb-tl 1))
+                               (thumb-place c 2  0 (thumb-tr 1))
+                               (thumb-place c 2  1 (thumb-bl 1))
+                               (thumb-place c 2  1 (thumb-br 1)))
+               (triangle-hulls (thumb-place c 1 -1 (thumb-tl 1))
+                               (thumb-place c 2 -1 (thumb-tr 1))
+                               (thumb-place c 1  0 (thumb-bl 1))
+                               (thumb-place c 2  0 (thumb-br 1)))
+               (triangle-hulls (thumb-place c 1  0 (thumb-tl 1))
+                               (thumb-place c 2  0 (thumb-tr 1))
+                               (thumb-place c 1  1 (thumb-bl 1))
+                               (thumb-place c 2  1 (thumb-br 1))))
        :six (union
              (triangle-hulls (thumb-place c 1  1   (thumb-br 1))
                              (thumb-place c 1  1   (thumb-bl 1))
@@ -347,6 +411,26 @@
                             (key-place   c 0    3 web-post-bl)
                             (thumb-place c 1 -1/2 (thumb-tr 2))
                             (key-place   c 0    3 web-post-bl))
+       :eight (triangle-hulls (thumb-place c 0 -1        (thumb-br 1))
+                              (key-place   c 1 cornerrow web-post-bl)
+                              (thumb-place c 0 -1        (thumb-tr 1))
+                              (thumb-place c 0  0        (thumb-br 1))
+                              (key-place   c 1 cornerrow web-post-bl)
+                              (thumb-place c 0  0        (thumb-tr 1))
+                              (key-place   c 1  4        web-post-tl)
+                              (key-place   c 1  3        web-post-bl)
+                              (thumb-place c 0 -1/2      (thumb-tr 2))
+                              (key-place   c 0  3        web-post-br)
+                              (key-place   c 0  3        web-post-bl)
+                              (thumb-place c 0 -1/2      (thumb-tr 2))
+                              (thumb-place c 0 -1/2      (thumb-tl 2))
+                              (key-place   c 0  3        web-post-bl)
+                              (thumb-place c 1 -1/2      (thumb-tr 2))
+                              (thumb-place c 1  1        (thumb-br 1))
+                              (key-place   c 0  3        web-post-bl)
+                              (key-place   c 0  3        web-post-tl)
+                              (thumb-place c 1  1        (thumb-br 1))
+                              (thumb-place c 1  1        (thumb-tr 1)))
        (triangle-hulls (thumb-place c 0 -1/2      (thumb-br 2))
                        (key-place   c 1 cornerrow web-post-bl)
                        (thumb-place c 0 -1/2      (thumb-tr 2))
@@ -397,6 +481,7 @@
         thumb-column (case thumb-count
                        :five 5/2
                        :six 5/2
+                       :eight 5/2
                        3/2)]
     (+ thumb-column 0.05)))
 (defn back-y [c]
@@ -675,7 +760,7 @@
   (let [thumb-count                      (get c :configuration-thumb-count)
         step                             wall-step
         local-back-y                     (thumb-back-y c)
-        thumb-range                      (case thumb-count :five 5/2 :six 5/2 3/2)
+        thumb-range                      (case thumb-count :five 5/2 :six 5/2 :eight 5/2 3/2)
         back-thumb-position              (case thumb-count :two 0 1)
         thumb-back-to-left-wall-position (case thumb-count :two 2.35 1.6666)]
     (union
@@ -712,7 +797,7 @@
   (let [thumb-count      (get c :configuration-thumb-count)
         step             wall-step
         place            (partial thumb-place c)
-        column           (case thumb-count :five 2 :six 2 1)
+        column           (case thumb-count :five 2 :six 2 :eight 2 1)
         left-wall-length (case thumb-count :two 0.99 1.95)]
     (union
      (apply union
@@ -764,7 +849,7 @@
                           (translate [0  (- plate-height) 0]))
         thumb-br     (->> web-post-br
                           (translate [-0 (- plate-height) 0]))
-        thumb-range  (case thumb-count :five 5/2 :six 5/2 3/2)]
+        thumb-range  (case thumb-count :five 5/2 :six 5/2 :eight 5/2 3/2)]
     (union
      (apply union
             (for [x (range-inclusive thumb-right-wall (- (+ thumb-range 0.05) step) step)]
@@ -837,7 +922,7 @@
       0.28559933214452665 [-36 45]    ;; pi/11
       0.2617993877991494  [-36 45]))) ;; pi/12
 
-(def external-holder-cube   (cube 28.666 80 12.6))
+(def external-holder-cube   (cube 29.166 80 12.6))
 (defn external-holder-position [c]
   (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first (external-holder-ref c)) (second (external-holder-ref c)) 2]))
 (defn external-holder-space [c]
@@ -932,7 +1017,7 @@
    :configuration-create-side-nub?     false
    :configuration-use-alps?            false
    :configuration-use-hotswap?         false
-   :configuration-thumb-count          :two
+   :configuration-thumb-count          :eight
    :configuration-manuform-offset?     true
    :configuration-alpha                (/ pi 12)
    :configuration-beta                 (/ pi 36)

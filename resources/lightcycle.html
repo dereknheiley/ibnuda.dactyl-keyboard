@@ -21,6 +21,7 @@
                     <option value="3">3</option>
                     <option value="5" selected>5</option>
                     <option value="6">6</option>
+                    <option value="8">8</option>
                 </select>
                 <label for="last-row">Use bottom row?</label>
                 <select id="last-row" name="last-row">
@@ -114,6 +115,7 @@
             <fieldset name="case-form" id="case-form">
                 <label for="z-offset">Height Offset</label>
                 <select id="z-offset" name="z-offset">
+                    <option value="18" selected>18mm</option>
                     {% for ho in height-offset %}
                     <option value={{ho}}>{{ho}}mm</option>
                     {% endfor %}
