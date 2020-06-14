@@ -1245,11 +1245,11 @@
         lastcol           (flastcol (get c :configuration-ncols))
         lastrow           (flastrow (get c :configuration-nrows))
         lastloc           (if-not use-wide-pinky? (+ lastcol 0.1) (+ lastcol 0.5))]
-    (union (screw-insert c (if use-inner-column? -1 0) 0               bottom-radius top-radius height)
-           (screw-insert c (if use-inner-column? -1 0) (- lastrow 0.8) bottom-radius top-radius height)
-           (screw-insert c 2                           (+ lastrow 0.2) bottom-radius top-radius height)
-           (screw-insert c 3                           0               bottom-radius top-radius height)
-           (screw-insert c lastloc                     1               bottom-radius top-radius height))))
+    (union (screw-insert c (if use-inner-column? -1   0) 0               bottom-radius top-radius height)
+           (screw-insert c (if use-inner-column? -1.5 0) (- lastrow 0.8) bottom-radius top-radius height)
+           (screw-insert c 2                             (+ lastrow 0.2) bottom-radius top-radius height)
+           (screw-insert c 3                             0               bottom-radius top-radius height)
+           (screw-insert c lastloc                       1               bottom-radius top-radius height))))
 
 (def wire-post-height 7)
 (def wire-post-overhang 3.5)
@@ -1375,16 +1375,16 @@
 (defn wrist-rest-left [c]
   (mirror [-1 0 0] (wrist-rest-base c)))
 
-(def c {:configuration-nrows                  4
+(def c {:configuration-nrows                  5
         :configuration-ncols                  5
         :configuration-create-side-nub?       false
         :configuration-use-alps?              false
-        :configuration-thumb-count            :two
+        :configuration-thumb-count            :six
 
         :configuration-alpha                  (/ pi 12)
         :configuration-beta                   (/ pi 36)
         :configuration-centercol              4
-        :configuration-tenting-angle          (/ pi 15)
+        :configuration-tenting-angle          (/ pi 7)
         :configuration-plate-projection?      false
 
         :configuration-use-promicro-usb-hole? false
@@ -1393,13 +1393,13 @@
 
         :configuration-use-hotswap?           false
         :configuration-ortho?                 false
-        :configuration-use-inner-column?      false
-        :configuration-z-offset               0
+        :configuration-use-inner-column?      true
+        :configuration-z-offset               4
         :configuration-show-caps?             false
-        :configuration-last-row-count         :zero
+        :configuration-last-row-count         :two
         :configuration-use-wide-pinky?        false
         :configuration-use-wire-post?         false
-        :configuration-use-screw-inserts?     false
+        :configuration-use-screw-inserts?     true
         :configuration-use-wrist-rest?        false})
 
 #_(spit "things/right.scad"
