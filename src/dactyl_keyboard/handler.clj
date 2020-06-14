@@ -60,8 +60,8 @@
 (defn lightcycle [_]
   (render-file "lightcycle.html" {:column-curvature    (range 12 22)
                                   :tenting-angle       (range 12 6 -1)
-                                  :thumb-tenting-angle (range 24 11 -1)
-                                  :height-offset       (range 10 32 2)}))
+                                  :thumb-tenting-angle (range 24 -24 -1)
+                                  :height-offset       (range 10 36 2)}))
 
 (defn generate-manuform [req]
   (let [p                           (:form-params req)

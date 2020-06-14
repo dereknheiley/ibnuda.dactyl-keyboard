@@ -173,6 +173,7 @@
   (let [beta                (get c :configuration-beta)
         alpha               (get c :configuration-alpha)
         thumb-tenting-angle (get c :configuration-thumb-tenting-angle)
+        rotation-angle      (if (neg? thumb-tenting-angle) [0 1 0] [1 1 0])
         thumb-offset        (fthumb-offset c)
         cap-top-height      (+ plate-thickness sa-profile-key-height)
         row-radius          (+ (/ (/ (+ mount-height 1) 2)
@@ -191,7 +192,7 @@
          (translate [mount-width 0 0])
          (rotate (* pi (- 1/4 3/16)) [0 0 1])
          #_(rotate beta [1 1 0])
-         (rotate thumb-tenting-angle [1 1 0])
+         (rotate thumb-tenting-angle rotation-angle)
          (translate thumb-offset))))
 
 (defn thumb-2x-column [c shape]
@@ -1010,24 +1011,24 @@
   (mirror [-1 0 0] (dactyl-plate-right c)))
 
 (def c
-  {:configuration-ncols                6
-   :configuration-use-numrow?          true
-   :configuration-use-lastrow?         true
+  {:configuration-ncols                5
+   :configuration-use-numrow?          false
+   :configuration-use-lastrow?         false
    :configuration-create-side-nub?     false
    :configuration-use-alps?            false
    :configuration-use-hotswap?         false
-   :configuration-thumb-count          :eight
+   :configuration-thumb-count          :five
    :configuration-manuform-offset?     true
    :configuration-alpha                (/ pi 16)
    :configuration-beta                 (/ pi 36)
    :configuration-z-offset             18
    :configuration-tenting-angle        (/ pi 7)
-   :configuration-thumb-tenting-angle  (/ pi 15)
+   :configuration-thumb-tenting-angle  (/ pi -7)
    :configuration-use-external-holder? false
-   :configuration-use-screw-inserts?   true
+   :configuration-use-screw-inserts?   false
    :configuration-thumb-offset-x       -48
    :configuration-thumb-offset-y       -45
-   :configuration-thumb-offset-z       34
+   :configuration-thumb-offset-z       25
    :configuration-show-caps?           true})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
