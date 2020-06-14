@@ -304,9 +304,8 @@
                (triangle-hulls (thumb-place c 0 -1 (thumb-tl 1))
                                (thumb-place c 1 -1 (thumb-tr 1))
                                (thumb-place c 0  0 (thumb-bl 1))
-                               (thumb-place c 1  0 (thumb-br 1)))
-               )
-       (triangle-hulls (thumb-place c 1 -1/2 (thumb-tl 2))
+                               (thumb-place c 1  0 (thumb-br 1))))
+       (triangle-hulls #_(thumb-place c 1 -1/2 (thumb-tl 2))
                        (thumb-place c 0 -1/2 (thumb-bl 2))
                        (thumb-place c 1 -1/2 (thumb-br 2))
                        (thumb-place c 0 -1/2 (thumb-tl 2))
@@ -798,7 +797,7 @@
         step             wall-step
         place            (partial thumb-place c)
         column           (case thumb-count :five 2 :six 2 :eight 2 1)
-        left-wall-length (case thumb-count :two 0.99 1.95)]
+        left-wall-length (case thumb-count :two 1.05 2.05)]
     (union
      (apply union
             (for [x (range-inclusive (+ -1 0.07) (- left-wall-length step) step)]
@@ -937,7 +936,7 @@
            (translate [(first position) (second position) (/ height 2)]))))
 
 (defn screw-placement [c bottom-radius top-radius height]
-  (let [lastrow           (if (get c :configuration-use-lastrow?) 4 3.55)
+  (let [lastrow           (if (get c :configuration-use-lastrow?) 3.99 3.55)
         toprow            (if (get c :configuration-use-numrow?) -0.12 0.8)
         ncols             (get c :configuration-ncols)
         ncold-coefficient (case ncols
@@ -961,8 +960,8 @@
     (union (screw-insert c -1.5      4.9       bottom-radius top-radius height)
            (screw-insert c 2         toprow    bottom-radius top-radius height)
            (screw-insert c -0.75     2         bottom-radius top-radius height)
-           (screw-insert c middlerow lastrow   bottom-radius top-radius height)
-           (screw-insert c lastcol   middlecol bottom-radius top-radius height))))
+           #_(screw-insert c middlerow lastrow   bottom-radius top-radius height)
+           (screw-insert c lastcol   lastrow bottom-radius top-radius height))))
 
 (defn new-case [c]
   (union (front-wall c)
@@ -1011,21 +1010,21 @@
   (mirror [-1 0 0] (dactyl-plate-right c)))
 
 (def c
-  {:configuration-ncols                5
-   :configuration-use-numrow?          false
-   :configuration-use-lastrow?         false
+  {:configuration-ncols                6
+   :configuration-use-numrow?          true
+   :configuration-use-lastrow?         true
    :configuration-create-side-nub?     false
    :configuration-use-alps?            false
    :configuration-use-hotswap?         false
    :configuration-thumb-count          :eight
    :configuration-manuform-offset?     true
-   :configuration-alpha                (/ pi 12)
+   :configuration-alpha                (/ pi 16)
    :configuration-beta                 (/ pi 36)
    :configuration-z-offset             18
    :configuration-tenting-angle        (/ pi 7)
-   :configuration-thumb-tenting-angle  (/ pi 9)
+   :configuration-thumb-tenting-angle  (/ pi 15)
    :configuration-use-external-holder? false
-   :configuration-use-screw-inserts?   false
+   :configuration-use-screw-inserts?   true
    :configuration-thumb-offset-x       -48
    :configuration-thumb-offset-y       -45
    :configuration-thumb-offset-z       34
