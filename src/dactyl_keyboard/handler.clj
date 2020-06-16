@@ -12,7 +12,7 @@
   (:gen-class))
 
 (defn parse-int [s]
-  (Integer. (re-find  #"\d+" s)))
+  (Integer/parseInt s))
 
 (defn parse-bool [s]
   (Boolean/valueOf s))

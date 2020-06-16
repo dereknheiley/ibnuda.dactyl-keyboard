@@ -1375,16 +1375,16 @@
 (defn wrist-rest-left [c]
   (mirror [-1 0 0] (wrist-rest-base c)))
 
-(def c {:configuration-nrows                  5
+(def c {:configuration-nrows                  4
         :configuration-ncols                  5
         :configuration-create-side-nub?       false
         :configuration-use-alps?              false
-        :configuration-thumb-count            :six
+        :configuration-thumb-count            :two
 
         :configuration-alpha                  (/ pi 12)
         :configuration-beta                   (/ pi 36)
         :configuration-centercol              4
-        :configuration-tenting-angle          (/ pi 7)
+        :configuration-tenting-angle          (/ pi 15)
         :configuration-plate-projection?      false
 
         :configuration-use-promicro-usb-hole? false
@@ -1393,13 +1393,13 @@
 
         :configuration-use-hotswap?           false
         :configuration-ortho?                 false
-        :configuration-use-inner-column?      true
+        :configuration-use-inner-column?      false
         :configuration-z-offset               4
         :configuration-show-caps?             false
-        :configuration-last-row-count         :two
+        :configuration-last-row-count         :zero
         :configuration-use-wide-pinky?        false
         :configuration-use-wire-post?         false
-        :configuration-use-screw-inserts?     true
+        :configuration-use-screw-inserts?     false
         :configuration-use-wrist-rest?        false})
 
 #_(spit "things/right.scad"
