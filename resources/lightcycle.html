@@ -55,6 +55,18 @@
                     <option value={{ta}}>pi/{{ta}}</option>
                     {% endfor %}
                 </select>
+                <label for="thumb-alpha">Thumb's Column Curvature</label>
+                <select id="thumb-alpha" name="thumb-alpha">
+                    {% for cc in thumb-column-curvature %}
+                    <option value={{cc}}>pi/{{cc}}</option>
+                    {% endfor %}
+                </select>
+                <label for="thumb-beta">Thumb's Row Curvature</label>
+                <select id="thumb-beta" name="thumb-beta">
+                    {% for rc in thumb-row-curvature %}
+                    <option value={{rc}}>pi/{{rc}}</option>
+                    {% endfor %}
+                </select>
                 <label for="thumb-tenting-angle">Thumb Tenting Angle</label>
                 <select id="thumb-tenting-angle" name="thumb-tenting-angle">
                     {% for tta in thumb-tenting-angle %}
@@ -87,19 +99,33 @@
                 <select id="thumb-offset-x" name="thumb-offset-x">
                     <option value="52">Default</option>
                     <option value="48">Closer to body</option>
+                    <option value="44">Even closer to body</option>
+                    <option value="40">Even closer closer to body</option>
+                    <option value="36">Even closer closer closer to body</option>
                     <option value="56">Farther to body</option>
+                    <option value="60">Even farther to body</option>
+                    <option value="64">Even farther farther to body</option>
+                    <option value="68">Even farther farther farther to body</option>
                 </select>
                 <label for="thumb-offset-y">Thumb Position in Y direction (front/back)</label>
                 <select id="thumb-offset-y" name="thumb-offset-y">
                     <option value="45">Default</option>
                     <option value="49">Farther to body</option>
+                    <option value="53">Even farther to body</option>
+                    <option value="57">Even farther farther to body</option>
+                    <option value="57">Even farther farther farther to body</option>
                 </select>
                 <label for="thumb-offset-z">Thumb Position in Z direction (up/down)</label>
                 <select id="thumb-offset-z" name="thumb-offset-z">
                     <option value="27">Default</option>
                     <option value="23">Lower to body</option>
                     <option value="19">Even lower to body</option>
+                    <option value="15">Even lower lower to body</option>
+                    <option value="11">Even lower lower lower to body</option>
                     <option value="31">Higher to body</option>
+                    <option value="35">Even higher to body</option>
+                    <option value="39">Even higher higher to body</option>
+                    <option value="43">Even higher higher higher to body</option>
                 </select>
             </fieldset>
             <label for="case-form">
@@ -125,11 +151,11 @@
                 <h3>Miscelania</h3>
             </label>
             <fieldset name="miscelania" id="miscelania">
-                <!--label for="show-keycaps">Show Keycaps?</label>
+                <label for="show-keycaps">Show Keycaps?</label>
                 <select id="show-keycaps" name="show-keycaps">
                     <option value="false">No</option>
                     <option value="true">Yes</option>
-                </select-->
+                </select>
                 <label for="right-side">Right side or left side?</label>
                 <select id="right-side" name="right-side">
                     <option value="true">Right</option>

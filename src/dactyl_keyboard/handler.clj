@@ -58,10 +58,12 @@
                                 :height-offset       (range 4 16 2)}))
 
 (defn lightcycle [_]
-  (render-file "lightcycle.html" {:column-curvature    (range 12 22)
-                                  :tenting-angle       (range 12 6 -1)
-                                  :thumb-tenting-angle (range 24 -24 -1)
-                                  :height-offset       (range 10 36 2)}))
+  (render-file "lightcycle.html" {:column-curvature       (range 12 22)
+                                  :tenting-angle          (range 12 6 -1)
+                                  :thumb-tenting-angle    (range 24 -24 -1)
+                                  :thumb-column-curvature (range 36 8 -1)
+                                  :thumb-row-curvature    (range 36 8 -1)
+                                  :height-offset          (range 10 36 2)}))
 
 (defn generate-manuform [req]
   (let [p                           (:form-params req)
@@ -160,6 +162,8 @@
         param-beta                (parse-int (get p "beta"))
         param-tenting-angle       (parse-int (get p "tenting-angle"))
         param-hotswap             (parse-bool (get p "hotswap"))
+        param-thumb-alpha         (parse-int (get p "thumb-alpha"))
+        param-thumb-beta          (parse-int (get p "thumb-beta"))
         param-thumb-tenting-angle (parse-int (get p "thumb-tenting-angle"))
         param-manuform-offset     (parse-bool (get p "manuform-offset"))
         param-z-offset            (parse-int (get p "z-offset"))
@@ -171,16 +175,14 @@
         param-generate-plate      (get p "generate-plate")
         generate-plate?           (some? param-generate-plate)
         param-screw-inserts       (parse-bool (get p "screw-inserts"))
+        param-show-keycaps        (parse-bool (get p "show-keycaps"))
 
         c                         {:configuration-ncols                param-ncols
                                    :configuration-use-numrow?          param-use-numrow?
                                    :configuration-use-lastrow?         param-use-lastrow?
                                    :configuration-thumb-count          param-thumb-count
-           ; TODO: fix this
                                    :configuration-create-side-nub?     false
-           ; TODO: fix this
                                    :configuration-use-alps?            false
-           ; TODO: fix this
                                    :configuration-use-hotswap?         param-hotswap
 
                                    :configuration-alpha                (/ pi param-alpha)
@@ -188,11 +190,14 @@
                                    :configuration-tenting-angle        (/ pi param-tenting-angle)
                                    :configuration-manuform-offset?     param-manuform-offset
                                    :configuration-z-offset             param-z-offset
+                                   :configuration-thumb-alpha          (/ pi param-thumb-alpha)
+                                   :configuration-thumb-beta           (/ pi param-thumb-beta)
                                    :configuration-thumb-tenting-angle  (/ pi param-thumb-tenting-angle)
                                    :configuration-thumb-offset-x       (- 0 param-thumb-offset-x)
                                    :configuration-thumb-offset-y       (- 0 param-thumb-offset-y)
                                    :configuration-thumb-offset-z       param-thumb-offset-z
                                    :configuration-use-external-holder? param-use-external-holder
+                                   :configuration-show-caps?           param-show-keycaps
 
                                    :configuration-use-screw-inserts?   param-screw-inserts}
         generated-scad            (if generate-plate?
@@ -259,6 +264,8 @@
                         :configuration-alpha                (/ pi (get curve :alpha 12))
                         :configuration-beta                 (/ pi (get curve :beta 36))
                         :configuration-tenting-angle        (/ pi (get curve :tenting 12))
+                        :configuration-thumb-alpha          (/ pi (get curve :thumb-alpha 12))
+                        :configuration-thumb-beta           (/ pi (get curve :thumb-beta 36))
                         :configuration-thumb-tenting-angle  (/ pi (get curve :thumb-tenting 12))
 
                         :configuration-use-external-holder? (get connector :external false)

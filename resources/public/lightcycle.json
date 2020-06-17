@@ -9,6 +9,8 @@
         "alpha": 12,
         "beta": 36,
         "tenting": 12,
+        "thumb-alpha": 12,
+        "thumb-beta": 36,
         "thumb-tenting": 12
     },
     "connector": {

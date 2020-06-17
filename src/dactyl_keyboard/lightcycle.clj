@@ -113,7 +113,7 @@
            (for [column columns
                  row    rows
                  :when  (or (not= column 0)
-                            (not= row lastrow))]
+                            (not= row 4))]
              (->> (sa-cap 1)
                   (key-place c column row))))))
 
@@ -170,24 +170,24 @@
 ;;;;;;;;;;;;
 
 (defn thumb-place [c column row shape]
-  (let [beta                (get c :configuration-beta)
-        alpha               (get c :configuration-alpha)
+  (let [thumb-alpha         (get c :configuration-thumb-alpha)
+        thumb-beta          (get c :configuration-thumb-beta)
         thumb-tenting-angle (get c :configuration-thumb-tenting-angle)
         rotation-angle      (if (neg? thumb-tenting-angle) [0 1 0] [1 1 0])
         thumb-offset        (fthumb-offset c)
         cap-top-height      (+ plate-thickness sa-profile-key-height)
         row-radius          (+ (/ (/ (+ mount-height 1) 2)
-                                  (Math/sin (/ alpha 2)))
+                                  (Math/sin (/ thumb-alpha 2)))
                                cap-top-height)
         column-radius       (+ (/ (/ (+ mount-width 2) 2)
-                                  (Math/sin (/ beta 2)))
+                                  (Math/sin (/ thumb-beta 2)))
                                cap-top-height)]
     (->> shape
          (translate [0 0 (- row-radius)])
-         (rotate (* alpha row) [1 0 0])
+         (rotate (* thumb-alpha row) [1 0 0])
          (translate [0 0 row-radius])
          (translate [0 0 (- column-radius)])
-         (rotate (* column beta) [0 1 0])
+         (rotate (* column thumb-beta) [0 1 0])
          (translate [0 0 column-radius])
          (translate [mount-width 0 0])
          (rotate (* pi (- 1/4 3/16)) [0 0 1])
@@ -470,7 +470,7 @@
 (defn right-wall-column [c]
   (let [lastcol (- (get c :configuration-ncols) 1)]
     (+ lastcol 0.55)))
-(def left-wall-column -1/2)
+(def left-wall-column -8/15)
 (defn thumb-back-y [c]
   (let [thumb-count (get c :configuration-thumb-count)]
     (case thumb-count :two -0.07 0.93)))
@@ -732,25 +732,26 @@
      (if use-numrow?
        (color [0 0 1] (hull (place left-wall-column 0 (translate [1 -1 1] wall-sphere-bottom-back))
                             (place left-wall-column 1 (translate [1 0 1] wall-sphere-bottom-back))
-                            (key-place c 0 0 web-post-tl)
+                            (translate [1 0 0] (key-place c 0 0 web-post-tl))
                             (key-place c 0 1 web-post-tl)))
        ())
      (color [0 1 0] (hull (place left-wall-column 1 (translate [1 -1 1] wall-sphere-bottom-back))
                           (place left-wall-column 2 (translate [1 0 1] wall-sphere-bottom-back))
-                          (key-place c 0 1 web-post-tl)
+                          (place left-wall-column 2 (translate [1 0 1] wall-sphere-bottom-back))
+                          (translate [0 0 0] (key-place c 0 1 web-post-tl))
                           (key-place c 0 1 web-post-bl)
                           (key-place c 0 2 web-post-tl)))
-     (color [0 1 0] (hull (place left-wall-column 2 (translate [1 -1 1] wall-sphere-bottom-back))
-                          (place left-wall-column 2 (translate [1  0 1] wall-sphere-bottom-back))
-                          (key-place c 0 2 web-post-tl)
-                          (key-place c 0 2 web-post-bl)
-                          (place left-wall-column 3 (translate [1  0 1] wall-sphere-bottom-back))
-                          (key-place c 0 3 web-post-tl)))
+     (color [0.8 1 0] (hull (place left-wall-column 2 (translate [1 -1 1] wall-sphere-bottom-back))
+                            (place left-wall-column 2 (translate [1  0 1] wall-sphere-bottom-back))
+                            (key-place c 0 2 web-post-tl)
+                            (key-place c 0 2 web-post-bl)
+                            (place left-wall-column 3 (translate [2 10 3] wall-sphere-bottom-back))
+                            (key-place c 0 3 web-post-tl)))
      (case thumb-count
-       :two (color [0 1 1] (hull (place left-wall-column 3 (translate [1 0 1] wall-sphere-bottom-back))
+       :two (color [0 1 1] (hull (place left-wall-column 2.5 (translate [1 0 1] wall-sphere-bottom-back))
                                  (key-place c 0 3 web-post-tl)
                                  (key-place c 0 3 web-post-bl)
-                                 (place left-wall-column 3.7 (translate [1 0 1] wall-sphere-bottom-back))))
+                                 (place left-wall-column 3.5 (translate [1 0 1] wall-sphere-bottom-back))))
        (color [0 0 0] (hull (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
                             (thumb-place c 1 thumb-where web-post-tr)
                             (place left-wall-column finish-left-wall  (translate [1 -1 1] wall-sphere-bottom-front))
@@ -991,8 +992,8 @@
                           (union (rj9-space frj9-start c) (usb-holder-hole fusb-holder-position c))
                           (external-holder-space c))
                         (if use-screw-inserts? (screw-insert-holes screw-placement c) ()))
-            #_(if (get c :configuration-show-caps?) (caps c) ())
-            #_(if (get c :configuration-show-caps?) (thumbcaps c) ())
+            (if (get c :configuration-show-caps?) (caps c) ())
+            (if (get c :configuration-show-caps?) (thumbcaps c) ())
             (if-not use-external-holder? (rj9-holder frj9-start c) ()))
      (translate [0 0 -60] (cube 350 350 120)))))
 
@@ -1012,24 +1013,26 @@
 
 (def c
   {:configuration-ncols                5
-   :configuration-use-numrow?          false
-   :configuration-use-lastrow?         false
+   :configuration-use-numrow?          true
+   :configuration-use-lastrow?         true
    :configuration-create-side-nub?     false
    :configuration-use-alps?            false
    :configuration-use-hotswap?         false
-   :configuration-thumb-count          :five
+   :configuration-thumb-count          :eight
    :configuration-manuform-offset?     true
    :configuration-alpha                (/ pi 16)
    :configuration-beta                 (/ pi 36)
    :configuration-z-offset             18
-   :configuration-tenting-angle        (/ pi 7)
-   :configuration-thumb-tenting-angle  (/ pi -7)
+   :configuration-tenting-angle        (/ pi 18)
+   :configuration-thumb-tenting-angle  (/ pi 9)
+   :configuration-thumb-alpha          (/ pi 16)
+   :configuration-thumb-beta           (/ pi 9)
    :configuration-use-external-holder? false
    :configuration-use-screw-inserts?   false
-   :configuration-thumb-offset-x       -48
+   :configuration-thumb-offset-x       -54
    :configuration-thumb-offset-y       -45
-   :configuration-thumb-offset-z       25
-   :configuration-show-caps?           true})
+   :configuration-thumb-offset-z       18
+   :configuration-show-caps?           false})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
         (write-scad (dactyl-top-right c)))
