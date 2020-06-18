@@ -22,7 +22,8 @@
         "thumb-offset-y": 45,
         "thumb-offset-z": 27,
         "z-offset": 10,
-        "manuform-offset": false
+        "manuform-offset": false,
+        "border": true
     },
     "misc": {
         "right-side": true,

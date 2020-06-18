@@ -85,7 +85,7 @@
                     <option value="true">Yes</option>
                 </select>
             </fieldset>
-            <label for="thumb-offset">
+            <label for="case-form">
                 <h3>Form of the Case</h3>
             </label>
             <label for="hotswap">Dongguan Kaihua Electronics Co., Ltd
@@ -145,6 +145,11 @@
                     {% for ho in height-offset %}
                     <option value={{ho}}>{{ho}}mm</option>
                     {% endfor %}
+                </select>
+                <label for="use-border">Border</label>
+                <select name="use-border" id="use-border">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
                 </select>
             </fieldset>
             <label for="miscelania">

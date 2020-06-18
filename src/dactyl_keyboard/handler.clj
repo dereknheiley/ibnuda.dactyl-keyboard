@@ -165,6 +165,7 @@
         param-thumb-alpha         (parse-int (get p "thumb-alpha"))
         param-thumb-beta          (parse-int (get p "thumb-beta"))
         param-thumb-tenting-angle (parse-int (get p "thumb-tenting-angle"))
+        param-use-border          (parse-bool (get p "use-border"))
         param-manuform-offset     (parse-bool (get p "manuform-offset"))
         param-z-offset            (parse-int (get p "z-offset"))
         param-thumb-offset-x      (parse-int (get p "thumb-offset-x"))
@@ -188,6 +189,7 @@
                                    :configuration-alpha                (/ pi param-alpha)
                                    :configuration-beta                 (/ pi param-beta)
                                    :configuration-tenting-angle        (/ pi param-tenting-angle)
+                                   :configuration-use-border?          param-use-border
                                    :configuration-manuform-offset?     param-manuform-offset
                                    :configuration-z-offset             param-z-offset
                                    :configuration-thumb-alpha          (/ pi param-thumb-alpha)
@@ -270,6 +272,7 @@
 
                         :configuration-use-external-holder? (get connector :external false)
 
+                        :configuration-use-border?          (get form :use-border true)
                         :configuration-use-hotswap?         (get form :hotswap false)
                         :configuration-manuform-offset?     (get form :manuform-offset false)
                         :configuration-thumb-offset-x       (- 0 (get form :thumb-offset-x 52))
