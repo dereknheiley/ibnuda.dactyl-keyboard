@@ -22,6 +22,55 @@
                 (dl/dactyl-top-right confs)
                 (dl/dactyl-top-left confs))))
 
+(defn generate-json-dm [confs is-right?]
+  {:keys      {:columns      (get confs :configuration-ncols)
+               :rows         (get confs :configuration-nrows)
+               :thumb-count  (get confs :configuration-thumb-count)
+               :last-row     (get confs :configuration-last-row-count)
+               :nubs         (get confs :configuration-create-side-nub?)
+               :alps         (get confs :configuration-use-alps?)
+               :inner-column (get confs :configuration-use-inner-column?)}
+   :curve     {:alpha     (get confs :configuration-alpha)
+               :beta      (get confs :configuration-beta)
+               :centercol (get confs :configuration-centercol)
+               :tenting   (get confs :configuration-tenting-angle)}
+   :connector {:external  (get confs :configuration-use-external-holder?)
+               :trrs      (get confs :configuration-use-trrs?)
+               :micro-usb (get confs :configuration-use-promicro-usb-hole?)}
+   :form      {:hotswap       (get confs :configuration-use-hotswap?)
+               :stagger       (not (get confs :configuration-ortho?))
+               :wide-pinky    (get confs :configuration-use-wide-pinky?)
+               :height-offset (get confs :configuration-z-offset)
+               :wire-post     (get confs :configuration-use-wire-post?)
+               :screw-inserts (get confs :configuration-use-screw-inserts?)}
+   :misc      {:keycaps               (get confs :configuration-show-caps?)
+               :wrist-rest            (get confs :configuration-use-wrist-rest?)
+               :integrated-wrist-rest (get confs :configuration-integrated-wrist-rest?)
+               :right-side            is-right?
+               :case                  true}})
+
+(defn generate-json-dl [confs is-right?]
+  {:keys      {:columns     (get confs :configuration-ncols)
+               :num-row     (get confs :configuration-use-numrow?)
+               :last-row    (get confs :configuration-use-lastrow?)
+               :thumb-count (get confs :configuration-thumb-count)}
+   :curve     {:alpha         (get confs :configuration-alpha)
+               :beta          (get confs :configuration-beta)
+               :tenting       (get confs :configuration-tenting-angle)
+               :thumb-alpha   (get confs :configuration-thumb-alpha)
+               :thumb-beta    (get confs :configuration-thumb-beta)
+               :thumb-tenting (get confs :configuration-thumb-tenting-angle)}
+   :connector {:external (get confs :configuration-use-external-holder?)}
+   :form      {:hotswap         (get confs :configuration-use-hotswap?)
+               :thumb-offset-x  (get confs :configuration-thumb-offset-x)
+               :thumb-offset-y  (get confs :configuration-thumb-offset-y)
+               :thumb-offset-z  (get confs :configuration-thumb-offset-z)
+               :z-offset        (get confs :configuration-z-offset)
+               :manuform-offset (get confs :configuration-manuform-offset?)
+               :border          (get confs :configuration-use-border?)}
+   :misc      {:right-side    is-right?
+               :screw-inserts (get confs :configuration-use-screw-inserts?)}})
+
 (defn generate-plate-dl [confs is-right?]
   (write-scad (if is-right?
                 (dl/dactyl-plate-right confs)
@@ -106,9 +155,11 @@
 
         param-generate-plate        (get p "generate-plate")
         param-generate-wrist-rest   (get p "generate-wrist-rest")
+        param-generate-json         (get p "generate-json")
 
         generate-plate?             (some? param-generate-plate)
         generate-wrist-rest?        (some? param-generate-wrist-rest)
+        generate-json?              (some? param-generate-json)
 
         c                           {:configuration-nrows                  param-nrows
                                      :configuration-ncols                  param-ncols
@@ -118,10 +169,10 @@
                                      :configuration-use-alps?              param-use-alps
                                      :configuration-use-inner-column?      param-inner-column
 
-                                     :configuration-alpha                  (/ pi param-alpha)
-                                     :configuration-beta                   (/ pi param-beta)
+                                     :configuration-alpha                  (if generate-json? param-alpha (/ pi param-alpha))
+                                     :configuration-beta                   (if generate-json? param-beta (/ pi param-beta))
                                      :configuration-centercol              param-centercol
-                                     :configuration-tenting-angle          (/ pi param-tenting-angle)
+                                     :configuration-tenting-angle          (if generate-json? param-tenting-angle (/ pi param-tenting-angle))
                                      :configuration-plate-projection?      generate-plate?
 
                                      :configuration-use-external-holder?   param-use-external-holder
@@ -137,15 +188,19 @@
                                      :configuration-use-screw-inserts?     param-screw-inserts
                                      :configuration-use-wrist-rest?        param-wrist-rest
                                      :configuration-integrated-wrist-rest? param-integrated-wrist-rest}
-        generated-scad              (if generate-plate?
-                                      (generate-plate-dm c is-right?)
-                                      (if generate-wrist-rest?
-                                        (generate-wrist-rest-dm c is-right?)
-                                        (generate-case-dm c is-right?)))]
+        generated-file              (cond
+                                      generate-plate? {:file (generate-plate-dm c is-right?)
+                                                       :extension "scad"}
+                                      generate-wrist-rest? {:file (generate-wrist-rest-dm c is-right?)
+                                                            :extension "scad"}
+                                      generate-json? {:file (generate-json-dm c is-right? )
+                                                      :extension "json"}
+                                      :else {:file (generate-case-dm c is-right?)
+                                             :extension "scad"})]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" "inline; filename=\"manuform.scad\""}
-     :body    generated-scad}))
+               "Content-Disposition" (str "inline; filename=\"manuform." (get generated-file :extension) "\"")}
+     :body    (get generated-file :file)}))
 
 (defn generate-lightcycle [req]
   (let [p                         (:form-params req)
@@ -170,13 +225,18 @@
         param-z-offset            (parse-int (get p "z-offset"))
         param-thumb-offset-x      (parse-int (get p "thumb-offset-x"))
         param-thumb-offset-y      (parse-int (get p "thumb-offset-y"))
-        is-right?                 (parse-bool (get p "right-side"))
         param-thumb-offset-z      (parse-int (get p "thumb-offset-z"))
         param-use-external-holder (parse-bool (get p "external-holder"))
-        param-generate-plate      (get p "generate-plate")
-        generate-plate?           (some? param-generate-plate)
         param-screw-inserts       (parse-bool (get p "screw-inserts"))
         param-show-keycaps        (parse-bool (get p "show-keycaps"))
+
+        is-right?                 (parse-bool (get p "right-side"))
+
+        param-generate-plate      (get p "generate-plate")
+        param-generate-json       (get p "generate-json")
+
+        generate-plate?           (some? param-generate-plate)
+        generate-json?            (some? param-generate-json)
 
         c                         {:configuration-ncols                param-ncols
                                    :configuration-use-numrow?          param-use-numrow?
@@ -186,29 +246,33 @@
                                    :configuration-use-alps?            false
                                    :configuration-use-hotswap?         param-hotswap
 
-                                   :configuration-alpha                (/ pi param-alpha)
-                                   :configuration-beta                 (/ pi param-beta)
-                                   :configuration-tenting-angle        (/ pi param-tenting-angle)
+                                   :configuration-alpha                (if generate-json? param-alpha (/ pi param-alpha))
+                                   :configuration-beta                 (if generate-json? param-beta (/ pi param-beta))
+                                   :configuration-tenting-angle        (if generate-json? param-tenting-angle (/ pi param-tenting-angle))
                                    :configuration-use-border?          param-use-border
                                    :configuration-manuform-offset?     param-manuform-offset
                                    :configuration-z-offset             param-z-offset
-                                   :configuration-thumb-alpha          (/ pi param-thumb-alpha)
-                                   :configuration-thumb-beta           (/ pi param-thumb-beta)
-                                   :configuration-thumb-tenting-angle  (/ pi param-thumb-tenting-angle)
-                                   :configuration-thumb-offset-x       (- 0 param-thumb-offset-x)
-                                   :configuration-thumb-offset-y       (- 0 param-thumb-offset-y)
+                                   :configuration-thumb-alpha          (if generate-json? param-thumb-alpha (/ pi param-thumb-alpha))
+                                   :configuration-thumb-beta           (if generate-json? param-thumb-beta (/ pi param-thumb-beta))
+                                   :configuration-thumb-tenting-angle  (if generate-json? param-thumb-tenting-angle (/ pi param-thumb-tenting-angle))
+                                   :configuration-thumb-offset-x       (if generate-json? param-thumb-offset-x (- 0 param-thumb-offset-x))
+                                   :configuration-thumb-offset-y       (if generate-json? param-thumb-offset-y (- 0 param-thumb-offset-y))
                                    :configuration-thumb-offset-z       param-thumb-offset-z
                                    :configuration-use-external-holder? param-use-external-holder
                                    :configuration-show-caps?           param-show-keycaps
 
                                    :configuration-use-screw-inserts?   param-screw-inserts}
-        generated-scad            (if generate-plate?
-                                    (generate-plate-dl c is-right?)
-                                    (generate-case-dl c is-right?))]
+        generated-file              (cond
+                                      generate-plate? {:file (generate-plate-dl c is-right?)
+                                                       :extension "scad"}
+                                      generate-json? {:file (generate-json-dl c is-right? )
+                                                      :extension "json"}
+                                      :else {:file (generate-case-dl c is-right?)
+                                             :extension "scad"})]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" "inline; filename=\"lightcycle.scad\""}
-     :body    generated-scad}))
+               "Content-Disposition" (str "inline; filename=\"lightcycle." (get generated-file :extension) "\"")}
+     :body    (get generated-file :file)}))
 
 (defn api-generate-manuform [{body :body}]
   (let [keys           (get body :keys)
