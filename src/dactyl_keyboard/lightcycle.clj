@@ -417,20 +417,25 @@
                               (thumb-place c 0  0        (thumb-br 1))
                               (key-place   c 1 cornerrow web-post-bl)
                               (thumb-place c 0  0        (thumb-tr 1))
-                              (key-place   c 1  4        web-post-tl)
                               (key-place   c 1  3        web-post-bl)
-                              (thumb-place c 0 -1/2      (thumb-tr 2))
+                              (key-place   c 1  3        web-post-bl)
+                              (thumb-place c 0  0        (thumb-tr 1))
                               (key-place   c 0  3        web-post-br)
                               (key-place   c 0  3        web-post-bl)
-                              (thumb-place c 0 -1/2      (thumb-tr 2))
-                              (thumb-place c 0 -1/2      (thumb-tl 2))
+                              (thumb-place c 0  0        (thumb-tr 1))
+                              (thumb-place c 0  0        (thumb-tl 1))
                               (key-place   c 0  3        web-post-bl)
-                              (thumb-place c 1 -1/2      (thumb-tr 2))
+                              (thumb-place c 1  0        (thumb-tr 1))
                               (thumb-place c 1  1        (thumb-br 1))
                               (key-place   c 0  3        web-post-bl)
+                              (thumb-place c 1  1        (thumb-tr 1))
                               (key-place   c 0  3        web-post-tl)
-                              (thumb-place c 1  1        (thumb-br 1))
-                              (thumb-place c 1  1        (thumb-tr 1)))
+                              #_(thumb-place c 0  0        (thumb-tl 1))
+                              #_(thumb-place c 1  0        (thumb-tr 1))
+                              #_(key-place   c 0  3        web-post-bl)
+                              #_(key-place   c 0  3        web-post-tl)
+                              #_(thumb-place c 1  0        (thumb-tr 1))
+                              #_(thumb-place c 1  1        (thumb-tr 1)))
        (triangle-hulls (thumb-place c 0 -1/2      (thumb-br 2))
                        (key-place   c 1 cornerrow web-post-bl)
                        (thumb-place c 0 -1/2      (thumb-tr 2))
@@ -1028,7 +1033,7 @@
    :configuration-use-lastrow?         true
    :configuration-create-side-nub?     false
    :configuration-use-alps?            false
-   :configuration-use-hotswap?         false
+   :configuration-use-hotswap?         true
    :configuration-thumb-count          :eight
    :configuration-manuform-offset?     false
 
@@ -1046,7 +1051,7 @@
    :configuration-use-screw-inserts?   false
    :configuration-thumb-offset-x       -54
    :configuration-thumb-offset-y       -45
-   :configuration-thumb-offset-z       18
+   :configuration-thumb-offset-z       23
    :configuration-show-caps?           false})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
