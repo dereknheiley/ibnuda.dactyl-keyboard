@@ -904,11 +904,11 @@
        :two ()
        :three ()
        (hull (place (+ 3/2 0.05) thumb-front-row (translate [0 1 1] wall-sphere-bottom-front))
-             (place (+ 5/2 0.05) thumb-front-row (translate [0 1 1] wall-sphere-bottom-front))
-             (place 1 -1   web-post-bl)
-             (place 2 -1/2   thumb-bl)
-             (place 2 -1/2   thumb-br)
-             (place 3 -1   web-post-br))))))
+             (place (+ 5/2 0.05) thumb-front-row (translate [1 1 1] wall-sphere-bottom-front))
+             (place 1            -1              web-post-bl)
+             (place 2            -1/2            thumb-bl)
+             (place 2            -1/2            thumb-br)
+             (place 2            -1              web-post-bl))))))
 
 (defn frj9-start [c]
   (let [use-numrow? (get c :configuration-use-numrow?)]
@@ -1031,20 +1031,23 @@
    :configuration-use-hotswap?         false
    :configuration-thumb-count          :eight
    :configuration-manuform-offset?     false
-   :configuration-alpha                (/ pi 16)
-   :configuration-beta                 (/ pi 36)
-   :configuration-z-offset             18
-   :configuration-tenting-angle        (/ pi 18)
-   :configuration-thumb-tenting-angle  (/ pi -9)
-   :configuration-thumb-alpha          (/ pi 16)
+
+   :configuration-alpha                (/ pi 12)
+   :configuration-beta                 (/ pi 30)
+   :configuration-tenting-angle        (/ pi 7)
+
+   :configuration-thumb-tenting-angle  (/ pi -5)
+   :configuration-thumb-alpha          (/ pi 12)
    :configuration-thumb-beta           (/ pi 9)
-   :configuration-use-border?          true
+
+   :configuration-z-offset             18
+   :configuration-use-border?          false
    :configuration-use-external-holder? false
    :configuration-use-screw-inserts?   false
    :configuration-thumb-offset-x       -54
    :configuration-thumb-offset-y       -45
    :configuration-thumb-offset-z       18
-   :configuration-show-caps?           true})
+   :configuration-show-caps?           false})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
         (write-scad (dactyl-top-right c)))
