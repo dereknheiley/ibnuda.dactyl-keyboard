@@ -13,62 +13,62 @@
                 <h3>Keys</h3>
             </label>
             <fieldset name="keys" id="keys">
-                <label for="ncols">Number of columns (4 - 7)</label>
-                <input type="number" name="ncols" id="ncols" value=6 min="4" max="7">
-                <label for="thumb-count">Thumb key count?</label>
-                <select id="thumb-count" name="thumb-count">
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="5" selected>5</option>
-                    <option value="6">6</option>
-                    <option value="8">8</option>
+                <label for="keys.columns">Number of columns (4 - 7)</label>
+                <input type="number" name="keys.columns" id="keys.columns" value=6 min="4" max="7">
+                <label for="keys.thumb-count">Thumb key count?</label>
+                <select id="keys.thumb-count" name="keys.thumb-count">
+                    <option value="two">2</option>
+                    <option value="three">3</option>
+                    <option value="five" selected>5</option>
+                    <option value="six">6</option>
+                    <option value="eight">8</option>
                 </select>
-                <label for="last-row">Use bottom row?</label>
-                <select id="last-row" name="last-row">
+                <label for="keys.last-row">Use bottom row?</label>
+                <select id="keys.last-row" name="keys.last-row">
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                 </select>
-                <label for="num-row">Use num row?</label>
-                <select id="num-row" name="num-row">
+                <label for="keys.num-row">Use num row?</label>
+                <select id="keys.num-row" name="keys.num-row">
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                 </select>
             </fieldset>
-            <label for="curvature">
+            <label for="curve">
                 <h3>Curvature & Tenting</h3>
             </label>
-            <fieldset name="curvature" id=curvature>
-                <label for="alpha">Column's Curvature</label>
-                <select id="alpha" name="alpha">
+            <fieldset name="curve" id="curve">
+                <label for="curve.alpha">Column's Curvature</label>
+                <select id="curve.alpha" name="curve.alpha">
                     {% for cc in column-curvature %}
                     <option value={{cc}}>pi/{{cc}}</option>
                     {% endfor %}
                 </select>
-                <label for="beta">Row's Curvature</label>
-                <select id="beta" name="beta">
+                <label for="curve.beta">Row's Curvature</label>
+                <select id="curve.beta" name="curve.beta">
                     <option value=36>pi/36</option>
                     <option value=30>pi/30</option>
                 </select>
-                <label for="tenting-angle">Tenting Angle</label>
-                <select id="tenting-angle" name="tenting-angle" value="pi/12">
+                <label for="curve.tenting-angle">Tenting Angle</label>
+                <select id="curve.tenting-angle" name="curve.tenting-angle" value="pi/12">
                     {% for ta in tenting-angle %}
                     <option value={{ta}}>pi/{{ta}}</option>
                     {% endfor %}
                 </select>
-                <label for="thumb-alpha">Thumb's Column Curvature</label>
-                <select id="thumb-alpha" name="thumb-alpha">
+                <label for="curve.thumb-alpha">Thumb's Column Curvature</label>
+                <select id="curve.thumb-alpha" name="curve.thumb-alpha">
                     {% for cc in thumb-column-curvature %}
                     <option value={{cc}}>pi/{{cc}}</option>
                     {% endfor %}
                 </select>
-                <label for="thumb-beta">Thumb's Row Curvature</label>
-                <select id="thumb-beta" name="thumb-beta">
+                <label for="curve.thumb-beta">Thumb's Row Curvature</label>
+                <select id="curve.thumb-beta" name="curve.thumb-beta">
                     {% for rc in thumb-row-curvature %}
                     <option value={{rc}}>pi/{{rc}}</option>
                     {% endfor %}
                 </select>
-                <label for="thumb-tenting-angle">Thumb Tenting Angle</label>
-                <select id="thumb-tenting-angle" name="thumb-tenting-angle">
+                <label for="curve.thumb-tenting-angle">Thumb Tenting Angle</label>
+                <select id="curve.thumb-tenting-angle" name="curve.thumb-tenting-angle">
                     {% for tta in thumb-tenting-angle %}
                     <option value={{tta}}>pi/{{tta}}</option>
                     {% endfor %}
@@ -78,25 +78,25 @@
                 <h3>Connectors</h3>
             </label>
             <fieldset name="connector" id="connector">
-                <label for="external-holder">Use loligagger's external holder or default cutout (RJ9 + big USB
+                <label for="connector.external">Use loligagger's external holder or default cutout (RJ9 + big USB
                     hole)?</label>
-                <select id="external-holder" name="external-holder">
+                <select id="connector.external" name="connector.external">
                     <option value="false">No</option>
                     <option value="true">Yes</option>
                 </select>
             </fieldset>
-            <label for="case-form">
+            <label for="form">
                 <h3>Form of the Case</h3>
             </label>
-            <label for="hotswap">Dongguan Kaihua Electronics Co., Ltd
-                (originally named Longhua Electronics)'s Hotswap Socket?</label>
-            <select id="hotswap" name="hotswap">
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-            </select>
-            <fieldset name="thumb-offset" id="thumb-offset">
-                <label for="thumb-offset-x">Thumb Position in X direction (left/right)</label>
-                <select id="thumb-offset-x" name="thumb-offset-x">
+            <fieldset name="form" id="form">
+                <label for="form.hotswap">Dongguan Kaihua Electronics Co., Ltd
+                    (originally named Longhua Electronics)'s Hotswap Socket?</label>
+                <select id="form.hotswap" name="hotswap">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+                <label for="form.thumb-offset-x">Thumb Position in X direction (left/right)</label>
+                <select id="form.thumb-offset-x" name="form.thumb-offset-x">
                     <option value="52">Default</option>
                     <option value="48">Closer to body</option>
                     <option value="44">Even closer to body</option>
@@ -107,16 +107,16 @@
                     <option value="64">Even farther farther to body</option>
                     <option value="68">Even farther farther farther to body</option>
                 </select>
-                <label for="thumb-offset-y">Thumb Position in Y direction (front/back)</label>
-                <select id="thumb-offset-y" name="thumb-offset-y">
+                <label for="form.thumb-offset-y">Thumb Position in Y direction (front/back)</label>
+                <select id="form.thumb-offset-y" name="form.thumb-offset-y">
                     <option value="45">Default</option>
                     <option value="49">Farther to body</option>
                     <option value="53">Even farther to body</option>
                     <option value="57">Even farther farther to body</option>
                     <option value="57">Even farther farther farther to body</option>
                 </select>
-                <label for="thumb-offset-z">Thumb Position in Z direction (up/down)</label>
-                <select id="thumb-offset-z" name="thumb-offset-z">
+                <label for="form.thumb-offset-z">Thumb Position in Z direction (up/down)</label>
+                <select id="form.thumb-offset-z" name="form.thumb-offset-z">
                     <option value="27">Default</option>
                     <option value="23">Lower to body</option>
                     <option value="19">Even lower to body</option>
@@ -127,47 +127,40 @@
                     <option value="39">Even higher higher to body</option>
                     <option value="43">Even higher higher higher to body</option>
                 </select>
-            </fieldset>
-            <label for="case-form">
-                <h3>Form of the Case</h3>
-            </label>
-            <fieldset name="manuform-offset" id="manuform-offset">
-                <label for="manuform-offset">Use Dactyl Manuform's Columnar Stagger</label>
-                <select id="manuform-offset" name="manuform-offset">
+                <label for="form.manuform-offset">Use Dactyl Manuform's Columnar Stagger</label>
+                <select id="form.manuform-offset" name="form.manuform-offset">
                     <option value="false">No</option>
                     <option value="true">Yes</option>
                 </select>
-            </fieldset>
-            <fieldset name="case-form" id="case-form">
-                <label for="z-offset">Height Offset</label>
-                <select id="z-offset" name="z-offset">
+                <label for="form.z-offset">Height Offset</label>
+                <select id="form.z-offset" name="form.z-offset">
                     <option value="18" selected>18mm</option>
                     {% for ho in height-offset %}
                     <option value={{ho}}>{{ho}}mm</option>
                     {% endfor %}
                 </select>
-                <label for="use-border">Border</label>
-                <select name="use-border" id="use-border">
+                <label for="form.border">Border</label>
+                <select name="form.border" id="form.border">
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                 </select>
             </fieldset>
-            <label for="miscelania">
+            <label for="misc">
                 <h3>Miscelania</h3>
             </label>
-            <fieldset name="miscelania" id="miscelania">
-                <label for="show-keycaps">Show Keycaps?</label>
-                <select id="show-keycaps" name="show-keycaps">
+            <fieldset name="misc" id="misc">
+                <label for="misc.show-keycaps">Show Keycaps?</label>
+                <select id="misc.show-keycaps" name="misc.show-keycaps">
                     <option value="false">No</option>
                     <option value="true">Yes</option>
                 </select>
-                <label for="right-side">Right side or left side?</label>
-                <select id="right-side" name="right-side">
+                <label for="misc.right-side">Right side or left side?</label>
+                <select id="misc.right-side" name="misc.right-side">
                     <option value="true">Right</option>
                     <option value="false">Left</option>
                 </select>
-                <label for="screw-inserts">Screw inserts</label>
-                <select id="screw-inserts" name="screw-inserts">
+                <label for="misc.screw-inserts">Screw inserts</label>
+                <select id="misc.screw-inserts" name="misc.screw-inserts">
                     <option value="false">No screw inserts</option>
                     <option value="true">Screw inserts</option>
                 </select>

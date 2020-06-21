@@ -9,27 +9,6 @@
     <link rel="stylesheet" href="milligram.min.css">
     <link rel="stylesheet" href="main.css">
     <script>
-        function setkeyboard(ncols, nrows, thumbcount, innercolumn, lastrow, widepinky) {
-            document.getElementById("ncols").value = ncols;
-            document.getElementById("nrows").value = nrows;
-            document.getElementById("thumb-count").value = thumbcount;
-            document.getElementById("inner-column").value = innercolumn;
-            document.getElementById("last-row").value = lastrow;
-            document.getElementById("wide-pinky").value = widepinky;
-        }
-
-        function setminidox() {
-            setkeyboard(5, 4, "three", "false", "zero", "false");
-        }
-
-        function setcorne() {
-            setkeyboard(6, 4, "three", "false", "zero", "false");
-        }
-
-        function setergodox() {
-            setkeyboard(6, 5, "six", "true", "full", "true");
-        }
-
         function toggle_connectors_fields() {
             const use_external_holder = document.getElementById("external-holder").value;
             const impacted_ids = ["trrs-connector", "usb-hole"];

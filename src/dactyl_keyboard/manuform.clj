@@ -1377,8 +1377,7 @@
 
 (def c {:configuration-nrows                  4
         :configuration-ncols                  5
-        :configuration-create-side-nub?       false
-        :configuration-use-alps?              false
+        :configuration-switch-type            :box
         :configuration-thumb-count            :two
 
         :configuration-alpha                  (/ pi 12)
@@ -1392,7 +1391,7 @@
         :configuration-use-external-holder?   false
 
         :configuration-use-hotswap?           false
-        :configuration-ortho?                 false
+        :configuration-stagger?               true
         :configuration-use-inner-column?      false
         :configuration-z-offset               4
         :configuration-show-caps?             false

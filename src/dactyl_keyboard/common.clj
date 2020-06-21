@@ -52,13 +52,13 @@
    4 >= pinky finger's column.
    [x y z] means that it will be staggered by 'x'mm in X axis (left/right),
    'y'mm in Y axis (front/back), and 'z'mm in Z axis (up/down). "
-  [ortho? column]
-  (if ortho?
-    (cond (= column 2)  [0   0    -6.5]
-          (>= column 4) [0   0     6]
-          :else         [0   0     0])
+  [stagger? column]
+  (if stagger?
     (cond (= column 2)  [0   2.82 -6.5]
           (>= column 4) [0  -13    6]
+          :else         [0   0     0])
+    (cond (= column 2)  [0   0    -6.5]
+          (>= column 4) [0   0     6]
           :else         [0   0     0])))
 
 (defn fcenterrow
@@ -132,7 +132,7 @@
         beta              (get c :configuration-beta)
         centercol         (get c :configuration-centercol 2)
         centerrow         (fcenterrow (get c :configuration-nrows 5))
-        ortho?            (get c :configuration-ortho?)
+        stagger?          (get c :configuration-stagger?)
         tenting-angle     (get c :configuration-tenting-angle)
         keyboard-z-offset (get c :configuration-z-offset)
         column-angle      (* beta (- centercol column))
@@ -147,7 +147,7 @@
                                (translate-fn [0 0 (- (fcolumn-radius beta))])
                                (rotate-y-fn  column-angle)
                                (translate-fn [0 0 (fcolumn-radius beta)])
-                               (translate-fn (dm-column-offset ortho? column)))]
+                               (translate-fn (dm-column-offset stagger? column)))]
     (->> placed-shape
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))))
@@ -200,9 +200,14 @@
    asks whether it creates hotswap housing or not based on `configuration-use-hotswap?`.
    and determines whether it should use alps cutout or not based on  `configuration-use-alps?`"
   [c]
-  (let [create-side-nub?    (get c :configuration-create-side-nub?)
+  (let [switch-type         (get c :configuration-switch-type)
+        create-side-nub?    (case switch-type
+                              :mx true
+                              false) #_(get c :configuration-create-side-nub?)
+        use-alps?           (case switch-type
+                              :alps true
+                              false) #_(get c :configuration-use-alps?)
         use-hotswap?        (get c :configuration-use-hotswap?)
-        use-alps?           (get c :configuration-use-alps?)
         plate-projection?   (get c :configuration-plate-projection? false)
         alps-fill-in        (translate [0 0 (/ plate-thickness 2)] (cube alps-width alps-height plate-thickness))
         mx-fill-in          (translate [0 0 (/ plate-thickness 2)] (cube keyswitch-width keyswitch-height plate-thickness))

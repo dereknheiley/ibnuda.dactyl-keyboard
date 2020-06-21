@@ -814,7 +814,7 @@
         step             wall-step
         place            (partial thumb-place c)
         column           (case thumb-count :five 2 :six 2 :eight 2 1)
-        left-wall-length (case thumb-count :two 1.05 2.05)]
+        left-wall-length (case thumb-count :two 1.15 2.18)]
     (union
      (apply union
             (for [x (range-inclusive (+ -1 0.07) (- left-wall-length step) step)]
@@ -1029,24 +1029,24 @@
 
 (def c
   {:configuration-ncols                5
-   :configuration-use-numrow?          true
-   :configuration-use-lastrow?         true
+   :configuration-use-numrow?          false
+   :configuration-use-lastrow?         false
    :configuration-create-side-nub?     false
    :configuration-use-alps?            false
-   :configuration-use-hotswap?         true
-   :configuration-thumb-count          :eight
-   :configuration-manuform-offset?     false
+   :configuration-use-hotswap?         false
+   :configuration-thumb-count          :five
+   :configuration-manuform-offset?     true
 
    :configuration-alpha                (/ pi 12)
-   :configuration-beta                 (/ pi 30)
-   :configuration-tenting-angle        (/ pi 7)
+   :configuration-beta                 (/ pi 36)
+   :configuration-tenting-angle        (/ pi 12)
 
-   :configuration-thumb-tenting-angle  (/ pi -5)
-   :configuration-thumb-alpha          (/ pi 12)
-   :configuration-thumb-beta           (/ pi 9)
+   :configuration-thumb-alpha          (/ pi 36)
+   :configuration-thumb-beta           (/ pi 36)
+   :configuration-thumb-tenting-angle  (/ pi 24)
 
    :configuration-z-offset             18
-   :configuration-use-border?          false
+   :configuration-use-border?          true
    :configuration-use-external-holder? false
    :configuration-use-screw-inserts?   false
    :configuration-thumb-offset-x       -54
