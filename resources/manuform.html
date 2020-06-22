@@ -22,59 +22,6 @@
     function setergodox() {
         setkeyboard(6, 5, "six", "true", "full", "true");
     }
-    var something = {
-        "keys": {
-            "columns": 6,
-            "rows": 6,
-            "thumb-count": "six",
-            "last-row": "two",
-            "switch-type": "mx",
-            "inner-column": true
-        },
-        "curve": {
-            "alpha": 12,
-            "beta": 36,
-            "centercol": 4,
-            "tenting": 9
-        },
-        "connector": {
-            "external": false,
-            "trrs": true,
-            "micro-usb": true
-        },
-        "form": {
-            "hotswap": true,
-            "stagger": false,
-            "wide-pinky": true,
-            "height-offset": 4,
-            "wire-post": true,
-            "screw-inserts": true
-        },
-        "misc": {
-            "keycaps": true,
-            "wrist-rest": false,
-            "integrated-wrist-rest": false,
-            "right-side": true,
-            "case": true
-        }
-    };
-    function loadpopup() {
-        var i = 0;
-        for (const topkey in something) {
-            if (something.hasOwnProperty(topkey)) {
-                const key = something[topkey];
-                var j = 0;
-                for (const element in key) {
-                    if (key.hasOwnProperty(element)) {
-                        const somethingvalue = key[element];
-                        console.log(topkey + '.' + element + '=' + somethingvalue);
-                        document.getElementById(topkey + '.' + element).value = somethingvalue;
-                    }
-                }
-            }
-        }
-    }
-
 </script>
 <div class="row">
     <div class="column column-75">
@@ -83,7 +30,17 @@
     </div>
 </div>
 <div class="row">
-    <div class="column column-750">
+    <div class="colum column-75">
+        <p>If you have downloaded JSON config from this site in the past, you might want to try to open it here again:
+        </p>
+        <input type="file" name="jsonloader" id="jsonloader" onchange="shove_json()">
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+<div class="row">
+    <div class="column column-75">
         <form method="POST" action="/manuform">
             <label for="keys">
                 <h3>Keys</h3>

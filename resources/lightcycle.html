@@ -7,6 +7,16 @@
     </div>
 </div>
 <div class="row">
+    <div class="colum column-75">
+        <p>If you have downloaded JSON config from this site in the past, you might want to try to open it here again:
+        </p>
+        <input type="file" name="jsonloader" id="jsonloader" onchange="shove_json()">
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+<div class="row">
     <div class="column column-75">
         <form method="POST" action="/lightcycle">
             <label for="keys">
@@ -91,7 +101,7 @@
             <fieldset name="form" id="form">
                 <label for="form.hotswap">Dongguan Kaihua Electronics Co., Ltd
                     (originally named Longhua Electronics)'s Hotswap Socket?</label>
-                <select id="form.hotswap" name="hotswap">
+                <select id="form.hotswap" name="form.hotswap">
                     <option value="false">No</option>
                     <option value="true">Yes</option>
                 </select>

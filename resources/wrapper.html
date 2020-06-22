@@ -46,6 +46,36 @@
                 document.querySelector("input[name='generate-wrist-rest']").style.display = 'block'; // Show the button
             }
         }
+        function shove_json() {
+            var file = document.getElementById('jsonloader').files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file, 'utf-8');
+                reader.onload = function (evt) {
+                    json_val_to_form(JSON.parse(evt.target.result));
+                }
+                reader.onerror = function (evt) {
+                    document.getElementById('somewhere').innerHTML = 'fail';
+                }
+            }
+        }
+        function json_val_to_form(something) {
+            var i = 0;
+            for (const topkey in something) {
+                if (something.hasOwnProperty(topkey)) {
+                    const key = something[topkey];
+                    var j = 0;
+                    for (const element in key) {
+                        if (key.hasOwnProperty(element)) {
+                            const somethingvalue = key[element];
+                            console.log(topkey + '.' + element + '=' + somethingvalue);
+                            document.getElementById(topkey + '.' + element).value = somethingvalue;
+                        }
+                    }
+                }
+            }
+        }
+
     </script>
 </head>
 

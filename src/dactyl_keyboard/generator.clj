@@ -15,8 +15,7 @@
                :rows         (get confs :configuration-nrows)
                :thumb-count  (get confs :configuration-thumb-count)
                :last-row     (get confs :configuration-last-row-count)
-               :nubs         (get confs :configuration-create-side-nub?)
-               :alps         (get confs :configuration-use-alps?)
+               :switch-type  (get confs :configuration-switch-type)
                :inner-column (get confs :configuration-use-inner-column?)}
    :curve     {:alpha     (get confs :configuration-alpha)
                :beta      (get confs :configuration-beta)
