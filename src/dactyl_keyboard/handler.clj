@@ -152,6 +152,7 @@
         param-z-offset            (parse-int (get p "form.z-offset"))
         param-manuform-offset     (parse-bool (get p "form.manuform-offset"))
         param-use-border          (parse-bool (get p "form.border"))
+        param-thick-wall          (parse-bool (get p "form.thick-wall"))
 
         param-use-external-holder (parse-bool (get p "misc.external-holder"))
         param-screw-inserts       (parse-bool (get p "misc.screw-inserts"))
@@ -170,21 +171,24 @@
                                    :configuration-thumb-count          param-thumb-count
                                    :configuration-create-side-nub?     false
                                    :configuration-use-alps?            false
-                                   :configuration-use-hotswap?         param-hotswap
 
                                    :configuration-alpha                (if generate-json? param-alpha (/ pi param-alpha))
                                    :configuration-beta                 (if generate-json? param-beta (/ pi param-beta))
                                    :configuration-tenting-angle        (if generate-json? param-tenting-angle (/ pi param-tenting-angle))
-                                   :configuration-use-border?          param-use-border
-                                   :configuration-manuform-offset?     param-manuform-offset
-                                   :configuration-z-offset             param-z-offset
                                    :configuration-thumb-alpha          (if generate-json? param-thumb-alpha (/ pi param-thumb-alpha))
                                    :configuration-thumb-beta           (if generate-json? param-thumb-beta (/ pi param-thumb-beta))
                                    :configuration-thumb-tenting-angle  (if generate-json? param-thumb-tenting-angle (/ pi param-thumb-tenting-angle))
+
+                                   :configuration-use-external-holder? param-use-external-holder
+                                   :configuration-use-hotswap?         param-hotswap
                                    :configuration-thumb-offset-x       (if generate-json? param-thumb-offset-x (- 0 param-thumb-offset-x))
                                    :configuration-thumb-offset-y       (if generate-json? param-thumb-offset-y (- 0 param-thumb-offset-y))
                                    :configuration-thumb-offset-z       param-thumb-offset-z
-                                   :configuration-use-external-holder? param-use-external-holder
+                                   :configuration-z-offset             param-z-offset
+                                   :configuration-manuform-offset?     param-manuform-offset
+                                   :configuration-use-border?          param-use-border
+                                   :configuration-thick-wall?          param-thick-wall
+
                                    :configuration-show-caps?           param-show-keycaps
 
                                    :configuration-use-screw-inserts?   param-screw-inserts}
@@ -210,8 +214,7 @@
                         :configuration-nrows                  (get keys :rows 4)
                         :configuration-thumb-count            (keyword (get keys :thumb-count "six"))
                         :configuration-last-row-count         (keyword (get keys :last-row "two"))
-                        :configuration-create-side-nub?       (get keys :nubs false)
-                        :configuration-use-alps?              (get keys :alps false)
+                        :configuration-switch-type            (keyword (get keys :switch-type "box"))
                         :configuration-use-inner-column?      (get keys :inner-column false)
 
                         :configuration-alpha                  (/ pi (get curve :alpha 12))
@@ -224,7 +227,7 @@
                         :configuration-use-promicro-usb-hole? (get connector :micro-usb false)
 
                         :configuration-use-hotswap?           (get form :hotswap false)
-                        :configuration-ortho?                 (not (get form :stagger true))
+                        :configuration-stagger?               (get form :stagger true)
                         :configuration-use-wide-pinky?        (get form :wide-pinky false)
                         :configuration-z-offset               (get form :height-offset 4)
                         :configuration-use-wire-post?         (get form :wire-post false)
@@ -262,13 +265,14 @@
 
                         :configuration-use-external-holder? (get connector :external false)
 
-                        :configuration-use-border?          (get form :use-border true)
                         :configuration-use-hotswap?         (get form :hotswap false)
-                        :configuration-manuform-offset?     (get form :manuform-offset false)
                         :configuration-thumb-offset-x       (- 0 (get form :thumb-offset-x 52))
                         :configuration-thumb-offset-y       (- 0 (get form :thumb-offset-y 45))
                         :configuration-thumb-offset-z       (get form :thumb-offset-z 27)
                         :configuration-z-offset             (get form :z-offset 10)
+                        :configuration-manuform-offset?     (get form :manuform-offset false)
+                        :configuration-use-border?          (get form :use-border true)
+                        :configuration-thick-wall?          (get form :thick-wall false)
 
                         :configuration-use-screw-inserts?   (get misc :screw-inserts false)}
         generated-scad (g/generate-case-dl c (get misc :right-side true))]

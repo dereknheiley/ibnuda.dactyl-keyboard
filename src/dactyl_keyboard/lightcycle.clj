@@ -192,6 +192,7 @@
          (translate [mount-width 0 0])
          (rotate (* pi (- 1/4 3/16)) [0 0 1])
          #_(rotate beta [1 1 0])
+         #_(rotate thumb-beta [1 1 0])
          (rotate thumb-tenting-angle rotation-angle)
          (translate thumb-offset))))
 
@@ -499,36 +500,41 @@
 (def wall-step 0.1)
 (def wall-sphere-n 20) ;;Sphere resolution, lower for faster renders
 
-(defn wall-sphere-at [coords]
-  (->> (sphere 1)
-       (translate coords)
-       (with-fn wall-sphere-n)))
+(defn wall-sphere-at [thick-wall? coords]
+  (let [thickness   (if thick-wall? 3 1)]
+    (->> (sphere thickness)
+         (translate coords)
+         (with-fn wall-sphere-n) )))
 
 (defn scale-to-range [start end x]
   (+ start (* (- end start) x)))
 
-(defn wall-sphere-bottom [front-to-back-scale]
-  (wall-sphere-at [0
+(defn wall-sphere-bottom [thick-wall? front-to-back-scale]
+  (wall-sphere-at thick-wall?
+                  [0
                    (scale-to-range
                     (+ (/ mount-height -2) -3.5)
                     (+ (/ mount-height 2) 5.0)
                     front-to-back-scale)
                    -5]))
 
-(defn wall-sphere-top [front-to-back-scale use-border?]
-  (wall-sphere-at [0
+(defn wall-sphere-top [thick-wall? front-to-back-scale use-border?]
+  (wall-sphere-at thick-wall?
+                  [0
                    (scale-to-range
                     (+ (/ mount-height -2) -3.5)
                     (+ (/ mount-height 2) 3.5)
                     front-to-back-scale)
                    (if use-border? 5 0)]))
 
-(defn wall-sphere-top-back [use-border?]
-  (wall-sphere-top 1 use-border?))
-(def wall-sphere-bottom-back (wall-sphere-bottom 1))
-(def wall-sphere-bottom-front (wall-sphere-bottom 0))
-(defn wall-sphere-top-front [use-border?]
-  (wall-sphere-top 0 use-border?))
+(defn wall-sphere-top-back [thick-wall? use-border?]
+  (wall-sphere-top thick-wall? 1 use-border?))
+(defn wall-sphere-bottom-back [thick-wall?]
+  (wall-sphere-bottom thick-wall? 1))
+(defn wall-sphere-bottom-front [thick-wall?]
+  (wall-sphere-bottom thick-wall? 0))
+(defn wall-sphere-top-front [thick-wall? use-border?]
+  (wall-sphere-top thick-wall? 0 use-border?))
 
 (defn top-case-cover [place-fn sphere
                       x-start x-end
@@ -549,13 +555,14 @@
         manuform-offset?               (get c :configuration-manuform-offset?)
         use-border?                    (get c :configuration-use-border?)
         cornerrow                      (fcornerrow-lightcycle use-lastrow?)
+        thick-wall?                    (get c :configuration-thick-wall?)
         penultcol                      (fpenultcol ncols)
         antecol                        (fantecol ncols)
         step                           wall-step ;;0.1
         wall-step                      0.1 ;;0.05
         place                          (partial case-place c)
         top-cover                      (fn [x-start x-end y-start y-end]
-                                         (top-case-cover place (wall-sphere-top-front use-border?)
+                                         (top-case-cover place (wall-sphere-top-front thick-wall? use-border?)
                                                          x-start x-end y-start y-end
                                                          wall-step))
         index-finger-cover-multiplier  (if manuform-offset? 0.85 0.92)
@@ -564,44 +571,44 @@
     (union
      (apply union
             (for [x (range-inclusive 0.7 (- (right-wall-column c) step) step)]
-              (hull (place x cornerrow (wall-sphere-top-front use-border?))
-                    (place (+ x step) cornerrow (wall-sphere-top-front use-border?))
-                    (place x cornerrow wall-sphere-bottom-front)
-                    (place (+ x step) cornerrow wall-sphere-bottom-front))))
+              (hull (place x cornerrow (wall-sphere-top-front thick-wall? use-border?))
+                    (place (+ x step) cornerrow (wall-sphere-top-front thick-wall? use-border?))
+                    (place x cornerrow (wall-sphere-bottom-front thick-wall?))
+                    (place (+ x step) cornerrow (wall-sphere-bottom-front thick-wall?)))))
      (apply union
             (for [x (range-inclusive 0.7 (- (right-wall-column c) step) step)]
-              (bottom-hull (place x cornerrow wall-sphere-bottom-front)
-                           (place (+ x step) cornerrow wall-sphere-bottom-front))))
+              (bottom-hull (place x cornerrow (wall-sphere-bottom-front thick-wall?))
+                           (place (+ x step) cornerrow (wall-sphere-bottom-front thick-wall?)))))
      (apply union
             (for [x (range-inclusive 0.5 0.7 0.1)]
-              (hull (place x cornerrow (wall-sphere-top-front use-border?))
-                    (place (+ x step) cornerrow (wall-sphere-top-front use-border?))
-                    (place 0.7 cornerrow wall-sphere-bottom-front))))
+              (hull (place x cornerrow (wall-sphere-top-front thick-wall? use-border?))
+                    (place (+ x step) cornerrow (wall-sphere-top-front thick-wall? use-border?))
+                    (place 0.7 cornerrow (wall-sphere-bottom-front thick-wall?)))))
      (if-not use-border?
        ()
-       (union (top-cover 0.5 1.7 (* cornerrow index-finger-cover-multiplier) cornerrow)
-                (top-cover 1.59 2.41 (* cornerrow middle-finger-cover-multiplier) cornerrow) ;; was 3.32
-                (top-cover 2.39 3.41 (* cornerrow ring-finger-cover-multiplier) cornerrow)))
+       (union (top-cover 0.50 1.70 (* cornerrow index-finger-cover-multiplier) cornerrow)
+              (top-cover 1.59 2.31 (* cornerrow middle-finger-cover-multiplier) cornerrow) ;; was 3.32
+              (top-cover 2.39 3.31 (* cornerrow ring-finger-cover-multiplier) cornerrow)))
      (apply union
             (for [x (range 2 lastrow)]
               (union
-               (hull (place (- x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
-                     (place (+ x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
+               (hull (place (- x 1/2) cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
+                     (place (+ x 1/2) cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
                      (key-place c x cornerrow web-post-bl)
                      (key-place c x cornerrow web-post-br))
-               (hull (place (- x 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
+               (hull (place (- x 1/2) cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
                      (key-place c x cornerrow web-post-bl)
                      (key-place c (- x 1) cornerrow web-post-br)))))
-     (hull (place (right-wall-column c) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
-           (place (- (right-wall-column c) 1) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
+     (hull (place (right-wall-column c) cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
+           (place (- (right-wall-column c) 1) cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
            (key-place c penultcol cornerrow web-post-bl)
            (key-place c penultcol cornerrow web-post-br))
-     (hull (place (+ antecol 1/2) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
-           (place (- (right-wall-column c) 1) cornerrow (translate [0 1 1] wall-sphere-bottom-front))
+     (hull (place (+ antecol 1/2) cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
+           (place (- (right-wall-column c) 1) cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
            (key-place c antecol cornerrow web-post-br)
            (key-place c penultcol cornerrow web-post-bl))
-     (hull (place 0.7 cornerrow (translate [0 1 1] wall-sphere-bottom-front))
-           (place 1.7 cornerrow (translate [0 1 1] wall-sphere-bottom-front))
+     (hull (place 0.7 cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
+           (place 1.7 cornerrow (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
            (key-place c 1 cornerrow web-post-bl)
            (key-place c 1 cornerrow web-post-br)))))
 
@@ -609,6 +616,7 @@
   (let [ncols                   (get c :configuration-ncols)
         manuform-offset?        (get c :configuration-manuform-offset?)
         use-border?             (get c :configuration-use-border?)
+        thick-wall?             (get c :configuration-thick-wall?)
         penultcol               (fpenultcol ncols)
         antecol                 (fantecol ncols)
         rows                    (frows c)
@@ -620,50 +628,50 @@
                                   (apply union
                                          (for [x (range-inclusive x-start (- x-end wall-sphere-top-backtep) wall-sphere-top-backtep)
                                                y (range-inclusive y-start (- y-end wall-sphere-top-backtep) wall-sphere-top-backtep)]
-                                           (hull (place x y (wall-sphere-top-back use-border?))
-                                                 (place (+ x wall-sphere-top-backtep) y (wall-sphere-top-back use-border?))
-                                                 (place x (+ y wall-sphere-top-backtep) (wall-sphere-top-back use-border?))
-                                                 (place (+ x wall-sphere-top-backtep) (+ y wall-sphere-top-backtep) (wall-sphere-top-back use-border?))))))
+                                           (hull (place x y (wall-sphere-top-back thick-wall? use-border?))
+                                                 (place (+ x wall-sphere-top-backtep) y (wall-sphere-top-back thick-wall? use-border?))
+                                                 (place x (+ y wall-sphere-top-backtep) (wall-sphere-top-back thick-wall? use-border?))
+                                                 (place (+ x wall-sphere-top-backtep) (+ y wall-sphere-top-backtep) (wall-sphere-top-back thick-wall? use-border?))))))
         top-cover-length        (if manuform-offset? 0.45 0.3)]
     (union
      (apply union
             (for [x (range-inclusive left-wall-column (- (right-wall-column c) step) step)]
-              (hull (place x (back-y c) (wall-sphere-top-back use-border?))
-                    (place (+ x step) (back-y c) (wall-sphere-top-back use-border?))
-                    (place x (back-y c) wall-sphere-bottom-back)
-                    (place (+ x step) (back-y c) wall-sphere-bottom-back))))
+              (hull (place x (back-y c) (wall-sphere-top-back thick-wall? use-border?))
+                    (place (+ x step) (back-y c) (wall-sphere-top-back thick-wall? use-border?))
+                    (place x (back-y c) (wall-sphere-bottom-back thick-wall?))
+                    (place (+ x step) (back-y c) (wall-sphere-bottom-back thick-wall?)))))
      (apply union
             (for [x (range-inclusive left-wall-column (- (right-wall-column c) step) step)]
-              (bottom-hull (place x (back-y c) wall-sphere-bottom-back)
-                           (place (+ x step) (back-y c) wall-sphere-bottom-back))))
+              (bottom-hull (place x (back-y c) (wall-sphere-bottom-back thick-wall?))
+                           (place (+ x step) (back-y c) (wall-sphere-bottom-back thick-wall?)))))
 
      (if (and (> ncols 4) use-border?)
        (union (front-top-cover 3.56 4.44 (back-y c) (+ (back-y c) top-cover-length))
               (front-top-cover 4.3 (right-wall-column c) (back-y c) (+ (back-y c) top-cover-length)))
        ())
 
-     (hull (place left-wall-column (back-y c) (translate [1 -1 1] wall-sphere-bottom-back))
-           (place (+ left-wall-column 1) (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
+     (hull (place left-wall-column (back-y c) (translate [1 -1 1] (wall-sphere-bottom-back thick-wall?)))
+           (place (+ left-wall-column 1) (back-y c) (translate [0 -1 1] (wall-sphere-bottom-back thick-wall?)))
            (key-place c 0 back-row web-post-tl)
            (key-place c 0 back-row web-post-tr))
 
-     (hull (place penultcol (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
-           (place (right-wall-column c) (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
+     (hull (place penultcol (back-y c) (translate [0 -1 1] (wall-sphere-bottom-back thick-wall?)))
+           (place (right-wall-column c) (back-y c) (translate [0 -1 1] (wall-sphere-bottom-back thick-wall?)))
            (key-place c penultcol back-row web-post-tl)
            (key-place c penultcol back-row web-post-tr))
 
      (apply union
             (for [x (range 1 penultcol)]
               (union
-               (hull (place (- x 1/2) (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
-                     (place (+ x 1/2) (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
+               (hull (place (- x 1/2) (back-y c) (translate [0 -1 1] (wall-sphere-bottom-back thick-wall?)))
+                     (place (+ x 1/2) (back-y c) (translate [0 -1 1] (wall-sphere-bottom-back thick-wall?)))
                      (key-place c x back-row web-post-tl)
                      (key-place c x back-row web-post-tr))
-               (hull (place (- x 1/2) (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
+               (hull (place (- x 1/2) (back-y c) (translate [0 -1 1] (wall-sphere-bottom-back thick-wall?)))
                      (key-place c x back-row web-post-tl)
                      (key-place c (- x 1) back-row web-post-tr)))))
-     (hull (place (- 4 1/2) (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
-           (place penultcol (back-y c) (translate [0 -1 1] wall-sphere-bottom-back))
+     (hull (place (- 4 1/2) (back-y c) (translate [0 -1 1] (wall-sphere-bottom-back thick-wall?)))
+           (place penultcol (back-y c) (translate [0 -1 1] (wall-sphere-bottom-back thick-wall?)))
            (key-place c antecol back-row web-post-tr)
            (key-place c penultcol back-row web-post-tl)))))
 
@@ -672,6 +680,7 @@
         use-lastrow? (get c :configuration-use-lastrow?)
         use-numrow?  (get c :configuration-use-numrow?)
         use-border?  (get c :configuration-use-border?)
+        thick-wall?  (get c :configuration-thick-wall?)
         penultcol    (fpenultcol ncols)
         rows         (frows c)
         lastrow      (flastrow-lightcycle use-lastrow?)
@@ -684,36 +693,36 @@
                  (partition 2 1
                             (for [scale (range-inclusive 0 1 0.01)]
                               (let [x (scale-to-range wall-stop (back-y c) scale)]
-                                (hull (place (right-wall-column c) x (wall-sphere-top scale use-border?))
-                                      (place (right-wall-column c) x (wall-sphere-bottom scale))))))))
+                                (hull (place (right-wall-column c) x (wall-sphere-top thick-wall? scale use-border?))
+                                      (place (right-wall-column c) x (wall-sphere-bottom thick-wall? scale))))))))
 
      (apply union
             (map (partial apply hull)
                  (partition 2 1
                             (for [scale (range-inclusive 0 1 0.01)]
                               (let [x (scale-to-range wall-stop (back-y c) scale)]
-                                (bottom-hull (place (right-wall-column c) x (wall-sphere-top scale use-border?))
-                                             (place (right-wall-column c) x (wall-sphere-bottom scale))))))))
+                                (bottom-hull (place (right-wall-column c) x (wall-sphere-top thick-wall? scale use-border?))
+                                             (place (right-wall-column c) x (wall-sphere-bottom thick-wall? scale))))))))
 
      (apply union
             (concat
              (for [x (range (if use-numrow? 0 1) lastrow)]
                (union
-                (hull (place (right-wall-column c) x (translate [-1 0 1] (wall-sphere-bottom 1/2)))
+                (hull (place (right-wall-column c) x (translate [-1 0 1] (wall-sphere-bottom thick-wall? 1/2)))
                       (key-place c penultcol x web-post-br)
                       (key-place c penultcol x web-post-tr))))
              (for [x (range (if use-numrow? 0 1) cornerrow)]
                (union
-                (hull (place (right-wall-column c) x (translate [-1 0 1] (wall-sphere-bottom 1/2)))
-                      (place (right-wall-column c) (inc x) (translate [-1 0 1] (wall-sphere-bottom 1/2)))
+                (hull (place (right-wall-column c) x (translate [-1 0 1] (wall-sphere-bottom thick-wall? 1/2)))
+                      (place (right-wall-column c) (inc x) (translate [-1 0 1] (wall-sphere-bottom thick-wall? 1/2)))
                       (key-place c penultcol x web-post-br)
                       (key-place c penultcol (inc x) web-post-tr))))
              [(union
-               (hull (place (right-wall-column c) (first rows) (translate [-1 0 1] (wall-sphere-bottom 1/2)))
-                     (place (right-wall-column c) (back-y c) (translate [-1 -1 1] (wall-sphere-bottom 1)))
+               (hull (place (right-wall-column c) (first rows) (translate [-1 0 1] (wall-sphere-bottom thick-wall? 1/2)))
+                     (place (right-wall-column c) (back-y c) (translate [-1 -1 1] (wall-sphere-bottom thick-wall? 1)))
                      (key-place c penultcol (first rows) web-post-tr))
-               (hull (place (right-wall-column c) cornerrow (translate [-1 0 1] (wall-sphere-bottom 1/2)))
-                     (place (right-wall-column c) cornerrow (translate [-1 1 1] (wall-sphere-bottom 0)))
+               (hull (place (right-wall-column c) cornerrow (translate [-1 0 1] (wall-sphere-bottom thick-wall? 1/2)))
+                     (place (right-wall-column c) cornerrow (translate [-1 1 1] (wall-sphere-bottom thick-wall? 0)))
                      (key-place c penultcol cornerrow web-post-br)))])))))
 
 (defn left-wall [c]
@@ -721,58 +730,60 @@
         rows             (frows c)
         use-numrow?      (get c :configuration-use-numrow?)
         use-border?      (get c :configuration-use-border?)
+        thick-wall?      (get c :configuration-thick-wall?)
         place            (partial case-place c)
         thumb-where      (case thumb-count :two 0 1)
         finish-left-wall (case thumb-count :two 2.35 1.6666)]
     (union
      (apply union
             (for [x (range-inclusive (dec (first rows)) (- finish-left-wall wall-step) wall-step)]
-              (hull (place left-wall-column x (wall-sphere-top-front use-border?))
-                    (place left-wall-column (+ x wall-step) (wall-sphere-top-front use-border?))
-                    (place left-wall-column x wall-sphere-bottom-front)
-                    (place left-wall-column (+ x wall-step) wall-sphere-bottom-front))))
+              (hull (place left-wall-column x (wall-sphere-top-front thick-wall? use-border?))
+                    (place left-wall-column (+ x wall-step) (wall-sphere-top-front thick-wall? use-border?))
+                    (place left-wall-column x (wall-sphere-bottom-front thick-wall?))
+                    (place left-wall-column (+ x wall-step) (wall-sphere-bottom-front thick-wall?)))))
      (apply union
             (for [x (range-inclusive (dec (first rows)) (- finish-left-wall wall-step) wall-step)]
-              (bottom-hull (place left-wall-column x wall-sphere-bottom-front)
-                           (place left-wall-column (+ x wall-step) wall-sphere-bottom-front))))
-     (hull (place left-wall-column (dec (first rows)) (wall-sphere-top-front use-border?))
-           (place left-wall-column (dec (first rows)) wall-sphere-bottom-front)
-           (place left-wall-column (back-y c) (wall-sphere-top-back use-border?))
-           (place left-wall-column (back-y c) wall-sphere-bottom-back))
+              (bottom-hull (place left-wall-column x (wall-sphere-bottom-front thick-wall?))
+                           (place left-wall-column (+ x wall-step) (wall-sphere-bottom-front thick-wall?)))))
+     (hull (place left-wall-column (dec (first rows)) (wall-sphere-top-front thick-wall? use-border?))
+           (place left-wall-column (dec (first rows)) (wall-sphere-bottom-front thick-wall?))
+           (place left-wall-column (back-y c) (wall-sphere-top-back thick-wall? use-border?))
+           (place left-wall-column (back-y c) (wall-sphere-bottom-back thick-wall?)))
 
-     (bottom-hull (place left-wall-column (dec (first rows)) wall-sphere-bottom-front)
-                  (place left-wall-column (back-y c) wall-sphere-bottom-back))
+     (bottom-hull (place left-wall-column (dec (first rows)) (wall-sphere-bottom-front thick-wall?))
+                  (place left-wall-column (back-y c) (wall-sphere-bottom-back thick-wall?)))
      (if use-numrow?
-       (color [0 0 1] (hull (place left-wall-column 0 (translate [1 -1 1] wall-sphere-bottom-back))
-                            (place left-wall-column 1 (translate [1 0 1] wall-sphere-bottom-back))
+       (color [0 0 1] (hull (place left-wall-column 0 (translate [1 -1 1] (wall-sphere-bottom-back thick-wall?)))
+                            (place left-wall-column 1 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
                             (translate [1 0 0] (key-place c 0 0 web-post-tl))
                             (key-place c 0 1 web-post-tl)))
        ())
-     (color [0 1 0] (hull (place left-wall-column 1 (translate [1 -1 1] wall-sphere-bottom-back))
-                          (place left-wall-column 2 (translate [1 0 1] wall-sphere-bottom-back))
-                          (place left-wall-column 2 (translate [1 0 1] wall-sphere-bottom-back))
+     (color [0 1 0] (hull (place left-wall-column 1 (translate [1 -1 1] (wall-sphere-bottom-back thick-wall?)))
+                          (place left-wall-column 2 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
+                          (place left-wall-column 2 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
                           (translate [0 0 0] (key-place c 0 1 web-post-tl))
                           (key-place c 0 1 web-post-bl)
                           (key-place c 0 2 web-post-tl)))
-     (color [0.8 1 0] (hull (place left-wall-column 2 (translate [1 -1 1] wall-sphere-bottom-back))
-                            (place left-wall-column 2 (translate [1  0 1] wall-sphere-bottom-back))
+     (color [0.8 1 0] (hull (place left-wall-column 2 (translate [1 -1 1] (wall-sphere-bottom-back thick-wall?)))
+                            (place left-wall-column 2 (translate [1  0 1] (wall-sphere-bottom-back thick-wall?)))
                             (key-place c 0 2 web-post-tl)
                             (key-place c 0 2 web-post-bl)
-                            (place left-wall-column 3 (translate [2 10 3] wall-sphere-bottom-back))
+                            (place left-wall-column 3 (translate [2 10 3] (wall-sphere-bottom-back thick-wall?)))
                             (key-place c 0 3 web-post-tl)))
      (case thumb-count
-       :two (color [0 1 1] (hull (place left-wall-column 2.5 (translate [1 0 1] wall-sphere-bottom-back))
+       :two (color [0 1 1] (hull (place left-wall-column 2.5 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
                                  (key-place c 0 3 web-post-tl)
                                  (key-place c 0 3 web-post-bl)
-                                 (place left-wall-column 3.5 (translate [1 0 1] wall-sphere-bottom-back))))
-       (color [0 0 0] (hull (place left-wall-column finish-left-wall  (translate [1 0 1] wall-sphere-bottom-front))
+                                 (place left-wall-column 3.5 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))))
+       (color [0 0 0] (hull (place left-wall-column finish-left-wall  (translate [1 0 1] (wall-sphere-bottom-front thick-wall?)))
                             (thumb-place c 1 thumb-where web-post-tr)
-                            (place left-wall-column finish-left-wall  (translate [1 -1 1] wall-sphere-bottom-front))
+                            (place left-wall-column finish-left-wall  (translate [1 -1 1] (wall-sphere-bottom-front thick-wall?)))
                             (key-place   c 0 3 (case thumb-count :two web-post-bl web-post-tl))))))))
 
 (defn thumb-back-wall [c]
   (let [thumb-count                      (get c :configuration-thumb-count)
         use-border?                      (get c :configuration-use-border?)
+        thick-wall?                      (get c :configuration-thick-wall?)
         step                             wall-step
         local-back-y                     (thumb-back-y c)
         thumb-range                      (case thumb-count :five 5/2 :six 5/2 :eight 5/2 3/2)
@@ -781,76 +792,78 @@
     (union
      (apply union
             (for [x (range-inclusive 1/2 (- (+ thumb-range 0.05) step) step)]
-              (hull (thumb-place c x local-back-y (wall-sphere-top-back use-border?))
-                    (thumb-place c (+ x step) local-back-y (wall-sphere-top-back use-border?))
-                    (thumb-place c x local-back-y wall-sphere-bottom-back)
-                    (thumb-place c (+ x step) local-back-y wall-sphere-bottom-back))))
+              (hull (thumb-place c x local-back-y (wall-sphere-top-back thick-wall? use-border?))
+                    (thumb-place c (+ x step) local-back-y (wall-sphere-top-back thick-wall? use-border?))
+                    (thumb-place c x local-back-y (wall-sphere-bottom-back thick-wall?))
+                    (thumb-place c (+ x step) local-back-y (wall-sphere-bottom-back thick-wall?)))))
      (apply union
             (for [x (range-inclusive 1/2 (- (+ thumb-range 0.05) step) step)]
-              (bottom-hull (thumb-place c x local-back-y wall-sphere-bottom-back)
-                           (thumb-place c (+ x step) local-back-y wall-sphere-bottom-back))))
-     (hull (thumb-place c 1/2 local-back-y (wall-sphere-top-back use-border?))
-           (thumb-place c 1/2 local-back-y wall-sphere-bottom-back)
-           (case-place  c left-wall-column thumb-back-to-left-wall-position (wall-sphere-top-front use-border?)))
-     (hull (thumb-place c 1/2 local-back-y wall-sphere-bottom-back)
-           (case-place  c left-wall-column thumb-back-to-left-wall-position (wall-sphere-top-front use-border?))
-           (case-place  c left-wall-column thumb-back-to-left-wall-position wall-sphere-bottom-front))
-     (bottom-hull (thumb-place c 1/2 local-back-y wall-sphere-bottom-back)
-                  (case-place  c left-wall-column thumb-back-to-left-wall-position wall-sphere-bottom-front))
+              (bottom-hull (thumb-place c x local-back-y (wall-sphere-bottom-back thick-wall?))
+                           (thumb-place c (+ x step) local-back-y (wall-sphere-bottom-back thick-wall?)))))
+     (hull (thumb-place c 1/2 local-back-y (wall-sphere-top-back thick-wall? use-border?))
+           (thumb-place c 1/2 local-back-y (wall-sphere-bottom-back thick-wall?))
+           (case-place  c left-wall-column thumb-back-to-left-wall-position (wall-sphere-top-front thick-wall? use-border?)))
+     (hull (thumb-place c 1/2 local-back-y (wall-sphere-bottom-back thick-wall?))
+           (case-place  c left-wall-column thumb-back-to-left-wall-position (wall-sphere-top-front thick-wall? use-border?))
+           (case-place  c left-wall-column thumb-back-to-left-wall-position (wall-sphere-bottom-front thick-wall?)))
+     (bottom-hull (thumb-place c 1/2 local-back-y (wall-sphere-bottom-back thick-wall?))
+                  (case-place  c left-wall-column thumb-back-to-left-wall-position (wall-sphere-bottom-front thick-wall?)))
      (hull
-      (thumb-place c 1/2 (thumb-back-y c) wall-sphere-bottom-back)
+      (thumb-place c 1/2 (thumb-back-y c) (wall-sphere-bottom-back thick-wall?))
       (thumb-place c 1 back-thumb-position web-post-tr)
-      (thumb-place c 3/2 (thumb-back-y c) wall-sphere-bottom-back)
+      (thumb-place c 3/2 (thumb-back-y c) (wall-sphere-bottom-back thick-wall?))
       (thumb-place c 1 back-thumb-position web-post-tl))
      (hull
-      (thumb-place c (+ 3/2 0.05) (thumb-back-y c) wall-sphere-bottom-back)
-      (thumb-place c 3/2 (thumb-back-y c) wall-sphere-bottom-back)
+      (thumb-place c (+ 3/2 0.05) (thumb-back-y c) (wall-sphere-bottom-back thick-wall?))
+      (thumb-place c 3/2 (thumb-back-y c) (wall-sphere-bottom-back thick-wall?))
       (thumb-place c 1 back-thumb-position web-post-tl)
       (thumb-place c 1 back-thumb-position web-post-tl)))))
 
 (defn thumb-left-wall [c]
   (let [thumb-count      (get c :configuration-thumb-count)
         use-border?      (get c :configuration-use-border?)
+        thick-wall?      (get c :configuration-thick-wall?)
+        thumb-alpha      (get c :configuration-thumb-alpha)
         step             wall-step
         place            (partial thumb-place c)
         column           (case thumb-count :five 2 :six 2 :eight 2 1)
-        left-wall-length (case thumb-count :two 1.15 2.18)]
+        left-wall-length (case thumb-count :two (- 1.18 (/ thumb-alpha 1.5)) (- 2.24 thumb-alpha))]
     (union
      (apply union
             (for [x (range-inclusive (+ -1 0.07) (- left-wall-length step) step)]
-              (hull (place (thumb-left-wall-column c) x (wall-sphere-top-front use-border?))
-                    (place (thumb-left-wall-column c) (+ x step) (wall-sphere-top-front use-border?))
-                    (place (thumb-left-wall-column c) x wall-sphere-bottom-front)
-                    (place (thumb-left-wall-column c) (+ x step) wall-sphere-bottom-front))))
+              (hull (place (thumb-left-wall-column c) x (wall-sphere-top-front thick-wall? use-border?))
+                    (place (thumb-left-wall-column c) (+ x step) (wall-sphere-top-front thick-wall? use-border?))
+                    (place (thumb-left-wall-column c) x (wall-sphere-bottom-front thick-wall?))
+                    (place (thumb-left-wall-column c) (+ x step) (wall-sphere-bottom-front thick-wall?)))))
      (apply union
             (for [x (range-inclusive (+ -1 0.07) (- left-wall-length step) step)]
-              (bottom-hull (place (thumb-left-wall-column c) x wall-sphere-bottom-front)
-                           (place (thumb-left-wall-column c) (+ x step) wall-sphere-bottom-front))))
+              (bottom-hull (place (thumb-left-wall-column c) x (wall-sphere-bottom-front thick-wall?))
+                           (place (thumb-left-wall-column c) (+ x step) (wall-sphere-bottom-front thick-wall?)))))
      (case thumb-count
        :two ()
-       (union (hull (place (thumb-left-wall-column c) 1.95 (wall-sphere-top-front use-border?))
-                    (place (thumb-left-wall-column c) 1.95 wall-sphere-bottom-front)
-                    (place (thumb-left-wall-column c) (thumb-back-y c) (wall-sphere-top-back use-border?))
-                    (place (thumb-left-wall-column c) (thumb-back-y c) wall-sphere-bottom-back))
-              (hull (place (thumb-left-wall-column c) (thumb-back-y c) (translate [1 -1 1] wall-sphere-bottom-back))
-                    (place (thumb-left-wall-column c) 0 (translate [1 0 1] wall-sphere-bottom-back))
+       (union (hull (place (thumb-left-wall-column c) 1.95 (wall-sphere-top-front thick-wall? use-border?))
+                    (place (thumb-left-wall-column c) 1.95 (wall-sphere-bottom-front thick-wall?))
+                    (place (thumb-left-wall-column c) (thumb-back-y c) (wall-sphere-top-back thick-wall? use-border?))
+                    (place (thumb-left-wall-column c) (thumb-back-y c) (wall-sphere-bottom-back thick-wall?)))
+              (hull (place (thumb-left-wall-column c) (thumb-back-y c) (translate [1 -1 1] (wall-sphere-bottom-back thick-wall?)))
+                    (place (thumb-left-wall-column c) 0 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
                     (place column 1 web-post-tl)
                     (place column 1 web-post-bl))
-              (hull (place (thumb-left-wall-column c) 0 (translate [1 0 1] wall-sphere-bottom-back))
+              (hull (place (thumb-left-wall-column c) 0 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
                     (place column 0 web-post-tl)
                     (place column 1 web-post-bl))))
      (hull
-      (place (thumb-left-wall-column c) -0.1 (translate [1 0 1] wall-sphere-bottom-back))
-      (place (thumb-left-wall-column c) -1   (translate [1 0 1] wall-sphere-bottom-back))
+      (place (thumb-left-wall-column c) -0.1 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
+      (place (thumb-left-wall-column c) -1   (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
       (place column 0 web-post-tl)
       (place column 0 web-post-bl))
      (hull
-      (place (thumb-left-wall-column c) -1 (translate [1 0 1] wall-sphere-bottom-back))
+      (place (thumb-left-wall-column c) -1 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
       (place column -1 web-post-tl)
       (place column 0 web-post-bl))
      (hull
-      (place (thumb-left-wall-column c) -1 (translate [1 0 1] wall-sphere-bottom-back))
-      (place (thumb-left-wall-column c) (+ -1 0.07) (translate [1 1 1] wall-sphere-bottom-front))
+      (place (thumb-left-wall-column c) -1 (translate [1 0 1] (wall-sphere-bottom-back thick-wall?)))
+      (place (thumb-left-wall-column c) (+ -1 0.07) (translate [1 1 1] (wall-sphere-bottom-front thick-wall?)))
       (place column -1 web-post-tl)
       (place column -1 web-post-bl)))))
 
@@ -858,6 +871,7 @@
   (let [thumb-count  (get c :configuration-thumb-count)
         use-lastrow? (get c :configuration-use-lastrow?)
         use-border?  (get c :configuration-use-border?)
+        thick-wall?  (get c :configuration-thick-wall?)
         cornerrow    (fcornerrow-lightcycle use-lastrow?)
         step         wall-step ;;0.1
         place        (partial thumb-place c)
@@ -870,46 +884,46 @@
     (union
      (apply union
             (for [x (range-inclusive thumb-right-wall (- (+ thumb-range 0.05) step) step)]
-              (hull (place x thumb-front-row (wall-sphere-top-front use-border?))
-                    (place (+ x step) thumb-front-row (wall-sphere-top-front use-border?))
-                    (place x thumb-front-row wall-sphere-bottom-front)
-                    (place (+ x step) thumb-front-row wall-sphere-bottom-front))))
+              (hull (place x thumb-front-row (wall-sphere-top-front thick-wall? use-border?))
+                    (place (+ x step) thumb-front-row (wall-sphere-top-front thick-wall? use-border?))
+                    (place x thumb-front-row (wall-sphere-bottom-front thick-wall?))
+                    (place (+ x step) thumb-front-row (wall-sphere-bottom-front thick-wall?)))))
      (apply union
             (for [x (range-inclusive thumb-right-wall (- (+ thumb-range 0.05) step) step)]
-              (bottom-hull (place x thumb-front-row wall-sphere-bottom-front)
-                           (place (+ x step) thumb-front-row wall-sphere-bottom-front))))
+              (bottom-hull (place x thumb-front-row (wall-sphere-bottom-front thick-wall?))
+                           (place (+ x step) thumb-front-row (wall-sphere-bottom-front thick-wall?)))))
 
-     (hull (place thumb-right-wall thumb-front-row (wall-sphere-top-front use-border?))
-           (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
-           (case-place c 0.5 cornerrow (wall-sphere-top-front use-border?)))
-     (hull (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
-           (case-place c 0.5 cornerrow (wall-sphere-top-front use-border?)))
-     (bottom-hull (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
-                  (case-place c 0.7 cornerrow wall-sphere-bottom-front))
-     (hull (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
-           (case-place c 0.5 cornerrow (wall-sphere-top-front use-border?))
-           (case-place c 0.7 cornerrow wall-sphere-bottom-front))
+     (hull (place thumb-right-wall thumb-front-row (wall-sphere-top-front thick-wall? use-border?))
+           (place thumb-right-wall thumb-front-row (wall-sphere-bottom-front thick-wall?))
+           (case-place c 0.5 cornerrow (wall-sphere-top-front thick-wall? use-border?)))
+     (hull (place thumb-right-wall thumb-front-row (wall-sphere-bottom-front thick-wall?))
+           (case-place c 0.5 cornerrow (wall-sphere-top-front thick-wall? use-border?)))
+     (bottom-hull (place thumb-right-wall thumb-front-row (wall-sphere-bottom-front thick-wall?))
+                  (case-place c 0.7 cornerrow (wall-sphere-bottom-front thick-wall?)))
+     (hull (place thumb-right-wall thumb-front-row (wall-sphere-bottom-front thick-wall?))
+           (case-place c 0.5 cornerrow (wall-sphere-top-front thick-wall? use-border?))
+           (case-place c 0.7 cornerrow (wall-sphere-bottom-front thick-wall?)))
 
-     (hull (place thumb-right-wall thumb-front-row wall-sphere-bottom-front)
+     (hull (place thumb-right-wall thumb-front-row (wall-sphere-bottom-front thick-wall?))
            (key-place c 1 cornerrow web-post-bl)
            (place 0 -1/2 thumb-br)
            (place 0 -1/2 web-post-br)
-           (case-place c 0.7 cornerrow wall-sphere-bottom-front))
+           (case-place c 0.7 cornerrow (wall-sphere-bottom-front thick-wall?)))
 
-     (hull (place thumb-right-wall thumb-front-row (translate [0 1 1] wall-sphere-bottom-front))
-           (place (+ 1/2 0.05) thumb-front-row (translate [0 1 1] wall-sphere-bottom-front))
+     (hull (place thumb-right-wall thumb-front-row (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
+           (place (+ 1/2 0.05) thumb-front-row (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
            (place 0 -1   web-post-bl)
            (place 0 -1   web-post-br))
-     (hull (place (+ 1/2 0.05) thumb-front-row (translate [0 1 1] wall-sphere-bottom-front))
-           (place (+ 3/2 0.05) thumb-front-row (translate [0 1 1] wall-sphere-bottom-front))
+     (hull (place (+ 1/2 0.05) thumb-front-row (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
+           (place (+ 3/2 0.05) thumb-front-row (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
            (place 0 -1   web-post-bl)
            (place 1 -1   web-post-bl)
            (place 1 -1   web-post-br))
      (case thumb-count
        :two ()
        :three ()
-       (hull (place (+ 3/2 0.05) thumb-front-row (translate [0 1 1] wall-sphere-bottom-front))
-             (place (+ 5/2 0.05) thumb-front-row (translate [1 1 1] wall-sphere-bottom-front))
+       (hull (place (+ 3/2 0.05) thumb-front-row (translate [0 1 1] (wall-sphere-bottom-front thick-wall?)))
+             (place (+ 5/2 0.05) thumb-front-row (translate [1 1 1] (wall-sphere-bottom-front thick-wall?)))
              (place 1            -1              web-post-bl)
              (place 2            -1/2            thumb-bl)
              (place 2            -1/2            thumb-br)
@@ -986,9 +1000,9 @@
          (right-wall c)
          (back-wall c)
          (left-wall c)
-         (thumb-back-wall c)
-         (thumb-left-wall c)
-         (thumb-front-wall c)))
+         (color [1 0 1] (thumb-back-wall c))
+         (color [0 1 0] (thumb-left-wall c))
+         (color [0 0 1] (thumb-front-wall c))))
 
 ;;;;;;;;;;;;;;;;
 ;;Final Export ;;
@@ -1041,12 +1055,13 @@
    :configuration-beta                 (/ pi 36)
    :configuration-tenting-angle        (/ pi 12)
 
-   :configuration-thumb-alpha          (/ pi 36)
+   :configuration-thumb-alpha          (/ pi 12)
    :configuration-thumb-beta           (/ pi 36)
-   :configuration-thumb-tenting-angle  (/ pi 24)
+   :configuration-thumb-tenting-angle  (/ pi 12)
 
    :configuration-z-offset             18
    :configuration-use-border?          true
+   :configuration-thick-wall?          true
    :configuration-use-external-holder? false
    :configuration-use-screw-inserts?   false
    :configuration-thumb-offset-x       -54

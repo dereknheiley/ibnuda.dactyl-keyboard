@@ -54,7 +54,8 @@
                :thumb-offset-z  (get confs :configuration-thumb-offset-z)
                :z-offset        (get confs :configuration-z-offset)
                :manuform-offset (get confs :configuration-manuform-offset?)
-               :border          (get confs :configuration-use-border?)}
+               :border          (get confs :configuration-use-border?)
+               :thick-wall      (get confs :configuration-thick-wall?)}
    :misc      {:right-side    is-right?
                :screw-inserts (get confs :configuration-use-screw-inserts?)}})
 
