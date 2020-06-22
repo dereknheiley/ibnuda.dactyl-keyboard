@@ -1244,10 +1244,15 @@
         use-inner-column? (get c :configuration-use-inner-column?)
         lastcol           (flastcol (get c :configuration-ncols))
         lastrow           (flastrow (get c :configuration-nrows))
-        lastloc           (if-not use-wide-pinky? (+ lastcol 0.1) (+ lastcol 0.5))]
+        lastloc           (if-not use-wide-pinky? (+ lastcol 0.1) (+ lastcol 0.5))
+        thumb-count       (get c :configuration-thumb-count)
+        is-five?          (= thumb-count :five)
+        var-middle-last   (if is-five? -0 0.2)
+        y-middle-last     (+ lastrow var-middle-last)
+        x-middle-last     (if is-five? 1.6 2)]
     (union (screw-insert c (if use-inner-column? -1   0) 0               bottom-radius top-radius height)
            (screw-insert c (if use-inner-column? -1.5 0) (- lastrow 0.8) bottom-radius top-radius height)
-           (screw-insert c 2                             (+ lastrow 0.2) bottom-radius top-radius height)
+           (screw-insert c x-middle-last                 y-middle-last   bottom-radius top-radius height)
            (screw-insert c 3                             0               bottom-radius top-radius height)
            (screw-insert c lastloc                       1               bottom-radius top-radius height))))
 
@@ -1375,30 +1380,30 @@
 (defn wrist-rest-left [c]
   (mirror [-1 0 0] (wrist-rest-base c)))
 
-(def c {:configuration-nrows                  4
-        :configuration-ncols                  5
+(def c {:configuration-nrows                  5
+        :configuration-ncols                  6
         :configuration-switch-type            :box
-        :configuration-thumb-count            :two
+        :configuration-thumb-count            :five
 
         :configuration-alpha                  (/ pi 12)
-        :configuration-beta                   (/ pi 36)
-        :configuration-centercol              4
-        :configuration-tenting-angle          (/ pi 15)
+        :configuration-beta                   (/ pi 30)
+        :configuration-centercol              3
+        :configuration-tenting-angle          (/ pi 7)
         :configuration-plate-projection?      false
 
         :configuration-use-promicro-usb-hole? false
         :configuration-use-trrs?              false
         :configuration-use-external-holder?   false
 
-        :configuration-use-hotswap?           false
-        :configuration-stagger?               true
-        :configuration-use-inner-column?      false
-        :configuration-z-offset               4
+        :configuration-use-hotswap?           true
+        :configuration-stagger?               false
+        :configuration-use-inner-column?      true
+        :configuration-z-offset               16
         :configuration-show-caps?             false
-        :configuration-last-row-count         :zero
-        :configuration-use-wide-pinky?        false
+        :configuration-last-row-count         :two
+        :configuration-use-wide-pinky?        true
         :configuration-use-wire-post?         false
-        :configuration-use-screw-inserts?     false
+        :configuration-use-screw-inserts?     true
         :configuration-use-wrist-rest?        false})
 
 #_(spit "things/right.scad"
