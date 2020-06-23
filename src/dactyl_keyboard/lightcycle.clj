@@ -501,7 +501,7 @@
 (def wall-sphere-n 20) ;;Sphere resolution, lower for faster renders
 
 (defn wall-sphere-at [thick-wall? coords]
-  (let [thickness   (if thick-wall? 3 1)]
+  (let [thickness   (if thick-wall? 2 1)]
     (->> (sphere thickness)
          (translate coords)
          (with-fn wall-sphere-n) )))
