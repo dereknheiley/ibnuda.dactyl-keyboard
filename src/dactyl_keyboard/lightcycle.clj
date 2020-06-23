@@ -587,8 +587,8 @@
      (if-not use-border?
        ()
        (union (top-cover 0.50 1.70 (* cornerrow index-finger-cover-multiplier) cornerrow)
-              (top-cover 1.59 2.31 (* cornerrow middle-finger-cover-multiplier) cornerrow) ;; was 3.32
-              (top-cover 2.39 3.31 (* cornerrow ring-finger-cover-multiplier) cornerrow)))
+              (top-cover 1.59 2.36 (* cornerrow middle-finger-cover-multiplier) cornerrow) ;; was 3.32
+              (top-cover 2.34 3.31 (* cornerrow ring-finger-cover-multiplier) cornerrow)))
      (apply union
             (for [x (range 2 lastrow)]
               (union

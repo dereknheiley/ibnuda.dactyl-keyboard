@@ -59,8 +59,8 @@
                     <option value=36>pi/36</option>
                     <option value=30>pi/30</option>
                 </select>
-                <label for="curve.tenting-angle">Tenting Angle</label>
-                <select id="curve.tenting-angle" name="curve.tenting-angle" value="pi/12">
+                <label for="curve.tenting">Tenting Angle</label>
+                <select id="curve.tenting" name="curve.tenting" value="pi/12">
                     {% for ta in tenting-angle %}
                     <option value={{ta}}>pi/{{ta}}</option>
                     {% endfor %}
@@ -77,8 +77,8 @@
                     <option value={{rc}}>pi/{{rc}}</option>
                     {% endfor %}
                 </select>
-                <label for="curve.thumb-tenting-angle">Thumb Tenting Angle</label>
-                <select id="curve.thumb-tenting-angle" name="curve.thumb-tenting-angle">
+                <label for="curve.thumb-tenting">Thumb Tenting Angle</label>
+                <select id="curve.thumb-tenting" name="curve.thumb-tenting">
                     {% for tta in thumb-tenting-angle %}
                     <option value={{tta}}>pi/{{tta}}</option>
                     {% endfor %}
