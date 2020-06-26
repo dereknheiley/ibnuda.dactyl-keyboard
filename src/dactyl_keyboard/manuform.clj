@@ -1360,16 +1360,21 @@
   (mirror [-1 0 0] (model-right c)))
 
 (defn plate-right [c]
-  (let [use-screw-inserts? (get c :configuration-use-screw-inserts?)]
-    (extrude-linear
-     {:height 3}
-     (project
-      (translate [0 0 -0.1]
-                 (difference (model-right c)
-                             (if use-screw-inserts?
-                               (translate [0 0 -10]
-                                          (screw-insert-screw-holes screw-placement c))
-                               ()))) ))))
+  (let [use-screw-inserts? (get c :configuration-use-screw-inserts?)
+        screw-outers       (if use-screw-inserts?
+                             (screw-insert-outers screw-placement c)
+                             ())
+        screw-inners       (if use-screw-inserts?
+                             (translate [0 0 -2] (screw-insert-screw-holes screw-placement c))
+                             ())
+        bot                (cut (translate [0 0 -0.1] (union (case-walls c) screw-outers)))
+        inner-thing        (difference (translate [0 0 -0.1] (project (union (extrude-linear {:height 5
+                                                                                              :scale  0.1
+                                                                                              :center true} bot)
+                                                                             (extrude-linear {:height 5} (hull (scale [0.1 0.1] bot))))))
+                                       screw-inners)]
+    (difference (extrude-linear {:height 3} inner-thing)
+                screw-inners)))
 
 (defn plate-left [c]
   (mirror [-1 0 0] (plate-right c)))
@@ -1380,10 +1385,10 @@
 (defn wrist-rest-left [c]
   (mirror [-1 0 0] (wrist-rest-base c)))
 
-(def c {:configuration-nrows                  5
+(def c {:configuration-nrows                  4
         :configuration-ncols                  6
         :configuration-switch-type            :box
-        :configuration-thumb-count            :five
+        :configuration-thumb-count            :six
 
         :configuration-alpha                  (/ pi 12)
         :configuration-beta                   (/ pi 30)
@@ -1395,10 +1400,10 @@
         :configuration-use-trrs?              false
         :configuration-use-external-holder?   false
 
-        :configuration-use-hotswap?           true
-        :configuration-stagger?               false
+        :configuration-use-hotswap?           false
+        :configuration-stagger?               true
         :configuration-use-inner-column?      true
-        :configuration-z-offset               16
+        :configuration-z-offset               18
         :configuration-show-caps?             false
         :configuration-last-row-count         :two
         :configuration-use-wide-pinky?        true
