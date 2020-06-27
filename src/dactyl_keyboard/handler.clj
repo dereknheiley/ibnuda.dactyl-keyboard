@@ -140,10 +140,10 @@
                                     :five)
         param-alpha               (parse-int (get p "curve.alpha"))
         param-beta                (parse-int (get p "curve.beta"))
-        param-tenting-angle       (parse-int (get p "curve.tenting-angle"))
+        param-tenting-angle       (parse-int (get p "curve.tenting"))
         param-thumb-alpha         (parse-int (get p "curve.thumb-alpha"))
         param-thumb-beta          (parse-int (get p "curve.thumb-beta"))
-        param-thumb-tenting-angle (parse-int (get p "curve.thumb-tenting-angle"))
+        param-thumb-tenting-angle (parse-int (get p "curve.thumb-tenting"))
 
         param-hotswap             (parse-bool (get p "form.hotswap"))
         param-thumb-offset-x      (parse-int (get p "form.thumb-offset-x"))
