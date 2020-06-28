@@ -1379,7 +1379,7 @@
         inner-thing        (difference (translate [0 0 -0.1] (project (union (extrude-linear {:height 5
                                                                                               :scale  0.1
                                                                                               :center true} bot)
-                                                                             (extrude-linear {:height 5} (hull (scale [0.1 0.1] bot))))))
+                                                                             (cube 50 50 5))))
                                        screw-inners)]
     (difference (extrude-linear {:height 3} inner-thing)
                 screw-inners)))
@@ -1393,9 +1393,9 @@
 (defn wrist-rest-left [c]
   (mirror [-1 0 0] (wrist-rest-base c)))
 
-(def c {:configuration-nrows                  6
-        :configuration-ncols                  6
-        :configuration-switch-type            :alps
+(def c {:configuration-nrows                  4
+        :configuration-ncols                  5
+        :configuration-switch-type            :box
         :configuration-thumb-count            :five
 
         :configuration-alpha                  (/ pi 12)
@@ -1410,10 +1410,10 @@
 
         :configuration-use-hotswap?           false
         :configuration-stagger?               false
-        :configuration-use-inner-column?      true
+        :configuration-use-inner-column?      false
         :configuration-z-offset               18
         :configuration-show-caps?             false
-        :configuration-last-row-count         :two
+        :configuration-last-row-count         :zero
         :configuration-use-wide-pinky?        true
         :configuration-use-wire-post?         false
         :configuration-use-screw-inserts?     true
