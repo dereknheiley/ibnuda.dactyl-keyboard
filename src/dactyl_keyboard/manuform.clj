@@ -1112,7 +1112,15 @@
   (key-position c 1 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
 
 (defn trrs-usb-holder-ref [c]
-  (key-position c 0 0 (map - (wall-locate2  0  -1) [0 (/ mount-height 2) 0])))
+  (let [nrows      (get c :configuration-nrows)
+        y-addition (case nrows
+                     2 0
+                     3 0
+                     4 0
+                     5 -1
+                     6 -2
+                     -3)]
+    ( key-position c 0 0 (map - (wall-locate2  0 y-addition) [0 (/ mount-height 2) 0]))))
 
 (defn trrs-usb-holder-position [c]
   (map + [17 19.3 0] [(first (trrs-usb-holder-ref c)) (second (trrs-usb-holder-ref c)) 2]))
@@ -1385,10 +1393,10 @@
 (defn wrist-rest-left [c]
   (mirror [-1 0 0] (wrist-rest-base c)))
 
-(def c {:configuration-nrows                  4
+(def c {:configuration-nrows                  6
         :configuration-ncols                  6
-        :configuration-switch-type            :box
-        :configuration-thumb-count            :six
+        :configuration-switch-type            :alps
+        :configuration-thumb-count            :five
 
         :configuration-alpha                  (/ pi 12)
         :configuration-beta                   (/ pi 30)
@@ -1396,12 +1404,12 @@
         :configuration-tenting-angle          (/ pi 7)
         :configuration-plate-projection?      false
 
-        :configuration-use-promicro-usb-hole? false
-        :configuration-use-trrs?              false
+        :configuration-use-promicro-usb-hole? true
+        :configuration-use-trrs?              true
         :configuration-use-external-holder?   false
 
         :configuration-use-hotswap?           false
-        :configuration-stagger?               true
+        :configuration-stagger?               false
         :configuration-use-inner-column?      true
         :configuration-z-offset               18
         :configuration-show-caps?             false

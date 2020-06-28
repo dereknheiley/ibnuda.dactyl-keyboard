@@ -25,7 +25,7 @@
                :trrs      (get confs :configuration-use-trrs?)
                :micro-usb (get confs :configuration-use-promicro-usb-hole?)}
    :form      {:hotswap       (get confs :configuration-use-hotswap?)
-               :stagger       (not (get confs :configuration-ortho?))
+               :stagger       (get confs :configuration-stagger?)
                :wide-pinky    (get confs :configuration-use-wide-pinky?)
                :height-offset (get confs :configuration-z-offset)
                :wire-post     (get confs :configuration-use-wire-post?)

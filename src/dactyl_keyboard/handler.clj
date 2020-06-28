@@ -28,7 +28,7 @@
   (render-file "manuform.html" {:column-curvature    (range 12 22)
                                 :tenting-angle       (range 15 6 -1)
                                 :thumb-tenting-angle (range 24 15 -1)
-                                :height-offset       (range 4 16 2)}))
+                                :height-offset       (range 4 26 2)}))
 
 (defn lightcycle [_]
   (render-file "lightcycle.html" {:column-curvature       (range 12 22)
@@ -63,12 +63,12 @@
         param-centercol             (parse-int (get p "curve.centercol"))
         param-tenting-angle         (parse-int (get p "curve.tenting"))
 
-        param-use-external-holder   (parse-bool (get p "connector.external-holder"))
-        param-trrs-connector        (parse-bool (get p "connector.trrs-connector"))
-        param-use-promicro-usb-hole (parse-bool (get p "connector.usb-hole"))
-
+        param-use-external-holder   (parse-bool (get p "connector.external"))
+        param-trrs-connector        (parse-bool (get p "connector.trrs"))
+        param-use-promicro-usb-hole (parse-bool (get p "connector.micro-usb"))
+        
         param-hotswap               (parse-bool (get p "form.hotswap"))
-        param-stagger                 (parse-bool (get p "form.stagger"))
+        param-stagger               (parse-bool (get p "form.stagger"))
         param-keyboard-z-offset     (parse-int (get p "form.height-offset"))
         param-wide-pinky            (parse-bool (get p "form.wide-pinky"))
         param-wire-post             (parse-bool (get p "form.wire-post"))
@@ -101,11 +101,11 @@
                                      :configuration-plate-projection?      generate-plate?
 
                                      :configuration-use-external-holder?   param-use-external-holder
-                                     :configuration-use-promicro-usb-hole? param-use-promicro-usb-hole
                                      :configuration-use-trrs?              param-trrs-connector
+                                     :configuration-use-promicro-usb-hole? param-use-promicro-usb-hole
 
                                      :configuration-use-hotswap?           param-hotswap
-                                     :configuration-stagger?                 param-stagger
+                                     :configuration-stagger?               param-stagger
                                      :configuration-z-offset               param-keyboard-z-offset
                                      :configuration-show-caps?             param-show-keycaps
                                      :configuration-use-wide-pinky?        param-wide-pinky
