@@ -3,12 +3,12 @@
 
 <script>
     function setkeyboard(ncols, nrows, thumbcount, innercolumn, lastrow, widepinky) {
-        document.getElementById("ncols").value = ncols;
-        document.getElementById("nrows").value = nrows;
-        document.getElementById("thumb-count").value = thumbcount;
-        document.getElementById("inner-column").value = innercolumn;
-        document.getElementById("last-row").value = lastrow;
-        document.getElementById("wide-pinky").value = widepinky;
+        document.getElementById("keys.columns").value = ncols;
+        document.getElementById("keys.rows").value = nrows;
+        document.getElementById("keys.thumb-count").value = thumbcount;
+        document.getElementById("keys.inner-column").value = innercolumn;
+        document.getElementById("keys.last-row").value = lastrow;
+        document.getElementById("form.wide-pinky").value = widepinky;
     }
 
     function setminidox() {
@@ -87,9 +87,10 @@
                     {% endfor %}
                 </select>
                 <label for="curve.beta">Row's Curvature</label>
-                <select id="curve.beta" name="curve.beta">
-                    <option value=36>pi/36</option>
-                    <option value=30>pi/30</option>
+                <select id="curve.beta" name="curve.beta" value="pi/15">
+                    {% for rc in row-curvature %}
+                    <option value={{rc}}>pi/{{rc}}</option>
+                    {% endfor %}
                 </select>
                 <label for="curve.centecol">Center of the curvature for the column</label>
                 <select id="curve.centercol" name="curve.centercol">
@@ -207,8 +208,6 @@
         <button onclick="setcorne()">Corne</button>
         <br>
         <button onclick="setergodox()">Ergodox</button>
-        <br>
-        <button onclick="loadpopup()">What is this?</button>
     </div>
 </div>
 {% endblock %}

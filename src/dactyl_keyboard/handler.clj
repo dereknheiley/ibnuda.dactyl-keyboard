@@ -26,7 +26,8 @@
 
 (defn manuform [_]
   (render-file "manuform.html" {:column-curvature    (range 12 22)
-                                :tenting-angle       (range 15 6 -1)
+                                :row-curvature       (range 36 17 -1)
+                                :tenting-angle       (range 15 5 -1)
                                 :thumb-tenting-angle (range 24 15 -1)
                                 :height-offset       (range 4 26 2)}))
 
