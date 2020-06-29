@@ -8,7 +8,8 @@
 </div>
 <div class="row">
     <div class="column column-75">
-        <p>This site also accepts json requests for generathing <code>.scad</code> files for manuform and/or lightcycle.</p>
+        <p>This site also accepts json requests for generathing <code>.scad</code> files for manuform and/or lightcycle.
+        </p>
         <p>You can send them to the following links:</p>
         <ul>
             <li><a href="/api/lightcycle">Lightcycle</a></li>
@@ -28,7 +29,12 @@
                     <li><code>columns</code>: the number of the columns each side has. Default is <code>5</code></li>
                     <li><code>num-row</code>: whether it will use a num-row or not. Default is <code>false</code></li>
                     <li><code>last-row</code>: whether it will use a bottom or not. Default is <code>false</code></li>
-                    <li><code>thumb-count</code>: the number of the thumbkeys each side has. Default is <code>"two"</code>. Accepted values: <code>"two"</code>,<code>"three"</code>,<code>"five"</code>,<code>"six"</code>,<code>"eight"</code>.</li>
+                    <li><code>thumb-count</code>: the number of the thumbkeys each side has. Default is
+                        <code>"two"</code>. Accepted values:
+                        <code>"two"</code>,<code>"three"</code>,<code>"five"</code>,<code>"six"</code>,<code>"eight"</code>.
+                    </li>
+                    <li><code>hide-last-pinky</code>: whether it will hide the last pinky like Kinesis Adv.'s Layout.
+                        Default is <code>false</code>. Accepted values: <code>true</code>, <code>false</code>.</li>
                 </ul>
             </li>
             <li>
@@ -45,18 +51,24 @@
             <li>
                 <code>connector</code>:
                 <ul>
-                    <li><code>external</code>: whether it uses an external connector or not. Default is <code>false</code></li>
+                    <li><code>external</code>: whether it uses an external connector or not. Default is
+                        <code>false</code></li>
                 </ul>
             </li>
             <li>
                 <code>form</code>:
                 <ul>
-                    <li><code>hotswap</code>: whether it uses Dongguan Kaihua Electronics Co., Ltd (originally named Longhua Electronics)'s hotswap socket or not. Default is <code>false</code></li>
-                    <li><code>thumb-offset-x</code>: the offset of the thumb cluster from the alpha cluster in <code>x</code> coordinate. Default is <code>52</code></li>
-                    <li><code>thumb-offset-y</code>: the offset of the thumb cluster from the alpha cluster in <code>y</code> coordinate. Default is <code>42</code></li>
-                    <li><code>thumb-offset-z</code>: the offset of the thumb cluster from the alpha cluster in <code>z</code> coordinate. Default is <code>27</code>.</li>
+                    <li><code>hotswap</code>: whether it uses Dongguan Kaihua Electronics Co., Ltd (originally named
+                        Longhua Electronics)'s hotswap socket or not. Default is <code>false</code></li>
+                    <li><code>thumb-offset-x</code>: the offset of the thumb cluster from the alpha cluster in
+                        <code>x</code> coordinate. Default is <code>52</code></li>
+                    <li><code>thumb-offset-y</code>: the offset of the thumb cluster from the alpha cluster in
+                        <code>y</code> coordinate. Default is <code>42</code></li>
+                    <li><code>thumb-offset-z</code>: the offset of the thumb cluster from the alpha cluster in
+                        <code>z</code> coordinate. Default is <code>27</code>.</li>
                     <li><code>z-offset</code>: the height of the body from the floor. Default is <code>10</code>.</li>
-                    <li><code>manuform-offset</code>: whether it uses Dactyl Manuform's column stagger or not. Default is <code>false</code></li>
+                    <li><code>manuform-offset</code>: whether it uses Dactyl Manuform's column stagger or not. Default
+                        is <code>false</code></li>
                     <li><code>border</code>: whether it uses wall border or not. Default is <code>true</code></li>
                 </ul>
             </li>
@@ -64,7 +76,8 @@
                 <code>misc</code>:
                 <ul>
                     <li><code>right-side</code>: whether it is the right side or not. Default is <code>true</code></li>
-                    <li><code>screw-inserts</code>: whether it uses the screw inserts or not. Default is <code>false</code></li>
+                    <li><code>screw-inserts</code>: whether it uses the screw inserts or not. Default is
+                        <code>false</code></li>
                 </ul>
             </li>
         </ul>
@@ -75,10 +88,18 @@
                 <ul>
                     <li><code>columns</code>: the number of the columns each side has. Default is <code>5</code></li>
                     <li><code>rows</code>: the number of the rows each side has. Default is <code>4</code></li>
-                    <li><code>thumb-count</code>: the number of the thumbkeys each side has. Default is <code>"six"</code>. Accepted values: <code>"two"</code>,<code>"three"</code>,<code>"four"</code>,<code>"five"</code>,<code>"six"</code>.</li>
-                    <li><code>last-row</code>: the number of keys on the last row. Default is <code>"two"</code>. Accepted values: <code>"zero"</code>,<code>"two"</code>,<code>"full"</code>.</li>
-                    <li><code>switch-type</code>: whether it uses BOX, MX, or Alps style switch. Default is <code>BOX</code>. Accepted values: <code>box</code>, <code>mx</code>, <code>alps</code></li>
-                    <li><code>inner-columns</code>: whether it uses the inner-column or not. Default is <code>false</code></li>
+                    <li><code>thumb-count</code>: the number of the thumbkeys each side has. Default is
+                        <code>"six"</code>. Accepted values:
+                        <code>"two"</code>,<code>"three"</code>,<code>"four"</code>,<code>"five"</code>,<code>"six"</code>.
+                    </li>
+                    <li><code>last-row</code>: the number of keys on the last row. Default is <code>"two"</code>.
+                        Accepted values: <code>"zero"</code>,<code>"two"</code>,<code>"full"</code>.</li>
+                    <li><code>switch-type</code>: whether it uses BOX, MX, or Alps style switch. Default is
+                        <code>BOX</code>. Accepted values: <code>box</code>, <code>mx</code>, <code>alps</code></li>
+                    <li><code>inner-columns</code>: whether it uses the inner-column or not. Default is
+                        <code>false</code></li>
+                    <li><code>hide-last-pinky</code>: whether it will hide the last pinky like Kinesis Adv.'s Layout.
+                        Default is <code>false</code>. Accepted values: <code>true</code>, <code>false</code>.</li>
                 </ul>
             </li>
             <li>
@@ -93,28 +114,37 @@
             <li>
                 <code>connector</code>:
                 <ul>
-                    <li><code>external</code>: whether it uses an external connector or not. Default is <code>false</code></li>
-                    <li><code>trrs</code>: whether it uses trrs cable as a connector or not. Default is <code>false</code></li>
-                    <li><code>micro-usb</code>: whether it connects to the pc using micro-usb or not. Default is <code>false</code></li>
+                    <li><code>external</code>: whether it uses an external connector or not. Default is
+                        <code>false</code></li>
+                    <li><code>trrs</code>: whether it uses trrs cable as a connector or not. Default is
+                        <code>false</code></li>
+                    <li><code>micro-usb</code>: whether it connects to the pc using micro-usb or not. Default is
+                        <code>false</code></li>
                 </ul>
             </li>
             <li>
                 <code>form</code>:
                 <ul>
-                    <li><code>hotswap</code>: whether it uses Dongguan Kaihua Electronics Co., Ltd (originally named Longhua Electronics)'s hotswap socket or not. Default is <code>false</code></li>
+                    <li><code>hotswap</code>: whether it uses Dongguan Kaihua Electronics Co., Ltd (originally named
+                        Longhua Electronics)'s hotswap socket or not. Default is <code>false</code></li>
                     <li><code>stagger</code>: whether it has staggered columns or not. Default is <code>true</code></li>
-                    <li><code>wide-pinky</code>: whether it uses wide key (1.5u) on the outermost pinky column or not. Default is <code>true</code></li>
-                    <li><code>height-offset</code>: the height of the body from the floor. Default is <code>4</code>.</li>
+                    <li><code>wide-pinky</code>: whether it uses wide key (1.5u) on the outermost pinky column or not.
+                        Default is <code>true</code></li>
+                    <li><code>height-offset</code>: the height of the body from the floor. Default is <code>4</code>.
+                    </li>
                     <li><code>wire-post</code>: whether it uses wire posts or not. Default is <code>false</code></li>
-                    <li><code>screw-inserts</code>: whether it uses screw inserts or not. Default is <code>false</code></li>
+                    <li><code>screw-inserts</code>: whether it uses screw inserts or not. Default is <code>false</code>
+                    </li>
                 </ul>
             </li>
             <li>
                 <code>misc</code>:
                 <ul>
-                    <li><code>keycaps</code>: whether it shows the keycaps on the model not. Default is <code>false</code></li>
+                    <li><code>keycaps</code>: whether it shows the keycaps on the model not. Default is
+                        <code>false</code></li>
                     <li><code>wrist-rest</code>: whether it uses wrist rest on not. Default is <code>false</code></li>
-                    <li><code>integrated-wrist-rest</code>: whether it uses integrated wrist rest (connected to the body) on not. Default is <code>false</code></li>
+                    <li><code>integrated-wrist-rest</code>: whether it uses integrated wrist rest (connected to the
+                        body) on not. Default is <code>false</code></li>
                     <li><code>right-side</code>: whether it is the right side or not. Default is <code>true</code></li>
                     <li><code>case</code>: whether it is a case or just the plate. Default is <code>true</code></li>
                 </ul>

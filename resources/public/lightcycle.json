@@ -3,7 +3,8 @@
         "columns": 5,
         "num-row": false,
         "last-row": false,
-        "thumb-count": "two"
+        "thumb-count": "two",
+        "hide-last-pinky": false
     },
     "curve": {
         "alpha": 12,

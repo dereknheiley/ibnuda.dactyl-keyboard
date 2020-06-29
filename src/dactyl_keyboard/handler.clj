@@ -58,6 +58,7 @@
                                       "alps" :alps
                                       :box)
         param-inner-column          (parse-bool (get p "keys.inner-column"))
+        param-hide-last-pinky       (parse-bool (get p "keys.hide-last-pinky"))
 
         param-alpha                 (parse-int (get p "curve.alpha"))
         param-beta                  (parse-int (get p "curve.beta"))
@@ -94,6 +95,7 @@
                                      :configuration-last-row-count         param-last-row-count
                                      :configuration-switch-type            switch-type
                                      :configuration-use-inner-column?      param-inner-column
+                                     :configuration-hide-last-pinky?       param-hide-last-pinky
 
                                      :configuration-alpha                  (if generate-json? param-alpha (/ pi param-alpha))
                                      :configuration-beta                   (if generate-json? param-beta (/ pi param-beta))
@@ -139,6 +141,7 @@
                                     "six" :six
                                     "eight" :eight
                                     :five)
+        param-hide-last-pinky     (parse-bool (get p "keys.hide-last-pinky"))
         param-alpha               (parse-int (get p "curve.alpha"))
         param-beta                (parse-int (get p "curve.beta"))
         param-tenting-angle       (parse-int (get p "curve.tenting"))
@@ -170,8 +173,7 @@
                                    :configuration-use-numrow?          param-use-numrow?
                                    :configuration-use-lastrow?         param-use-lastrow?
                                    :configuration-thumb-count          param-thumb-count
-                                   :configuration-create-side-nub?     false
-                                   :configuration-use-alps?            false
+                                    :configuration-hide-last-pinky?    param-hide-last-pinky
 
                                    :configuration-alpha                (if generate-json? param-alpha (/ pi param-alpha))
                                    :configuration-beta                 (if generate-json? param-beta (/ pi param-beta))
@@ -217,6 +219,7 @@
                         :configuration-last-row-count         (keyword (get keys :last-row "two"))
                         :configuration-switch-type            (keyword (get keys :switch-type "box"))
                         :configuration-use-inner-column?      (get keys :inner-column false)
+                        :configuration-hide-last-pinky?      (get keys :hide-last-pinky false)
 
                         :configuration-alpha                  (/ pi (get curve :alpha 12))
                         :configuration-beta                   (/ pi (get curve :beta 36))
@@ -256,6 +259,7 @@
                         :configuration-thumb-count          (keyword (get keys :thumb-count "two"))
                         :configuration-create-side-nub?     false
                         :configuration-use-alps?            false
+                        :configuration-hide-last-pinky?      (get keys :hide-last-pinky false)
 
                         :configuration-alpha                (/ pi (get curve :alpha 12))
                         :configuration-beta                 (/ pi (get curve :beta 36))

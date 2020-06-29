@@ -93,27 +93,51 @@
 (defn key-holes [c]
   (let [ncols                (get c :configuration-ncols)
         use-alps?            (get c :configuration-use-alps?)
+        use-lastrow?         (get c :configuration-use-lastrow?)
+        hide-last-pinky?     (get c :configuration-hide-last-pinky?)
         rotation-for-keyhole (if use-alps? 0 270)
         columns              (range 0 ncols)
-        rows                 (frows c)]
+        rows                 (frows c)
+        last-pinky-location  (fn [column row]
+                               (and (= row 4)
+                                    (> (last columns) 4)
+                                    (= column (last columns))))
+        hide-pinky           (fn [column row]
+                               (not (and use-lastrow?
+                                         hide-last-pinky?
+                                         (last-pinky-location column row))))
+        ]
     (apply union
            (for [column columns
                  row    rows
-                 :when  (not (and (= column 0) (> row 3)))]
-             (->> (single-plate c)
+                 :when  (not (and (= column 0) (> row 3)))
+                 :when  (hide-pinky column row)]
+             (->> (color [1 1 0] (single-plate c))
                   (rotate (deg2rad rotation-for-keyhole) [0 0 1])
                   (key-place c column row))))))
 
 (defn caps [c]
-  (let [ncols   (get c :configuration-ncols)
-        columns (range 0 ncols)
-        rows    (frows c)
-        lastrow (flastrow-lightcycle (get c :configuration-use-lastrow?))]
+  (let [ncols               (get c :configuration-ncols)
+        use-lastrow?        (get c :configuration-use-lastrow?)
+        hide-last-pinky?    (get c :configuration-hide-last-pinky?)
+        columns             (range 0 ncols)
+        rows                (frows c)
+        lastrow             (flastrow-lightcycle (get c :configuration-use-lastrow?))
+        last-pinky-location (fn [column row]
+                              (and (= row 4)
+                                    (> (last columns) 4)
+                                   (= column (last columns))))
+        hide-pinky          (fn [column row]
+                              (not (and use-lastrow?
+                                        hide-last-pinky?
+                                        (last-pinky-location column row))))
+        ]
     (apply union
            (for [column columns
                  row    rows
                  :when  (or (not= column 0)
-                            (not= row 4))]
+                            (not= row 4))
+                 :when  (hide-pinky column row)]
              (->> (sa-cap 1)
                   (key-place c column row))))))
 
@@ -122,13 +146,29 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defn connectors [c]
-  (let [use-lastrow? (get c :configuration-use-lastrow?)
-        ncols        (get c :configuration-ncols)
-        columns      (range 0 ncols)
-        rows         (frows c)
-        lastrow      (flastrow-lightcycle use-lastrow?)
-        cornerrow    (fcornerrow-lightcycle use-lastrow?)]
+  (let [use-lastrow?        (get c :configuration-use-lastrow?)
+        ncols               (get c :configuration-ncols)
+        hide-last-pinky?    (get c :configuration-hide-last-pinky?)
+        columns             (range 0 ncols)
+        rows                (frows c)
+        lastrow             (flastrow-lightcycle use-lastrow?)
+        cornerrow           (fcornerrow-lightcycle use-lastrow?)
+        last-pinky-location (fn [column row]
+                              (and (= row 4)
+                                   (> (last columns) 4)
+                                   (= column (last columns))))
+        hide-pinky          (fn [column row]
+                              (not (and use-lastrow?
+                                        hide-last-pinky?
+                                        (last-pinky-location column row))))]
     (apply union
+           (if-not (or (not (> (last columns) 4))
+                       (hide-pinky (last columns) cornerrow))
+             (triangle-hulls (key-place c (last columns) cornerrow web-post-tr)
+                             (key-place c (last columns) cornerrow web-post-tl)
+                             (key-place c (last columns) cornerrow web-post-br)
+                             (key-place c (last columns) cornerrow web-post-bl))
+             ())
            (concat
           ;; Row connections
             (for [column (drop-last columns)
@@ -1041,33 +1081,33 @@
 (defn dactyl-plate-left [c]
   (mirror [-1 0 0] (dactyl-plate-right c)))
 
-(def c
-  {:configuration-ncols                5
-   :configuration-use-numrow?          false
-   :configuration-use-lastrow?         false
-   :configuration-create-side-nub?     false
-   :configuration-use-alps?            false
-   :configuration-use-hotswap?         false
-   :configuration-thumb-count          :five
-   :configuration-manuform-offset?     true
+(def c {:configuration-ncols                6
+        :configuration-use-numrow?          true
+        :configuration-use-lastrow?         true
+        :configuration-thumb-count          :six
+        :configuration-switch-type          :box
+        :configuration-hide-last-pinky?     true
 
-   :configuration-alpha                (/ pi 12)
-   :configuration-beta                 (/ pi 36)
-   :configuration-tenting-angle        (/ pi 12)
+        :configuration-alpha                (/ pi 12)
+        :configuration-beta                 (/ pi 36)
+        :configuration-tenting-angle        (/ pi 12)
+        :configuration-thumb-alpha          (/ pi 12)
+        :configuration-thumb-beta           (/ pi 36)
+        :configuration-thumb-tenting-angle  (/ pi 12)
 
-   :configuration-thumb-alpha          (/ pi 12)
-   :configuration-thumb-beta           (/ pi 36)
-   :configuration-thumb-tenting-angle  (/ pi 12)
+        :configuration-use-external-holder? false
 
-   :configuration-z-offset             18
-   :configuration-use-border?          true
-   :configuration-thick-wall?          true
-   :configuration-use-external-holder? false
-   :configuration-use-screw-inserts?   false
-   :configuration-thumb-offset-x       -54
-   :configuration-thumb-offset-y       -45
-   :configuration-thumb-offset-z       23
-   :configuration-show-caps?           false})
+        :configuration-use-hotswap?         false
+        :configuration-thumb-offset-x       -54
+        :configuration-thumb-offset-y       -45
+        :configuration-thumb-offset-z       23
+        :configuration-z-offset             18
+        :configuration-manuform-offset?     false
+        :configuration-use-border?          true
+        :configuration-thick-wall?          false
+
+        :configuration-use-screw-inserts?   false
+        :configuration-show-caps?           false})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
         (write-scad (dactyl-top-right c)))

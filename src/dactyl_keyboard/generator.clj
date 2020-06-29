@@ -11,12 +11,13 @@
                 (dl/dactyl-top-left confs))))
 
 (defn generate-json-dm [confs is-right?]
-  {:keys      {:columns      (get confs :configuration-ncols)
-               :rows         (get confs :configuration-nrows)
-               :thumb-count  (get confs :configuration-thumb-count)
-               :last-row     (get confs :configuration-last-row-count)
-               :switch-type  (get confs :configuration-switch-type)
-               :inner-column (get confs :configuration-use-inner-column?)}
+  {:keys      {:columns         (get confs :configuration-ncols)
+               :rows            (get confs :configuration-nrows)
+               :thumb-count     (get confs :configuration-thumb-count)
+               :last-row        (get confs :configuration-last-row-count)
+               :switch-type     (get confs :configuration-switch-type)
+               :inner-column    (get confs :configuration-use-inner-column?)
+               :hide-last-pinky (get confs :configuration-hide-last-pinky?)}
    :curve     {:alpha     (get confs :configuration-alpha)
                :beta      (get confs :configuration-beta)
                :centercol (get confs :configuration-centercol)
@@ -37,10 +38,11 @@
                :case                  true}})
 
 (defn generate-json-dl [confs is-right?]
-  {:keys      {:columns     (get confs :configuration-ncols)
-               :num-row     (get confs :configuration-use-numrow?)
-               :last-row    (get confs :configuration-use-lastrow?)
-               :thumb-count (get confs :configuration-thumb-count)}
+  {:keys      {:columns         (get confs :configuration-ncols)
+               :num-row         (get confs :configuration-use-numrow?)
+               :last-row        (get confs :configuration-use-lastrow?)
+               :thumb-count     (get confs :configuration-thumb-count)
+               :hide-last-pinky (get confs :configuration-hide-last-pinky?)}
    :curve     {:alpha         (get confs :configuration-alpha)
                :beta          (get confs :configuration-beta)
                :tenting       (get confs :configuration-tenting-angle)

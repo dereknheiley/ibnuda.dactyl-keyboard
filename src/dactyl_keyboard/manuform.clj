@@ -79,19 +79,29 @@
 (defn key-holes
   "Determines which keys should be generated based on the configuration."
   [c]
-  (let [row-count (get c :configuration-last-row-count)
-        ncols     (get c :configuration-ncols)
-        nrows     (get c :configuration-nrows)
-        lastrow   (flastrow nrows)]
+  (let [ncols               (get c :configuration-ncols)
+        nrows               (get c :configuration-nrows)
+        hide-last-pinky?    (get c :configuration-hide-last-pinky?)
+        last-row-count      (get c :configuration-last-row-count)
+        lastrow             (flastrow nrows)
+        lastcol             (flastcol ncols)
+        last-pinky-location (fn [column row]
+                              (and (= row lastrow)
+                                   (= column lastcol)))
+        hide-pinky          (fn [column row]
+                              (not (and (= last-row-count :full)
+                                        hide-last-pinky?
+                                        (last-pinky-location column row))))]
     (apply union
            (for [column (columns ncols)
                  row    (rows nrows)
-                 :when  (case row-count
+                 :when  (case last-row-count
                           :zero (not= row lastrow)
                           :two (or (.contains [2 3] column)
                                    (not= row lastrow))
-                          :full (or (not (.contains [0 1] column)) (not= row lastrow)))]
-             (->> (single-plate c)
+                          :full (or (not (.contains [0 1] column)) (not= row lastrow)))
+                 :when  (hide-pinky column row)]
+             (->> (color [1 1 0] (single-plate c))
                   (key-place c column row))))))
 
 (defn key-inner-place
@@ -111,19 +121,28 @@
                         (key-inner-place c -1 row))))))
 
 (defn caps [c]
-  (let [use-inner-column? (get c :configuration-use-inner-column?)
-        row-count         (get c :configuration-last-row-count)
-        use-wide-pinky?   (get c :configuration-use-wide-pinky?)
-        ncols             (get c :configuration-ncols)
-        nrows             (get c :configuration-nrows)
-        lastrow           (flastrow nrows)
-        cornerrow         (fcornerrow nrows)
-        lastcol           (flastcol ncols)]
+  (let [use-inner-column?   (get c :configuration-use-inner-column?)
+        last-row-count      (get c :configuration-last-row-count)
+        use-wide-pinky?     (get c :configuration-use-wide-pinky?)
+        ncols               (get c :configuration-ncols)
+        nrows               (get c :configuration-nrows)
+        hide-last-pinky?    (get c :configuration-hide-last-pinky?)
+        lastrow             (flastrow nrows)
+        cornerrow           (fcornerrow nrows)
+        lastcol             (flastcol ncols)
+        last-pinky-location (fn [column row]
+                              (and (= row lastrow)
+                                   (= column lastcol)))
+        hide-pinky          (fn [column row]
+                              (not (and (= last-row-count :full)
+                                        hide-last-pinky?
+                                        (last-pinky-location column row))))
+        ]
     (apply
      union
      (for [column (if use-inner-column? (range -1 ncols) (columns ncols))
            row    (rows nrows)
-           :when  (case row-count
+           :when  (case last-row-count
                     :zero (not= row lastrow)
                     :two (or (.contains [2 3] column)
                              (not= row lastrow))
@@ -132,7 +151,8 @@
                     (not (and (.contains [-1] column)
                               (or (= row cornerrow)
                                   (= row lastrow))))
-                    true)]
+                    true)
+           :when  (hide-pinky column row)]
        (->> (sa-cap (if (and use-wide-pinky?
                              (= column lastcol)
                              (not= row lastrow))
@@ -165,21 +185,37 @@
   "It creates the wall which connects to each keys in the main body based
    on the configuration provided."
   [c]
-  (let [use-inner-column? (get c :configuration-use-inner-column?)
-        row-count         (get c :configuration-last-row-count)
-        ncols             (get c :configuration-ncols)
-        nrows             (get c :configuration-nrows)
-        lastrow           (flastrow nrows)
-        cornerrow         (fcornerrow nrows)
-        middlerow         (fmiddlerow nrows)]
+  (let [use-inner-column?   (get c :configuration-use-inner-column?)
+        last-row-count      (get c :configuration-last-row-count)
+        ncols               (get c :configuration-ncols)
+        nrows               (get c :configuration-nrows)
+        hide-last-pinky?    (get c :configuration-hide-last-pinky?)
+        lastrow             (flastrow nrows)
+        cornerrow           (fcornerrow nrows)
+        middlerow           (fmiddlerow nrows)
+        lastcol             (flastcol ncols)
+        last-pinky-location (fn [column row]
+                              (and (= row lastrow)
+                                   (= column lastcol)))
+        hide-pinky          (fn [column row]
+                              (not (and (= last-row-count :full)
+                                        hide-last-pinky?
+                                        (last-pinky-location column row))))
+        ]
     (union
      (apply
       union
+      (if-not (hide-pinky lastcol lastrow)
+        (triangle-hulls (key-place c lastcol lastrow web-post-tr)
+                        (key-place c lastcol lastrow web-post-tl)
+                        (key-place c lastcol lastrow web-post-br)
+                        (key-place c lastcol lastrow web-post-bl))
+        ())
       (concat
       ;; Row connections
        (for [column (range (if use-inner-column? -1 0) (dec ncols))
              row    (range 0 (inc lastrow))
-             :when  (case row-count
+             :when  (case last-row-count
                       :zero (or (not= row lastrow)
                                 (and (= row cornerrow)
                                      (= column -1)))
@@ -199,7 +235,7 @@
       ;; Column connections
        (for [column (if use-inner-column? (inner-columns ncols) (columns ncols))
              row    (range 0 lastrow)
-             :when  (case row-count
+             :when  (case last-row-count
                       :zero (not= row cornerrow)
                       :two (or (not= row cornerrow))
                       :full (not (and (= row cornerrow)
@@ -216,7 +252,7 @@
       ;; Diagonal connections
        (for [column (range (if use-inner-column? -1 0) (dec ncols))
              row    (range 0 lastrow)
-             :when  (case row-count
+             :when  (case last-row-count
                       :full (not (or (and (= row lastrow)
                                           (.contains [-1 0 1] column))
                                      (and (= row cornerrow)
@@ -227,7 +263,7 @@
           (key-place c column (inc row) web-post-tr)
           (key-place c (inc column) row web-post-bl)
           (key-place c (inc column) (inc row) web-post-tl)))))
-     (case row-count
+     (case last-row-count
        :two (triangle-hulls (key-place c 2 lastrow   web-post-tr)
                             (key-place c 3 cornerrow web-post-bl)
                             (key-place c 3 lastrow   web-post-tl)
@@ -1393,31 +1429,33 @@
 (defn wrist-rest-left [c]
   (mirror [-1 0 0] (wrist-rest-base c)))
 
-(def c {:configuration-nrows                  4
-        :configuration-ncols                  5
+(def c {:configuration-nrows                  5
+        :configuration-ncols                  6
+        :configuration-thumb-count            :six
+        :configuration-last-row-count         :full
         :configuration-switch-type            :box
-        :configuration-thumb-count            :five
+        :configuration-use-inner-column?      true
 
         :configuration-alpha                  (/ pi 12)
         :configuration-beta                   (/ pi 30)
-        :configuration-centercol              3
+        :configuration-centercol              4
         :configuration-tenting-angle          (/ pi 7)
-        :configuration-plate-projection?      false
 
-        :configuration-use-promicro-usb-hole? true
-        :configuration-use-trrs?              true
+        :configuration-use-promicro-usb-hole? false
+        :configuration-use-trrs?              false
         :configuration-use-external-holder?   false
 
         :configuration-use-hotswap?           false
-        :configuration-stagger?               false
-        :configuration-use-inner-column?      false
-        :configuration-z-offset               18
-        :configuration-show-caps?             false
-        :configuration-last-row-count         :zero
+        :configuration-stagger?               true
         :configuration-use-wide-pinky?        true
+        :configuration-z-offset               14
         :configuration-use-wire-post?         false
         :configuration-use-screw-inserts?     true
-        :configuration-use-wrist-rest?        false})
+
+        :configuration-hide-last-pinky?       true
+        :configuration-show-caps?             false
+        :configuration-use-wrist-rest?        false
+        :configuration-plate-projection?      false})
 
 #_(spit "things/right.scad"
         (write-scad (model-right c)))

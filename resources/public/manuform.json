@@ -5,7 +5,8 @@
         "thumb-count": "six",
         "last-row": "two",
         "switch-type": "box",
-        "inner-column": false
+        "inner-column": false,
+        "hide-last-pinky": false
     },
     "curve": {
         "alpha": 12,
