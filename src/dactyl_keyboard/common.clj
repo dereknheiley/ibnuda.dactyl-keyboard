@@ -111,10 +111,10 @@
    Main use case is to make the outer pinky keys use 1.5u."
   [c col row]
   (let [use-wide-pinky? (get c :configuration-use-wide-pinky?)
-        nrows (get c :configuration-nrows 5)
-        ncols (get c :configuration-ncols)
-        lastrow (flastrow nrows)
-        lastcol (flastcol ncols)]
+        nrows           (get c :configuration-nrows 5)
+        ncols           (get c :configuration-ncols)
+        lastrow         (flastrow nrows)
+        lastcol         (flastcol ncols)]
     (if (and use-wide-pinky?
              (not= row lastrow)
              (= col lastcol))

@@ -54,6 +54,7 @@
                :thumb-offset-x  (get confs :configuration-thumb-offset-x)
                :thumb-offset-y  (get confs :configuration-thumb-offset-y)
                :thumb-offset-z  (get confs :configuration-thumb-offset-z)
+               :wide-pinky      (get confs :configuration-use-wide-pinky?)
                :z-offset        (get confs :configuration-z-offset)
                :manuform-offset (get confs :configuration-manuform-offset?)
                :border          (get confs :configuration-use-border?)

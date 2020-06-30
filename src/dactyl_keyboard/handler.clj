@@ -153,6 +153,7 @@
         param-thumb-offset-x      (parse-int (get p "form.thumb-offset-x"))
         param-thumb-offset-y      (parse-int (get p "form.thumb-offset-y"))
         param-thumb-offset-z      (parse-int (get p "form.thumb-offset-z"))
+        param-use-wide-pinky      (parse-bool (get p "form.wide-pinky"))
         param-z-offset            (parse-int (get p "form.z-offset"))
         param-manuform-offset     (parse-bool (get p "form.manuform-offset"))
         param-use-border          (parse-bool (get p "form.border"))
@@ -173,7 +174,8 @@
                                    :configuration-use-numrow?          param-use-numrow?
                                    :configuration-use-lastrow?         param-use-lastrow?
                                    :configuration-thumb-count          param-thumb-count
-                                    :configuration-hide-last-pinky?    param-hide-last-pinky
+                                   :configuration-hide-last-pinky?     param-hide-last-pinky
+                                   :configuration-use-wide-pinky?      param-use-wide-pinky
 
                                    :configuration-alpha                (if generate-json? param-alpha (/ pi param-alpha))
                                    :configuration-beta                 (if generate-json? param-beta (/ pi param-beta))
@@ -219,7 +221,7 @@
                         :configuration-last-row-count         (keyword (get keys :last-row "two"))
                         :configuration-switch-type            (keyword (get keys :switch-type "box"))
                         :configuration-use-inner-column?      (get keys :inner-column false)
-                        :configuration-hide-last-pinky?      (get keys :hide-last-pinky false)
+                        :configuration-hide-last-pinky?       (get keys :hide-last-pinky false)
 
                         :configuration-alpha                  (/ pi (get curve :alpha 12))
                         :configuration-beta                   (/ pi (get curve :beta 36))
@@ -259,7 +261,7 @@
                         :configuration-thumb-count          (keyword (get keys :thumb-count "two"))
                         :configuration-create-side-nub?     false
                         :configuration-use-alps?            false
-                        :configuration-hide-last-pinky?      (get keys :hide-last-pinky false)
+                        :configuration-hide-last-pinky?     (get keys :hide-last-pinky false)
 
                         :configuration-alpha                (/ pi (get curve :alpha 12))
                         :configuration-beta                 (/ pi (get curve :beta 36))
@@ -274,6 +276,7 @@
                         :configuration-thumb-offset-x       (- 0 (get form :thumb-offset-x 52))
                         :configuration-thumb-offset-y       (- 0 (get form :thumb-offset-y 45))
                         :configuration-thumb-offset-z       (get form :thumb-offset-z 27)
+                        :configuration-use-wide-pinky?      (get form :wide-pinky false)
                         :configuration-z-offset             (get form :z-offset 10)
                         :configuration-manuform-offset?     (get form :manuform-offset false)
                         :configuration-use-border?          (get form :use-border true)

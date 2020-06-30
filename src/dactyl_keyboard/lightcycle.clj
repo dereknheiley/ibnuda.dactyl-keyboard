@@ -44,6 +44,17 @@
     (>= column 4) [0 -12 5.64]            ; original [0 -5.8 5.64]
     :else [0 0 0]))
 
+(defn wide-pinky [c column row]
+  (let [use-wide-pinky? (get c :configuration-use-wide-pinky?)
+        ncols           (get c :configuration-ncols)
+        columns         (range 0 ncols)
+        last-column     (last columns)]
+    (if (and use-wide-pinky?
+             (= last-column column)
+             (not= 4 row))
+      5.5
+      0)))
+
 (defn key-place [c column row shape]
   (let [alpha            (get c :configuration-alpha)
         beta             (get c :configuration-beta)
@@ -55,7 +66,7 @@
                            (column-offset column))
         column-angle     (* beta (- 2 column))
         placed-shape     (->> shape
-                              (translate [0 0 (- (frow-radius alpha))])
+                              (translate [(wide-pinky c column row) 0 (- (frow-radius alpha))])
                               (rotate (* alpha (- 2 row)) [1 0 0])
                               (translate [0 0 (frow-radius alpha)])
                               (translate [0 0 (- (fcolumn-radius beta))])
@@ -119,26 +130,32 @@
 (defn caps [c]
   (let [ncols               (get c :configuration-ncols)
         use-lastrow?        (get c :configuration-use-lastrow?)
+        use-wide-pinky?     (get c :configuration-use-wide-pinky?)
         hide-last-pinky?    (get c :configuration-hide-last-pinky?)
         columns             (range 0 ncols)
         rows                (frows c)
         lastrow             (flastrow-lightcycle (get c :configuration-use-lastrow?))
         last-pinky-location (fn [column row]
                               (and (= row 4)
-                                    (> (last columns) 4)
+                                   (> (last columns) 4)
                                    (= column (last columns))))
         hide-pinky          (fn [column row]
                               (not (and use-lastrow?
                                         hide-last-pinky?
                                         (last-pinky-location column row))))
-        ]
+        sa-cap-unit         (fn [column row]
+                              (if (and use-wide-pinky?
+                                       (= (last columns) column)
+                                       (not= 4 row))
+                                1.5
+                                1))]
     (apply union
            (for [column columns
                  row    rows
                  :when  (or (not= column 0)
                             (not= row 4))
                  :when  (hide-pinky column row)]
-             (->> (sa-cap 1)
+             (->> (sa-cap (sa-cap-unit column row))
                   (key-place c column row))))))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -514,8 +531,11 @@
 
 ;; In column units
 (defn right-wall-column [c]
-  (let [lastcol (- (get c :configuration-ncols) 1)]
-    (+ lastcol 0.55)))
+  (let [lastcol         (- (get c :configuration-ncols) 1)
+        use-wide-pinky? (get c :configuration-use-wide-pinky?)]
+    (if use-wide-pinky?
+      (+ lastcol 1.05)
+      (+ lastcol 0.55))))
 (def left-wall-column -8/15)
 (defn thumb-back-y [c]
   (let [thumb-count (get c :configuration-thumb-count)]
@@ -596,6 +616,8 @@
         use-border?                    (get c :configuration-use-border?)
         cornerrow                      (fcornerrow-lightcycle use-lastrow?)
         thick-wall?                    (get c :configuration-thick-wall?)
+        hide-last-pinky?               (get c :configuration-hide-last-pinky?)
+        use-wide-pinky?                (get c :configuration-use-wide-pinky?)
         penultcol                      (fpenultcol ncols)
         antecol                        (fantecol ncols)
         step                           wall-step ;;0.1
@@ -607,7 +629,8 @@
                                                          wall-step))
         index-finger-cover-multiplier  (if manuform-offset? 0.85 0.92)
         middle-finger-cover-multiplier (if manuform-offset? 0.80 0.88)
-        ring-finger-cover-multiplier   (if manuform-offset? 0.85 0.92)]
+        ring-finger-cover-multiplier   (if manuform-offset? 0.85 0.92)
+        pinky-finger-cover-multiplier  (if manuform-offset? 0.75 0.75)]
     (union
      (apply union
             (for [x (range-inclusive 0.7 (- (right-wall-column c) step) step)]
@@ -628,7 +651,10 @@
        ()
        (union (top-cover 0.50 1.70 (* cornerrow index-finger-cover-multiplier) cornerrow)
               (top-cover 1.59 2.36 (* cornerrow middle-finger-cover-multiplier) cornerrow) ;; was 3.32
-              (top-cover 2.34 3.31 (* cornerrow ring-finger-cover-multiplier) cornerrow)))
+              (top-cover 2.34 3.31 (* cornerrow ring-finger-cover-multiplier) cornerrow)
+              (if use-wide-pinky?
+                (top-cover (- ncols 0.5 (if hide-last-pinky? 1 0)) (- ncols -0.05) (* cornerrow pinky-finger-cover-multiplier) cornerrow)
+                ())))
      (apply union
             (for [x (range 2 lastrow)]
               (union
@@ -1082,14 +1108,15 @@
   (mirror [-1 0 0] (dactyl-plate-right c)))
 
 (def c {:configuration-ncols                6
-        :configuration-use-numrow?          true
+        :configuration-use-numrow?          false
         :configuration-use-lastrow?         true
         :configuration-thumb-count          :six
         :configuration-switch-type          :box
-        :configuration-hide-last-pinky?     true
+        :configuration-use-wide-pinky?      true
+        :configuration-hide-last-pinky?     false
 
         :configuration-alpha                (/ pi 12)
-        :configuration-beta                 (/ pi 36)
+        :configuration-beta                 (/ pi 24)
         :configuration-tenting-angle        (/ pi 12)
         :configuration-thumb-alpha          (/ pi 12)
         :configuration-thumb-beta           (/ pi 36)
@@ -1102,12 +1129,12 @@
         :configuration-thumb-offset-y       -45
         :configuration-thumb-offset-z       23
         :configuration-z-offset             18
-        :configuration-manuform-offset?     false
+        :configuration-manuform-offset?     true
         :configuration-use-border?          true
         :configuration-thick-wall?          false
 
         :configuration-use-screw-inserts?   false
-        :configuration-show-caps?           false})
+        :configuration-show-caps?           true})
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
         (write-scad (dactyl-top-right c)))
