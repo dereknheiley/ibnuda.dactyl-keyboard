@@ -77,16 +77,12 @@
         param-screw-inserts         (parse-bool (get p "form.screw-inserts"))
 
         param-show-keycaps          (parse-bool (get p "misc.keycaps"))
-        param-wrist-rest            (parse-bool (get p "misc.wrist-rest"))
-        param-integrated-wrist-rest (parse-bool (get p "misc.integrated-wrist-rest"))
         is-right?                   (parse-bool (get p "misc.right-side"))
 
         param-generate-plate        (get p "generate-plate")
-        param-generate-wrist-rest   (get p "generate-wrist-rest")
         param-generate-json         (get p "generate-json")
 
         generate-plate?             (some? param-generate-plate)
-        generate-wrist-rest?        (some? param-generate-wrist-rest)
         generate-json?              (some? param-generate-json)
 
         c                           {:configuration-nrows                  param-nrows
@@ -113,14 +109,10 @@
                                      :configuration-show-caps?             param-show-keycaps
                                      :configuration-use-wide-pinky?        param-wide-pinky
                                      :configuration-use-wire-post?         param-wire-post
-                                     :configuration-use-screw-inserts?     param-screw-inserts
-                                     :configuration-use-wrist-rest?        param-wrist-rest
-                                     :configuration-integrated-wrist-rest? param-integrated-wrist-rest}
+                                     :configuration-use-screw-inserts?     param-screw-inserts}
         generated-file              (cond
                                       generate-plate? {:file      (g/generate-plate-dm c is-right?)
                                                        :extension "scad"}
-                                      generate-wrist-rest? {:file      (g/generate-wrist-rest-dm c is-right?)
-                                                            :extension "scad"}
                                       generate-json? {:file      (g/generate-json-dm c is-right?)
                                                       :extension "json"}
                                       :else {:file      (g/generate-case-dm c is-right?)
@@ -240,9 +232,7 @@
                         :configuration-use-screw-inserts?     (get form :screw-inserts false)
 
                         :configuration-show-caps?             (get misc :keycaps false)
-                        :configuration-use-wrist-rest?        (get misc :wrist-rest false)
-                        :configuration-plate-projection?      (not (get misc :case true))
-                        :configuration-integrated-wrist-rest? (get misc :integrated-wrist-rest false)}
+                        :configuration-plate-projection?      (not (get misc :case true))}
         generated-scad (g/generate-case-dm c (get misc :right-side true))]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"

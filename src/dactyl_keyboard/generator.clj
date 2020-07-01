@@ -32,8 +32,6 @@
                :wire-post     (get confs :configuration-use-wire-post?)
                :screw-inserts (get confs :configuration-use-screw-inserts?)}
    :misc      {:keycaps               (get confs :configuration-show-caps?)
-               :wrist-rest            (get confs :configuration-use-wrist-rest?)
-               :integrated-wrist-rest (get confs :configuration-integrated-wrist-rest?)
                :right-side            is-right?
                :case                  true}})
 
@@ -76,8 +74,3 @@
   (write-scad (if is-right?
                 (dm/plate-right confs)
                 (dm/plate-left confs))))
-
-(defn generate-wrist-rest-dm [confs is-right?]
-  (write-scad (if is-right?
-                (dm/wrist-rest-right confs)
-                (dm/wrist-rest-left confs))))

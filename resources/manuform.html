@@ -177,17 +177,6 @@
                     <option value="false">No</option>
                     <option value="true">Yes</option>
                 </select>
-                <label for="misc.wrist-rest">Wrist Rest?</label>
-                <select id="misc.wrist-rest" name="misc.wrist-rest" onchange="toggle_wrist_rest_type_fields()">
-                    <option value="true">Yes</option>
-                    <option value="false">No</option>
-                </select>
-                <label for="misc.integrated-wrist-rest">Integrated Wrist Rest?</label>
-                <select id="misc.integrated-wrist-rest" name="misc.integrated-wrist-rest"
-                    onchange="toggle_generate_wrist_rest_button()">
-                    <option value="false">No</option>
-                    <option value="true">Yes</option>
-                </select>
                 <label for="misc.right-side">Right side or left side?</label>
                 <select id="misc.right-side" name="misc.right-side">
                     <option value="true">Right</option>
@@ -196,7 +185,6 @@
             </fieldset>
             <input class="button-primary" type="submit" name="generate-case" value="Generate Case">
             <input class="button-primary" type="submit" name="generate-plate" value="Generate Plate">
-            <input class="button-primary" type="submit" name="generate-wrist-rest" value="Generate wrist rest">
             <input class="button-primary" type="submit" name="generate-json" value="Generate JSON">
         </form>
         <p>Loligagger's external holder files:</p>

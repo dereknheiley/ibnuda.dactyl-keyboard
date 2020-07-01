@@ -29,8 +29,6 @@
     },
     "misc": {
         "keycaps": false,
-        "wrist-rest": false,
-        "integrated-wrist-rest": false,
         "right-side": true,
         "case": true
     }

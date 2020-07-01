@@ -1324,32 +1324,6 @@
       (key-place c column row (translate [0 0 0]  (wire-post c -1 6)))
       (key-place c column row (translate [5 0 0]  (wire-post c  1 0)))))))
 
-(defn wrist-rest-locate [c]
-  (let [nrows 5]
-    (key-position c 3 8 (map + (wall-locate1 0 (- 4.9 (* 2 nrows))) [0 (/ mount-height 2) 0]))))
-
-(defn wrest-wall-cut
-  [c]
-  (->> (for [xyz (range 1.00 10 3)]
-         (union
-          (translate [1, xyz,1] (case-walls c))))))
-
-(defn integrated-wrist-rest-build [c]
-  (difference
-   (->> (union
-         (->> (wrist-rest-base c)
-              (translate [wrist-base-position-x -40 0])
-              (rotate  (/ (* pi wrist-rest-rotation-angle) 180)  [0 0 1]))
-         (->> (difference (rest-case-connectors c)
-                          (rest-case-cuts c)
-                          cut-bottom)))
-        (translate [(+ (first (thumborigin c)) 33) (- (second (thumborigin c)) 50) 0]))
-   (translate [(+ (first (thumborigin c)) 33)
-               (- (second (thumborigin c)) 50)
-               0]
-              (rest-case-cuts c))
-   (wrest-wall-cut c)))
-
 (defn model-right [c]
   (let [use-inner-column?          (get c :configuration-use-inner-column?)
         show-caps?                 (get c :configuration-show-caps?)
@@ -1357,14 +1331,9 @@
         use-promicro-usb-hole?     (get c :configuration-use-promicro-usb-hole?)
         use-screw-inserts?         (get c :configuration-use-screw-inserts?)
         use-trrs?                  (get c :configuration-use-trrs?)
-        use-wire-post?             (get c :configuration-use-wire-post?)
-        use-wrist-rest?            (get c :configuration-use-wrist-rest?)
-        use-integrated-wrist-rest? (get c :configuration-integrated-wrist-rest?)]
+        use-wire-post?             (get c :configuration-use-wire-post?)]
     (difference
      (union
-      (if use-wrist-rest?
-        (if use-integrated-wrist-rest? (integrated-wrist-rest-build c) ())
-        ())
       (if show-caps? (caps c) ())
       (if show-caps? (thumbcaps c) ())
       (if-not use-external-holder?
@@ -1423,12 +1392,6 @@
 (defn plate-left [c]
   (mirror [-1 0 0] (plate-right c)))
 
-(defn wrist-rest-right [c]
-  (wrist-rest-base c))
-
-(defn wrist-rest-left [c]
-  (mirror [-1 0 0] (wrist-rest-base c)))
-
 (def c {:configuration-nrows                  5
         :configuration-ncols                  6
         :configuration-thumb-count            :six
@@ -1454,10 +1417,9 @@
 
         :configuration-hide-last-pinky?       true
         :configuration-show-caps?             false
-        :configuration-use-wrist-rest?        false
         :configuration-plate-projection?      false})
 
-#_(spit "things/right.scad"
+(spit "things/right.scad"
         (write-scad (model-right c)))
 
 #_(spit "things/right-plate.scad"

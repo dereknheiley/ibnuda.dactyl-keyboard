@@ -34,6 +34,6 @@ If you want to use single key PCB, please use [single pcb](https://github.com/ib
 
 ## License
 
-Copyright © 2015-2020 Matthew Adereth, Tom Short, and Ibnu D. Aji.
+Copyright © 2015-2020 Matthew Adereth, Tom Short, Ibnu D. Aji, et. al.
 
 The source code for generating the models (everything excluding the [things/](things/) and [resources/](resources/) directories is distributed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3](LICENSE).  The generated models and PCB designs are distributed under the [Creative Commons Attribution-NonCommercial-ShareAlike License Version 3.0](LICENSE-models).
