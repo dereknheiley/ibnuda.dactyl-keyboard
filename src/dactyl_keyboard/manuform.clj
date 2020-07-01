@@ -1419,7 +1419,7 @@
         :configuration-show-caps?             false
         :configuration-plate-projection?      false})
 
-(spit "things/right.scad"
+#_(spit "things/right.scad"
         (write-scad (model-right c)))
 
 #_(spit "things/right-plate.scad"
