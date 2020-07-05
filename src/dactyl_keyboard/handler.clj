@@ -12,6 +12,9 @@
 (defn parse-int [s]
   (Integer/parseInt s))
 
+(defn parse-float [s]
+  (Float/parseFloat s))
+
 (defn parse-bool [s]
   (Boolean/valueOf s))
 
@@ -68,13 +71,26 @@
         param-use-external-holder   (parse-bool (get p "connector.external"))
         param-trrs-connector        (parse-bool (get p "connector.trrs"))
         param-use-promicro-usb-hole (parse-bool (get p "connector.micro-usb"))
-        
+
         param-hotswap               (parse-bool (get p "form.hotswap"))
         param-stagger               (parse-bool (get p "form.stagger"))
         param-keyboard-z-offset     (parse-int (get p "form.height-offset"))
         param-wide-pinky            (parse-bool (get p "form.wide-pinky"))
         param-wire-post             (parse-bool (get p "form.wire-post"))
         param-screw-inserts         (parse-bool (get p "form.screw-inserts"))
+        param-index-y               (parse-float (get p "form.index-y"))
+        param-index-z               (parse-float (get p "form.index-z"))
+        param-middle-y              (parse-float (get p "form.middle-y"))
+        param-middle-z              (parse-float (get p "form.middle-z"))
+        param-ring-y                (parse-float (get p "form.ring-y"))
+        param-ring-z                (parse-float (get p "form.ring-z"))
+        param-pinky-y               (parse-float (get p "form.pinky-y"))
+        param-pinky-z               (parse-float (get p "form.pinky-z"))
+
+        stagger-index               [0 param-index-y param-index-z]
+        stagger-middle              [0 param-middle-y param-middle-z]
+        stagger-ring                [0 param-ring-y param-ring-z]
+        stagger-pinky               [0 param-pinky-y param-pinky-z]
 
         param-show-keycaps          (parse-bool (get p "misc.keycaps"))
         is-right?                   (parse-bool (get p "misc.right-side"))
@@ -105,6 +121,10 @@
 
                                      :configuration-use-hotswap?           param-hotswap
                                      :configuration-stagger?               param-stagger
+                                     :configuration-stagger-index          stagger-index
+                                     :configuration-stagger-middle         stagger-middle
+                                     :configuration-stagger-ring           stagger-ring
+                                     :configuration-stagger-pinky          stagger-pinky
                                      :configuration-z-offset               param-keyboard-z-offset
                                      :configuration-show-caps?             param-show-keycaps
                                      :configuration-use-wide-pinky?        param-wide-pinky
@@ -206,6 +226,18 @@
         curve          (get body :curve)
         connector      (get body :connector)
         form           (get body :form)
+        index-y        (get form :stagger-index-y 0)
+        index-z        (get form :stagger-index-z 0)
+        middle-y       (get form :stagger-middle-y 2.8)
+        middle-z       (get form :stagger-middle-z -6.5)
+        ring-y         (get form :stagger-ring-y 0)
+        ring-z         (get form :stagger-ring-z 0)
+        pinky-y        (get form :stagger-pinky-y -13)
+        pinky-z        (get form :stagger-pinky-z 6)
+        stagger-index  [0 index-y index-z]
+        stagger-middle [0 middle-y middle-z]
+        stagger-ring   [0 ring-y ring-z]
+        stagger-pinky  [0 pinky-y pinky-z]
         misc           (get body :misc)
         c              {:configuration-ncols                  (get keys :columns 5)
                         :configuration-nrows                  (get keys :rows 4)
@@ -226,6 +258,10 @@
 
                         :configuration-use-hotswap?           (get form :hotswap false)
                         :configuration-stagger?               (get form :stagger true)
+                        :configuration-stagger-index          stagger-index
+                        :configuration-stagger-middle         stagger-middle
+                        :configuration-stagger-ring           stagger-ring
+                        :configuration-stagger-pinky          stagger-pinky
                         :configuration-use-wide-pinky?        (get form :wide-pinky false)
                         :configuration-z-offset               (get form :height-offset 4)
                         :configuration-use-wire-post?         (get form :wire-post false)

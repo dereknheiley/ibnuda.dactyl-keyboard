@@ -11,29 +11,41 @@
                 (dl/dactyl-top-left confs))))
 
 (defn generate-json-dm [confs is-right?]
-  {:keys      {:columns         (get confs :configuration-ncols)
-               :rows            (get confs :configuration-nrows)
-               :thumb-count     (get confs :configuration-thumb-count)
-               :last-row        (get confs :configuration-last-row-count)
-               :switch-type     (get confs :configuration-switch-type)
-               :inner-column    (get confs :configuration-use-inner-column?)
-               :hide-last-pinky (get confs :configuration-hide-last-pinky?)}
-   :curve     {:alpha     (get confs :configuration-alpha)
-               :beta      (get confs :configuration-beta)
-               :centercol (get confs :configuration-centercol)
-               :tenting   (get confs :configuration-tenting-angle)}
-   :connector {:external  (get confs :configuration-use-external-holder?)
-               :trrs      (get confs :configuration-use-trrs?)
-               :micro-usb (get confs :configuration-use-promicro-usb-hole?)}
-   :form      {:hotswap       (get confs :configuration-use-hotswap?)
-               :stagger       (get confs :configuration-stagger?)
-               :wide-pinky    (get confs :configuration-use-wide-pinky?)
-               :height-offset (get confs :configuration-z-offset)
-               :wire-post     (get confs :configuration-use-wire-post?)
-               :screw-inserts (get confs :configuration-use-screw-inserts?)}
-   :misc      {:keycaps               (get confs :configuration-show-caps?)
-               :right-side            is-right?
-               :case                  true}})
+  (let [stagger-index  (get confs :configuration-stagger-index [0 0 0])
+        stagger-middle (get confs :configuration-stagger-middle [0 2.8 -6.5])
+        stagger-ring   (get confs :configuration-stagger-ring [0 0 0])
+        stagger-pinky  (get confs :configuration-stagger-pinky [0 -13 6])]
+    {:keys      {:columns         (get confs :configuration-ncols)
+                 :rows            (get confs :configuration-nrows)
+                 :thumb-count     (get confs :configuration-thumb-count)
+                 :last-row        (get confs :configuration-last-row-count)
+                 :switch-type     (get confs :configuration-switch-type)
+                 :inner-column    (get confs :configuration-use-inner-column?)
+                 :hide-last-pinky (get confs :configuration-hide-last-pinky?)}
+     :curve     {:alpha     (get confs :configuration-alpha)
+                 :beta      (get confs :configuration-beta)
+                 :centercol (get confs :configuration-centercol)
+                 :tenting   (get confs :configuration-tenting-angle)}
+     :connector {:external  (get confs :configuration-use-external-holder?)
+                 :trrs      (get confs :configuration-use-trrs?)
+                 :micro-usb (get confs :configuration-use-promicro-usb-hole?)}
+     :form      {:hotswap          (get confs :configuration-use-hotswap?)
+                 :stagger          (get confs :configuration-stagger?)
+                 :stagger-index-y  (second stagger-index)
+                 :stagger-index-z  (last stagger-index)
+                 :stagger-middle-y (second stagger-middle)
+                 :stagger-middle-z (last stagger-middle)
+                 :stagger-ring-y   (second stagger-ring)
+                 :stagger-ring-z   (last stagger-ring)
+                 :stagger-pinky-y  (second stagger-pinky)
+                 :stagger-pinky-z  (last stagger-pinky)
+                 :wide-pinky       (get confs :configuration-use-wide-pinky?)
+                 :height-offset    (get confs :configuration-z-offset)
+                 :wire-post        (get confs :configuration-use-wire-post?)
+                 :screw-inserts    (get confs :configuration-use-screw-inserts?)}
+     :misc      {:keycaps    (get confs :configuration-show-caps?)
+                 :right-side is-right?
+                 :case       true}}))
 
 (defn generate-json-dl [confs is-right?]
   {:keys      {:columns         (get confs :configuration-ncols)

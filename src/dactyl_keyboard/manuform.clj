@@ -1355,7 +1355,7 @@
                    (union (pro-micro-holder c)
                           (trrs-usb-holder-holder c))
                    (union (usb-holder fusb-holder-position c)
-                          (pro-micro-holder c)))
+                          #_(pro-micro-holder c)))
                  (if use-trrs? (trrs-holder c) ()))
                 ()))
        (if use-screw-inserts? (screw-insert-holes screw-placement c) ())
@@ -1395,14 +1395,14 @@
 (def c {:configuration-nrows                  5
         :configuration-ncols                  6
         :configuration-thumb-count            :six
-        :configuration-last-row-count         :full
+        :configuration-last-row-count         :two
         :configuration-switch-type            :box
-        :configuration-use-inner-column?      true
+        :configuration-use-inner-column?      false
 
         :configuration-alpha                  (/ pi 12)
-        :configuration-beta                   (/ pi 30)
+        :configuration-beta                   (/ pi 36)
         :configuration-centercol              4
-        :configuration-tenting-angle          (/ pi 7)
+        :configuration-tenting-angle          (/ pi 9)
 
         :configuration-use-promicro-usb-hole? false
         :configuration-use-trrs?              false
@@ -1410,12 +1410,12 @@
 
         :configuration-use-hotswap?           false
         :configuration-stagger?               true
-        :configuration-use-wide-pinky?        true
-        :configuration-z-offset               14
+        :configuration-use-wide-pinky?        false
+        :configuration-z-offset               10
         :configuration-use-wire-post?         false
-        :configuration-use-screw-inserts?     true
+        :configuration-use-screw-inserts?     false
 
-        :configuration-hide-last-pinky?       true
+        :configuration-hide-last-pinky?       false
         :configuration-show-caps?             false
         :configuration-plate-projection?      false})
 

@@ -52,14 +52,20 @@
    4 >= pinky finger's column.
    [x y z] means that it will be staggered by 'x'mm in X axis (left/right),
    'y'mm in Y axis (front/back), and 'z'mm in Z axis (up/down). "
-  [stagger? column]
-  (if stagger?
-    (cond (= column 2)  [0   2.82 -6.5]
-          (>= column 4) [0  -13    6]
-          :else         [0   0     0])
-    (cond (= column 2)  [0   0    -6.5]
-          (>= column 4) [0   0     6]
-          :else         [0   0     0])))
+  [c column]
+  (let [stagger?       (get c :configuration-stagger?)
+        stagger-index  (get c :configuration-stagger-index)
+        stagger-middle (get c :configuration-stagger-middle)
+        stagger-ring   (get c :configuration-stagger-ring)
+        stagger-pinky  (get c :configuration-stagger-pinky)]
+    (if stagger?
+      (cond (= column 2) stagger-middle
+            (= column 3) stagger-ring
+            (>= column 4) stagger-pinky
+            :else stagger-index)
+      (cond (= column 2)  [0   0    -6.5]
+            (>= column 4) [0   0     6]
+            :else         [0   0     0]))))
 
 (defn fcenterrow
   "Determines where should the center (bottom-most point in the row's curve)
@@ -147,7 +153,7 @@
                                (translate-fn [0 0 (- (fcolumn-radius beta))])
                                (rotate-y-fn  column-angle)
                                (translate-fn [0 0 (fcolumn-radius beta)])
-                               (translate-fn (dm-column-offset stagger? column)))]
+                               (translate-fn (dm-column-offset c column)))]
     (->> placed-shape
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))))
