@@ -87,8 +87,15 @@
             <fieldset name="curve" id="curve">
                 <label for="curve.alpha">Column's Curvature</label>
                 <select id="curve.alpha" name="curve.alpha">
+                    <option value=12>pi/12</option>
                     {% for cc in column-curvature %}
                     <option value={{cc}}>pi/{{cc}}</option>
+                    {% endfor %}
+                </select>
+                <label for="curve.pinky-alpha">Pinky's Column's Curvature</label>
+                <select id="curve.pinky-alpha" name="curve.pinky-alpha">
+                    {% for pcc in pinky-column-curvature %}
+                    <option value={{pcc}}>pi/{{pcc}}</option>
                     {% endfor %}
                 </select>
                 <label for="curve.beta">Row's Curvature</label>

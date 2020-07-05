@@ -22,10 +22,11 @@
                  :switch-type     (get confs :configuration-switch-type)
                  :inner-column    (get confs :configuration-use-inner-column?)
                  :hide-last-pinky (get confs :configuration-hide-last-pinky?)}
-     :curve     {:alpha     (get confs :configuration-alpha)
-                 :beta      (get confs :configuration-beta)
-                 :centercol (get confs :configuration-centercol)
-                 :tenting   (get confs :configuration-tenting-angle)}
+     :curve     {:alpha       (get confs :configuration-alpha)
+                 :pinky-alpha (get confs :configuration-pinky-alpha)
+                 :beta        (get confs :configuration-beta)
+                 :centercol   (get confs :configuration-centercol)
+                 :tenting     (get confs :configuration-tenting-angle)}
      :connector {:external  (get confs :configuration-use-external-holder?)
                  :trrs      (get confs :configuration-use-trrs?)
                  :micro-usb (get confs :configuration-use-promicro-usb-hole?)}

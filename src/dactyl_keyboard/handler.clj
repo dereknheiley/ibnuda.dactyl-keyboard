@@ -31,11 +31,12 @@
   (.format (java.text.SimpleDateFormat. "yyyy.MM.dd-hh.mm.ss") (new java.util.Date)))
 
 (defn manuform [_]
-  (render-file "manuform.html" {:column-curvature    (range 12 22)
-                                :row-curvature       (range 36 17 -1)
-                                :tenting-angle       (range 15 5 -1)
-                                :thumb-tenting-angle (range 24 15 -1)
-                                :height-offset       (range 4 26 2)}))
+  (render-file "manuform.html" {:column-curvature       (range 9 22)
+                                :pinky-column-curvature (range 12 4 -1)
+                                :row-curvature          (range 36 17 -1)
+                                :tenting-angle          (range 15 5 -1)
+                                :thumb-tenting-angle    (range 24 15 -1)
+                                :height-offset          (range 4 26 2)}))
 
 (defn lightcycle [_]
   (render-file "lightcycle.html" {:column-curvature       (range 12 22)
@@ -251,6 +252,7 @@
                         :configuration-hide-last-pinky?       (get keys :hide-last-pinky false)
 
                         :configuration-alpha                  (/ pi (get curve :alpha 12))
+                        :configuration-pinky-alpha            (/ pi (get curve :pinky-alpha 12))
                         :configuration-beta                   (/ pi (get curve :beta 36))
                         :configuration-centercol              (get curve :centercol 4)
                         :configuration-tenting-angle          (/ pi (get curve :tenting 15))

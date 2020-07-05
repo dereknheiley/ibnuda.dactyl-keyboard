@@ -1400,6 +1400,7 @@
         :configuration-use-inner-column?      false
 
         :configuration-alpha                  (/ pi 12)
+        :configuration-pinky-alpha            (/ pi 12)
         :configuration-beta                   (/ pi 36)
         :configuration-centercol              4
         :configuration-tenting-angle          (/ pi 9)
@@ -1410,13 +1411,17 @@
 
         :configuration-use-hotswap?           false
         :configuration-stagger?               true
+        :configuration-stagger-index          [0 0 0]
+        :configuration-stagger-middle         [0 2.8 -6.5]
+        :configuration-stagger-ring           [0 0 0]
+        :configuration-stagger-pinky          [0 -13 6]
         :configuration-use-wide-pinky?        false
         :configuration-z-offset               10
         :configuration-use-wire-post?         false
         :configuration-use-screw-inserts?     false
 
         :configuration-hide-last-pinky?       false
-        :configuration-show-caps?             false
+        :configuration-show-caps?             true
         :configuration-plate-projection?      false})
 
 #_(spit "things/right.scad"

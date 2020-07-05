@@ -134,11 +134,12 @@
    and rotated in xyz coordinate based on its position (row and column).
    It is the implementation detail of `key-place`."
   [c translate-fn rotate-x-fn rotate-y-fn column row shape]
-  (let [alpha             (get c :configuration-alpha)
+  (let [original-alpha    (get c :configuration-alpha)
+        pinky-alpha       (get c :configuration-pinky-alpha)
+        alpha             (if (>= column 4) pinky-alpha original-alpha)
         beta              (get c :configuration-beta)
         centercol         (get c :configuration-centercol 2)
         centerrow         (fcenterrow (get c :configuration-nrows 5))
-        stagger?          (get c :configuration-stagger?)
         tenting-angle     (get c :configuration-tenting-angle)
         keyboard-z-offset (get c :configuration-z-offset)
         column-angle      (* beta (- centercol column))
