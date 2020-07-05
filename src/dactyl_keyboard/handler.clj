@@ -27,6 +27,9 @@
 (defn api [_]
   (render-file "json-help.html" {}))
 
+(defn current-time []
+  (.format (java.text.SimpleDateFormat. "yyyy.MM.dd-hh.mm.ss") (new java.util.Date)))
+
 (defn manuform [_]
   (render-file "manuform.html" {:column-curvature    (range 12 22)
                                 :row-curvature       (range 36 17 -1)
@@ -139,7 +142,7 @@
                                              :extension "scad"})]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" (str "inline; filename=\"manuform." (get generated-file :extension) "\"")}
+               "Content-Disposition" (str "inline; filename=\"manuform-" (current-time) "." (get generated-file :extension) "\"")}
      :body    (get generated-file :file)}))
 
 (defn generate-lightcycle [req]
@@ -218,7 +221,7 @@
                                              :extension "scad"})]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" (str "inline; filename=\"lightcycle." (get generated-file :extension) "\"")}
+               "Content-Disposition" (str "inline; filename=\"lightcycle" (current-time) (get generated-file :extension) "\"")}
      :body    (get generated-file :file)}))
 
 (defn api-generate-manuform [{body :body}]
@@ -272,7 +275,7 @@
         generated-scad (g/generate-case-dm c (get misc :right-side true))]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" "inline; filename=\"manuform.scad\""}
+               "Content-Disposition" "inline; filename=\"manuform-" (current-time) ".scad\""}
      :body    generated-scad}))
 
 (defn api-generate-lightcycle [{body :body}]
@@ -312,7 +315,7 @@
         generated-scad (g/generate-case-dl c (get misc :right-side true))]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" "inline; filename=\"lightcycle.scad\""}}
+               "Content-Disposition" "inline; filename=\"lightcycle-" (current-time) ".scad\""}}
     :body generated-scad))
 
 (defroutes app-routes
