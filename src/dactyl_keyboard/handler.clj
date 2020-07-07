@@ -68,6 +68,7 @@
         param-hide-last-pinky       (parse-bool (get p "keys.hide-last-pinky"))
 
         param-alpha                 (parse-int (get p "curve.alpha"))
+        param-pinky-alpha           (parse-int (get p "curve.pinky-alpha"))
         param-beta                  (parse-int (get p "curve.beta"))
         param-centercol             (parse-int (get p "curve.centercol"))
         param-tenting-angle         (parse-int (get p "curve.tenting"))
@@ -114,6 +115,7 @@
                                      :configuration-hide-last-pinky?       param-hide-last-pinky
 
                                      :configuration-alpha                  (if generate-json? param-alpha (/ pi param-alpha))
+                                     :configuration-pinky-alpha            (if generate-json? param-pinky-alpha (/ pi param-pinky-alpha))
                                      :configuration-beta                   (if generate-json? param-beta (/ pi param-beta))
                                      :configuration-centercol              param-centercol
                                      :configuration-tenting-angle          (if generate-json? param-tenting-angle (/ pi param-tenting-angle))
