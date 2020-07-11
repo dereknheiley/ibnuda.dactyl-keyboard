@@ -138,15 +138,22 @@
                                      :configuration-use-screw-inserts?     param-screw-inserts}
         generated-file              (cond
                                       generate-plate? {:file      (g/generate-plate-dm c is-right?)
+                                                       :part      "plate"
                                                        :extension "scad"}
                                       generate-json? {:file      (g/generate-json-dm c is-right?)
+                                                      :part      "any"
                                                       :extension "json"}
                                       :else {:file      (g/generate-case-dm c is-right?)
-                                             :extension "scad"})]
+                                             :part      (str "case-" (if is-right? "right" "left"))
+                                             :extension "scad"})
+        scad-file                   (get generated-file :file)
+        part-name                   (get generated-file :part)
+        date-time                   (current-time)
+        extension                   (get generated-file :extension)]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" (str "inline; filename=\"manuform-" (current-time) "." (get generated-file :extension) "\"")}
-     :body    (get generated-file :file)}))
+               "Content-Disposition" (str "inline; filename=\"manuform-" part-name "-" date-time "." extension "\"")}
+     :body    scad-file}))
 
 (defn generate-lightcycle [req]
   (let [p                         (:form-params req)
@@ -215,17 +222,21 @@
                                    :configuration-show-caps?           param-show-keycaps
 
                                    :configuration-use-screw-inserts?   param-screw-inserts}
-        generated-file              (cond
-                                      generate-plate? {:file (g/generate-plate-dl c is-right?)
-                                                       :extension "scad"}
-                                      generate-json? {:file (g/generate-json-dl c is-right?)
-                                                      :extension "json"}
-                                      :else {:file (g/generate-case-dl c is-right?)
-                                             :extension "scad"})]
+        generated-file            (cond
+                                    generate-plate? {:file      (g/generate-plate-dl c is-right?)
+                                                     :extension "scad"}
+                                    generate-json? {:file      (g/generate-json-dl c is-right?)
+                                                    :extension "json"}
+                                    :else {:file      (g/generate-case-dl c is-right?)
+                                           :extension "scad"})
+        scad-file                 (get generated-file :file)
+        part-name                 (get generated-file :part)
+        date-time                 (current-time)
+        extension                 (get generated-file :extension)]
     {:status  200
      :headers {"Content-Type"        "application/octet-stream"
-               "Content-Disposition" (str "inline; filename=\"lightcycle" (current-time) (get generated-file :extension) "\"")}
-     :body    (get generated-file :file)}))
+               "Content-Disposition" (str "inline; filename=\"lightcycle-" part-name "-" date-time "." extension "\"")}
+     :body    scad-file}))
 
 (defn api-generate-manuform [{body :body}]
   (let [keys           (get body :keys)
