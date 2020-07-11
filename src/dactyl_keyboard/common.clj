@@ -135,7 +135,7 @@
    It is the implementation detail of `key-place`."
   [c translate-fn rotate-x-fn rotate-y-fn column row shape]
   (let [original-alpha    (get c :configuration-alpha)
-        pinky-alpha       (get c :configuration-pinky-alpha)
+        pinky-alpha       (get c :configuration-pinky-alpha original-alpha)
         alpha             (if (>= column 4) pinky-alpha original-alpha)
         beta              (get c :configuration-beta)
         centercol         (get c :configuration-centercol 2)
