@@ -1142,10 +1142,10 @@
    (second-thumb-to-body c)))
 
 (defn frj9-start [c]
-  (map + [0 -3  0] (key-position c 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
+  (map + [0 -3  0] (key-position c 1 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
 
 (defn fusb-holder-position [c]
-  (key-position c 1 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
+  (key-position c 2 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
 
 (defn trrs-usb-holder-ref [c]
   (let [nrows      (get c :configuration-nrows)
@@ -1156,7 +1156,7 @@
                      5 -1
                      6 -2
                      -3)]
-    ( key-position c 0 0 (map - (wall-locate2  0 y-addition) [0 (/ mount-height 2) 0]))))
+    ( key-position c 1 0 (map - (wall-locate2  0 y-addition) [0 (/ mount-height 2) 0]))))
 
 (defn trrs-usb-holder-position [c]
   (map + [17 19.3 0] [(first (trrs-usb-holder-ref c)) (second (trrs-usb-holder-ref c)) 2]))
