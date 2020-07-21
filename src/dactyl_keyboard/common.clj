@@ -219,14 +219,15 @@
         alps-fill-in        (translate [0 0 (/ plate-thickness 2)] (cube alps-width alps-height plate-thickness))
         mx-fill-in          (translate [0 0 (/ plate-thickness 2)] (cube keyswitch-width keyswitch-height plate-thickness))
         fill-in             (if use-alps? alps-fill-in mx-fill-in)
+        holder-thickness    1.65
         top-wall            (if use-alps?
                               (->> (cube (+ keyswitch-width 3) 2.7 plate-thickness)
                                    (translate [0
                                                (+ (/ 2.7 2) (/ alps-height 2))
                                                (/ plate-thickness 2)]))
-                              (->> (cube (+ keyswitch-width 3) 2 plate-thickness)
+                              (->> (cube (+ keyswitch-width 3.3) holder-thickness plate-thickness)
                                    (translate [0
-                                               (+ (/ 2 2) (/ keyswitch-height 2))
+                                               (+ (/ holder-thickness 2) (/ (+ keyswitch-height 0.0) 2))
                                                (/ plate-thickness 2)])))
         left-wall           (if use-alps?
                               (union (->> (cube 2 (+ keyswitch-height 3) plate-thickness)
@@ -238,8 +239,8 @@
                                                       0
                                                       (- plate-thickness
                                                          (/ alps-notch-height 2))])))
-                              (->> (cube 2 (+ keyswitch-height 3) plate-thickness)
-                                   (translate [(+ (/ 2 2) (/ keyswitch-width 2))
+                              (->> (cube holder-thickness (+ keyswitch-height 3.3) plate-thickness)
+                                   (translate [(+ (/ holder-thickness 2) (/ (+ keyswitch-width 0.0) 2))
                                                0
                                                (/ plate-thickness 2)])))
         side-nub            (->> (binding [*fn* 30] (cylinder 1 2.75))

@@ -1000,14 +1000,14 @@
          (wall-brace (partial thumb-br-place c)  0 -1 web-post-br
                      (partial thumb-br-place c)  0 -1 web-post-bl)
          (wall-brace (partial thumb-br-place c)  0 -1 web-post-bl
-                     (partial thumb-br-place c) -2  0 web-post-bl)
-         (wall-brace (partial thumb-br-place c) -2  0 web-post-bl
-                     (partial thumb-br-place c) -2  0 web-post-tl)
-         (wall-brace (partial thumb-br-place c) -2  0 web-post-tl
-                     (partial thumb-bl-place c) -2  0 web-post-bl)
-         (wall-brace (partial thumb-bl-place c) -2  0 web-post-bl
-                     (partial thumb-bl-place c) -2  0 web-post-tl)
-         (wall-brace (partial thumb-bl-place c) -2  0 web-post-tl
+                     (partial thumb-br-place c) -1  0 web-post-bl)
+         (wall-brace (partial thumb-br-place c) -1  0 web-post-bl
+                     (partial thumb-br-place c) -1  0 web-post-tl)
+         (wall-brace (partial thumb-br-place c) -1  0 web-post-tl
+                     (partial thumb-bl-place c) -1  0 web-post-bl)
+         (wall-brace (partial thumb-bl-place c) -1  0 web-post-bl
+                     (partial thumb-bl-place c) -1  0 web-post-tl)
+         (wall-brace (partial thumb-bl-place c) -1  0 web-post-tl
                      (partial thumb-bl-place c)  0  1 web-post-tl)
          (wall-brace (partial thumb-bl-place c)  0  1 web-post-tl
                      (partial thumb-bl-place c) -1.1  1 web-post-tr)
@@ -1403,7 +1403,7 @@
         :configuration-pinky-alpha            (/ pi 12)
         :configuration-beta                   (/ pi 36)
         :configuration-centercol              4
-        :configuration-tenting-angle          (/ pi 9)
+        :configuration-tenting-angle          (/ pi 12)
 
         :configuration-use-promicro-usb-hole? false
         :configuration-use-trrs?              false
@@ -1416,12 +1416,12 @@
         :configuration-stagger-ring           [0 0 0]
         :configuration-stagger-pinky          [0 -13 6]
         :configuration-use-wide-pinky?        false
-        :configuration-z-offset               10
+        :configuration-z-offset               6
         :configuration-use-wire-post?         false
         :configuration-use-screw-inserts?     false
 
         :configuration-hide-last-pinky?       false
-        :configuration-show-caps?             true
+        :configuration-show-caps?             false
         :configuration-plate-projection?      false})
 
 #_(spit "things/right.scad"
