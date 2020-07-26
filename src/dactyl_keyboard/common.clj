@@ -258,7 +258,7 @@
         swap-holder         (->> (cube (+ keyswitch-width 3) (/ (+ keyswitch-height 3) 2) 3)
                                  (translate [0 (/ (+ keyswitch-height 3) 4) -1.5]))
         ; for the main axis
-        main-axis-hole      (->> (cylinder (/ 4.0 2) 10)
+        main-axis-hole      (->> (cylinder (/ 4.1 2) 10)
                                  (with-fn 12))
         plus-hole           (->> (cylinder (/ 3.3 2) 10)
                                  (with-fn 8)
@@ -266,13 +266,13 @@
         minus-hole          (->> (cylinder (/ 3.3 2) 10)
                                  (with-fn 8)
                                  (translate [2.54 5.08 0]))
-        plus-hole-mirrored  (->> (cylinder (/ 3.3 2) 10)
-                                 (with-fn 8)
-                                 (translate [3.81 2.54 0]))
-        minus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
-                                 (with-fn 8)
-                                 (translate [-2.54 5.08 0]))
-        friction-hole       (->> (cylinder (/ 1.7 2) 10)
+        ; plus-hole-mirrored  (->> (cylinder (/ 3.3 2) 10)
+        ;                          (with-fn 8)
+        ;                          (translate [3.81 2.54 0]))
+        ; minus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
+        ;                          (with-fn 8)
+        ;                          (translate [-2.54 5.08 0]))
+        friction-hole       (->> (cylinder (/ 1.8 2) 10)
                                  (with-fn 8))
         friction-hole-right (translate [5 0 0] friction-hole)
         friction-hole-left  (translate [-5 0 0] friction-hole)
@@ -282,8 +282,8 @@
                                         main-axis-hole
                                         plus-hole
                                         minus-hole
-                                        plus-hole-mirrored
-                                        minus-hole-mirrored
+                                        ; plus-hole-mirrored
+                                        ; minus-hole-mirrored
                                         friction-hole-left
                                         friction-hole-right
                                         hotswap-base-shape)]
