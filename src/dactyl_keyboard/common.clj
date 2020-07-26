@@ -217,47 +217,70 @@
        	north_facing?       (get c :configuration-north-facing? true)
         use-hotswap?        (get c :configuration-use-hotswap?)
         plate-projection?   (get c :configuration-plate-projection? false)
-        alps-fill-in        (translate [0 0 (/ plate-thickness 2)] (cube alps-width alps-height plate-thickness))
-        mx-fill-in          (translate [0 0 (/ plate-thickness 2)] (cube keyswitch-width keyswitch-height plate-thickness))
-        fill-in             (if use-alps? alps-fill-in mx-fill-in)
+
+        ;magic numbers
+        switch_z_offset     (/ plate-thickness 2)
         holder-thickness    1.65
+        double-holder-thickness     (* holder-thickness 2)
+        half-holder-thickness       (/ holder-thickness 2)
+        keyswitch-middle-width      (/ keyswitch-width 2)
+
+        alps-fill-in        (translate [0 0 switch_z_offset] (cube alps-width alps-height plate-thickness))
+        mx-fill-in          (translate [0 0 switch_z_offset] (cube keyswitch-width keyswitch-height plate-thickness))
+        fill-in             (if use-alps? alps-fill-in mx-fill-in)
+
+
+        wall-x              (+ keyswitch-width double-holder-thickness)
+        wall-y              (+ keyswitch-height 3)
+
         top-wall            (if use-alps?
                               (->> (cube (+ keyswitch-width 3) 2.7 plate-thickness)
                                    (translate [0
                                                (+ (/ 2.7 2) (/ alps-height 2))
-                                               (/ plate-thickness 2)]))
-                              (->> (cube (+ keyswitch-width 3.3) holder-thickness plate-thickness)
+                                               switch_z_offset]))
+                              (->> (cube wall-x holder-thickness plate-thickness)
                                    (translate [0
-                                               (+ (/ holder-thickness 2) (/ (+ keyswitch-height 0.0) 2))
-                                               (/ plate-thickness 2)])))
+                                               (+ half-holder-thickness (/ keyswitch-height 2))
+                                               switch_z_offset])))
         left-wall           (if use-alps?
-                              (union (->> (cube 2 (+ keyswitch-height 3) plate-thickness)
+                              (union (->> (cube 2 wall-y plate-thickness)
                                           (translate [(+ (/ 2 2) (/ 15.6 2))
                                                       0
-                                                      (/ plate-thickness 2)]))
-                                     (->> (cube 1.5 (+ keyswitch-height 3) 1.0)
+                                                      switch_z_offset]))
+                                     (->> (cube 1.5 wall-y 1.0)
                                           (translate [(+ (/ 1.5 2) (/ alps-notch-width 2))
                                                       0
-                                                      (- plate-thickness
-                                                         (/ alps-notch-height 2))])))
-                              (->> (cube holder-thickness (+ keyswitch-height 3.3) plate-thickness)
-                                   (translate [(+ (/ holder-thickness 2) (/ (+ keyswitch-width 0.0) 2))
+                                                      (- plate-thickness (/ alps-notch-height 2))])))
+                              (->> (cube holder-thickness (+ keyswitch-height double-holder-thickness) plate-thickness)
+                                   (translate [(+ keyswitch-middle-width half-holder-thickness)
                                                0
-                                               (/ plate-thickness 2)])))
+                                               switch_z_offset])))
         side-nub            (->> (binding [*fn* 30] (cylinder 1 2.75))
                                  (rotate (/ pi 2) [1 0 0])
-                                 (translate [(+ (/ keyswitch-width 2)) 0 1])
+                                 (translate [(+ keyswitch-middle-width) 0 1])
                                  (hull (->> (cube 1.5 2.75 plate-thickness)
-                                            (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                            (translate [(+ (/ 1.5 2) keyswitch-middle-width)
                                                         0
-                                                        (/ plate-thickness 2)]))))
+                                                        switch_z_offset]))))
         ; the hole's wall.
         plate-half          (union top-wall
                                    left-wall
                                    (if create-side-nub? (with-fn 100 side-nub) ()))
-        ; the bottom of the hole.
-        swap-holder         (->> (cube (+ keyswitch-width 3.3) (/ (+ keyswitch-height 3) 2) 3)
-                                 (translate [0 (/ (+ keyswitch-height 3) 3.85) -1.5]))
+        
+        swap-thickness      3.5
+        swap-x              wall-x
+        swap-y              (/ wall-y 2)
+        swap-z              2 ;(-  web-thickness plate-thickness)
+        
+        swap-offset-x       0
+        swap-offset-y       (/ wall-y 3.85)
+        swap-offset-z       (* (/ swap-z 2) -1)
+
+        ; the bottom of the hole. 
+        swap-holder         (->> (cube swap-x swap-y swap-z)
+                                 (translate [swap-offset-x 
+                                             swap-offset-y
+                                             swap-offset-z]))
         ; for the main axis
         main-axis-hole      (->> (cylinder (/ 4.1 2) 10)
                                  (with-fn 12))
@@ -277,7 +300,7 @@
                                  (with-fn 8))
         friction-hole-right (translate [5 0 0] friction-hole)
         friction-hole-left  (translate [-5 0 0] friction-hole)
-        hotswap-base-shape  (->> (cube 19 6.2 3.5)
+        hotswap-base-shape  (->> (cube 19 6.2 swap-thickness)
                                  (translate [0 4 -2.6]))
         hotswap-holder      (difference swap-holder
                                         main-axis-hole
