@@ -214,6 +214,7 @@
         use-alps?           (case switch-type
                               :alps true
                               false) #_(get c :configuration-use-alps?)
+       	north_facing?       (get c :configuration-north-facing? true)
         use-hotswap?        (get c :configuration-use-hotswap?)
         plate-projection?   (get c :configuration-plate-projection? false)
         alps-fill-in        (translate [0 0 (/ plate-thickness 2)] (cube alps-width alps-height plate-thickness))
@@ -292,10 +293,16 @@
                             (mirror [1 0 0])
                             (mirror [0 1 0]))
                        (if plate-projection? fill-in ())
-                       (if (and use-hotswap?
-                                (not use-alps?))
-                         hotswap-holder
-                         ())))))
+                       (if (and use-hotswap? (not use-alps?))
+                           (if north_facing?
+				                       				(->> hotswap-holder
+								                            (mirror [1 0 0])
+								                            (mirror [0 1 0]))
+						                         hotswap-holder
+
+                           )
+                           ()
+                        )))))
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
 ;;;;;;;;;;;;;;;;
