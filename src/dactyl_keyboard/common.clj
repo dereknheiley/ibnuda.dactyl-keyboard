@@ -256,7 +256,7 @@
                                    (if create-side-nub? (with-fn 100 side-nub) ()))
         ; the bottom of the hole.
         swap-holder         (->> (cube (+ keyswitch-width 3.3) (/ (+ keyswitch-height 3) 2) 3)
-                                 (translate [0 (/ (+ keyswitch-height 3) 4) -1.5]))
+                                 (translate [0 (/ (+ keyswitch-height 3) 3.85) -1.5]))
         ; for the main axis
         main-axis-hole      (->> (cylinder (/ 4.1 2) 10)
                                  (with-fn 12))
