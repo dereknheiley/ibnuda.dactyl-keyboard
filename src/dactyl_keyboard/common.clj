@@ -230,28 +230,29 @@
         fill-in             (if use-alps? alps-fill-in mx-fill-in)
 
 
-        wall-x              (+ keyswitch-width double-holder-thickness)
-        wall-y              (+ keyswitch-height 3)
+        holder-x             (+ keyswitch-width  double-holder-thickness)
+        holder-y             (+ keyswitch-height double-holder-thickness)
+        alps-holder-y        (+ keyswitch-height 3)
 
         top-wall            (if use-alps?
                               (->> (cube (+ keyswitch-width 3) 2.7 plate-thickness)
                                    (translate [0
                                                (+ (/ 2.7 2) (/ alps-height 2))
                                                switch_z_offset]))
-                              (->> (cube wall-x holder-thickness plate-thickness)
+                              (->> (cube holder-x holder-thickness plate-thickness)
                                    (translate [0
                                                (+ half-holder-thickness (/ keyswitch-height 2))
                                                switch_z_offset])))
         left-wall           (if use-alps?
-                              (union (->> (cube 2 wall-y plate-thickness)
+                              (union (->> (cube 2 alps-holder-y plate-thickness)
                                           (translate [(+ (/ 2 2) (/ 15.6 2))
                                                       0
                                                       switch_z_offset]))
-                                     (->> (cube 1.5 wall-y 1.0)
+                                     (->> (cube 1.5 alps-holder-y 1.0)
                                           (translate [(+ (/ 1.5 2) (/ alps-notch-width 2))
                                                       0
                                                       (- plate-thickness (/ alps-notch-height 2))])))
-                              (->> (cube holder-thickness (+ keyswitch-height double-holder-thickness) plate-thickness)
+                              (->> (cube holder-thickness holder-y plate-thickness)
                                    (translate [(+ keyswitch-middle-width half-holder-thickness)
                                                0
                                                switch_z_offset])))
@@ -276,10 +277,6 @@
                        )
 
         ; the hole's wall.
-        swap-thickness      3.5
-        swap-x              wall-x
-        swap-y              (/ wall-y 2)
-        swap-z              2 ;(-  web-thickness plate-thickness)
         plate-half (difference (union top-wall
                                       left-wall
                                       (if create-side-nub? (with-fn 100 side-nub) ())
@@ -287,15 +284,45 @@
                                teeth-cutout
                    )
         
+        ; irregularly shaped hot swap holder
+        ; ___________
+        ;|___________|  hotswap offset from out edge of holder
+        ;|_|_O__  \  |  hotswap pin
+        ;|      \O_|_|  hotswap pin
+        ;|  o  O  o  |  fully supported friction holes
+        ;| _________ |   
+        ;||_________||  space for LED  
+        ;
+        ; can be be described as having two sizes in the y dimension depending on the x coordinate        
+        swap-x              holder-x
+        swap-y              11.5 ; should be less than or equal to holder-y
+        swap-z              (-  web-thickness plate-thickness)
         swap-offset-x       0
-        swap-offset-y       (/ wall-y 3.85)
-        swap-offset-z       (* (/ swap-z 2) -1)
-
-        ; the bottom of the hole. 
+        swap-offset-y       (/ (- holder-y swap-y) 2)
+        swap-offset-z       (* (/ swap-z 2) -1) ; the bottom of the hole. 
         swap-holder         (->> (cube swap-x swap-y swap-z)
                                  (translate [swap-offset-x 
                                              swap-offset-y
                                              swap-offset-z]))
+        hotswap-x           holder-x
+        hotswap-x2          (* (/ holder-x 3) 1.95)
+        hotswap-y1          4.3
+        hotswap-y2          6.2
+        hotswap-z           3.5
+        hotswap-cutout-1-x-offset 0
+        hotswap-cutout-2-x-offset (* (/ holder-x 4.5) -1)
+        hotswap-cutout-1-y-offset 4.95
+        hotswap-cutout-2-y-offset 4
+        hotswap-cutout-z-offset -2.6
+        hotswap-cutout-1    (->> (cube hotswap-x hotswap-y1 hotswap-z)
+                                 (translate [hotswap-cutout-1-x-offset 
+                                             hotswap-cutout-1-y-offset 
+                                             hotswap-cutout-z-offset]))
+        hotswap-cutout-2    (->> (cube hotswap-x2 hotswap-y2 hotswap-z)
+                                 (translate [hotswap-cutout-2-x-offset 
+                                             hotswap-cutout-2-y-offset 
+                                             hotswap-cutout-z-offset]))
+
         ; for the main axis
         main-axis-hole      (->> (cylinder (/ 4.1 2) 10)
                                  (with-fn 12))
@@ -309,15 +336,16 @@
                                  (with-fn 8))
         friction-hole-right (translate [5 0 0] friction-hole)
         friction-hole-left  (translate [-5 0 0] friction-hole)
-        hotswap-base-shape  (->> (cube 19 6.2 swap-thickness)
-                                 (translate [0 4 -2.6]))
+
         hotswap-holder      (difference swap-holder
                                         main-axis-hole
                                         plus-hole
                                         minus-hole
                                         friction-hole-left
                                         friction-hole-right
-                                        hotswap-base-shape)]
+                                        hotswap-cutout-1
+                                        hotswap-cutout-2)]
+
     (difference (union plate-half
                        (->> plate-half
                             (mirror [1 0 0])
