@@ -324,15 +324,16 @@
                             (mirror [0 1 0]))
                        (if plate-projection? fill-in ())
                        (if (and use-hotswap? (not use-alps?))
-                           (if north_facing?
-				                       				(->> hotswap-holder
-								                            (mirror [1 0 0])
-								                            (mirror [0 1 0]))
-						                         hotswap-holder
-
-                           )
+                             (if north_facing?
+                                 (->> hotswap-holder
+                                      (mirror [1 0 0])
+                                      (mirror [0 1 0])
+                                 )
+                                 hotswap-holder
+                             )
                            ()
-                        )))))
+                        ))))
+)
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
 ;;;;;;;;;;;;;;;;
