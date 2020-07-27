@@ -262,15 +262,30 @@
                                             (translate [(+ (/ 1.5 2) keyswitch-middle-width)
                                                         0
                                                         switch_z_offset]))))
+
+        ; cherry, gateron, kailh switches all have a pair of tiny "teeth" that stick out
+        ; on the top and bottom, this gives those teeth somewhere to press into
+        teeth-x        4.5
+        teeth-y        0.75
+        teeth-z        1.5
+        teeth-x-offset 0
+        teeth-y-offset (+ (/ keyswitch-height 2) (/ teeth-y 2.01))
+        teeth-z-offset (- plate-thickness teeth-z )
+        teeth-cutout   (->> (cube teeth-x teeth-y teeth-z)
+                            (translate [teeth-x-offset teeth-y-offset teeth-z-offset])
+                       )
+
         ; the hole's wall.
-        plate-half          (union top-wall
-                                   left-wall
-                                   (if create-side-nub? (with-fn 100 side-nub) ()))
-        
         swap-thickness      3.5
         swap-x              wall-x
         swap-y              (/ wall-y 2)
         swap-z              2 ;(-  web-thickness plate-thickness)
+        plate-half (difference (union top-wall
+                                      left-wall
+                                      (if create-side-nub? (with-fn 100 side-nub) ())
+                               )
+                               teeth-cutout
+                   )
         
         swap-offset-x       0
         swap-offset-y       (/ wall-y 3.85)
@@ -290,12 +305,6 @@
         minus-hole          (->> (cylinder (/ 3.3 2) 10)
                                  (with-fn 8)
                                  (translate [2.54 5.08 0]))
-        ; plus-hole-mirrored  (->> (cylinder (/ 3.3 2) 10)
-        ;                          (with-fn 8)
-        ;                          (translate [3.81 2.54 0]))
-        ; minus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
-        ;                          (with-fn 8)
-        ;                          (translate [-2.54 5.08 0]))
         friction-hole       (->> (cylinder (/ 1.8 2) 10)
                                  (with-fn 8))
         friction-hole-right (translate [5 0 0] friction-hole)
@@ -306,8 +315,6 @@
                                         main-axis-hole
                                         plus-hole
                                         minus-hole
-                                        ; plus-hole-mirrored
-                                        ; minus-hole-mirrored
                                         friction-hole-left
                                         friction-hole-right
                                         hotswap-base-shape)]
