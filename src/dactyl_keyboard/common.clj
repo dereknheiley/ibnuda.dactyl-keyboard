@@ -270,10 +270,10 @@
         ; on the top and bottom, this gives those teeth somewhere to press into
         teeth-x        4.5
         teeth-y        0.75
-        teeth-z        1.5
+        teeth-z        1.75
         teeth-x-offset 0
         teeth-y-offset (+ (/ keyswitch-height 2) (/ teeth-y 2.01))
-        teeth-z-offset (- plate-thickness teeth-z )
+        teeth-z-offset (- plate-thickness teeth-z)
         teeth-cutout   (->> (cube teeth-x teeth-y teeth-z)
                             (translate [teeth-x-offset teeth-y-offset teeth-z-offset])
                        )
