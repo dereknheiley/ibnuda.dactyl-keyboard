@@ -198,6 +198,8 @@
        (key-position c 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0])
        [left-wall-x-offset 0 left-wall-z-offset]))
 
+(def web-thickness 7)
+
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
@@ -420,7 +422,7 @@
               (translate [0 0 (+ 5 plate-thickness)])
               (color [240/255 223/255 175/255 1])))})
 
-(def web-thickness 7)
+
 (def post-size 0.1)
 (def web-post
   (->> (cube post-size post-size web-thickness)
