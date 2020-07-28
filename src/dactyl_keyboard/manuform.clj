@@ -78,7 +78,7 @@
                       column row shape))
 (defn key-holes
   "Determines which keys should be generated based on the configuration."
-  [c]
+  [c mirror-internals]
   (let [ncols               (get c :configuration-ncols)
         nrows               (get c :configuration-nrows)
         hide-last-pinky?    (get c :configuration-hide-last-pinky?)
@@ -101,7 +101,7 @@
                                    (not= row lastrow))
                           :full (or (not (.contains [0 1] column)) (not= row lastrow)))
                  :when  (hide-pinky column row)]
-             (->> (color [1 1 0] (single-plate c))
+             (->> (color [1 1 0] (single-plate c mirror-internals))
                   (key-place c column row))))))
 
 (defn key-inner-place
@@ -400,10 +400,10 @@
    (thumb-1x-layout c (sa-cap 1))
    (thumb-15x-layout c (rotate (/ pi 2) [0 0 1] (sa-cap 1.5)))))
 
-(defn thumb [c]
+(defn thumb [c mirror-internals]
   (union
-   (thumb-1x-layout c  (single-plate c))
-   (thumb-15x-layout c (rotate (/ pi 2) [0 0 1] (single-plate c)))
+   (thumb-1x-layout c  (single-plate c mirror-internals))
+   (thumb-15x-layout c (rotate (/ pi 2) [0 0 1] (single-plate c mirror-internals)))
    (thumb-15x-layout c larger-plate)))
 
 (def thumb-post-tr
@@ -1324,7 +1324,7 @@
       (key-place c column row (translate [0 0 0]  (wire-post c -1 6)))
       (key-place c column row (translate [5 0 0]  (wire-post c  1 0)))))))
 
-(defn model-right [c]
+(defn model-maker [c mirror-internals]
   (let [use-inner-column?          (get c :configuration-use-inner-column?)
         show-caps?                 (get c :configuration-show-caps?)
         use-external-holder?       (get c :configuration-use-external-holder?)
@@ -1341,9 +1341,9 @@
          (if use-wire-post? (wire-posts c) ())
          (if-not use-trrs? (rj9-holder frj9-start c) ()))
         ())
-      (if use-inner-column? (inner-key-holes c) ())
-      (key-holes c)
-      (thumb c)
+      (if use-inner-column? (inner-key-holes c mirror-internals) ())
+      (key-holes c mirror-internals)
+      (thumb c mirror-internals)
       (connectors c)
       (thumb-connectors c)
       (difference
@@ -1369,8 +1369,11 @@
          (external-holder-space c))))
      (translate [0 0 -60] (cube 350 350 120)))))
 
+(defn model-right [c]
+  (model-maker c false))
+
 (defn model-left [c]
-  (mirror [-1 0 0] (model-right c)))
+  (mirror [-1 0 0] (model-maker c true)))
 
 (defn plate-right [c]
   (let [use-screw-inserts? (get c :configuration-use-screw-inserts?)
@@ -1397,6 +1400,7 @@
         :configuration-thumb-count            :six
         :configuration-last-row-count         :two
         :configuration-switch-type            :box
+        :configuration-north-facing?          true
         :configuration-use-inner-column?      false
 
         :configuration-alpha                  (/ pi 12)
@@ -1409,7 +1413,7 @@
         :configuration-use-trrs?              false
         :configuration-use-external-holder?   false
 
-        :configuration-use-hotswap?           false
+        :configuration-use-hotswap?           true
         :configuration-stagger?               true
         :configuration-stagger-index          [0 0 0]
         :configuration-stagger-middle         [0 2.8 -6.5]
@@ -1424,7 +1428,10 @@
         :configuration-show-caps?             false
         :configuration-plate-projection?      false})
 
-#_(spit "things/right.scad"
+(spit "things/switch-plate.scad"
+      (write-scad (single-plate c false)))
+
+(spit "things/right.scad"
         (write-scad (model-right c)))
 
 #_(spit "things/right-plate.scad"
@@ -1441,8 +1448,8 @@
                                  (translate [0 0 -10] screw-insert-screw-holes))))))
 
 
-#_(spit "things/left.scad"
-        (write-scad (mirror [-1 0 0] model-right)))
+(spit "things/left.scad"
+        (write-scad (model-left c)))
 
 #_(spit "things/right-test.scad"
         (write-scad

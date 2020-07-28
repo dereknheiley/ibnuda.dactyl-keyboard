@@ -101,7 +101,7 @@
          (rotate tenting-angle [0 1 0])
          (translate [0 0 z-offset]))))
 
-(defn key-holes [c]
+(defn key-holes [c mirror-internals]
   (let [ncols                (get c :configuration-ncols)
         use-alps?            (get c :configuration-use-alps?)
         use-lastrow?         (get c :configuration-use-lastrow?)
@@ -123,8 +123,8 @@
                  row    rows
                  :when  (not (and (= column 0) (> row 3)))
                  :when  (hide-pinky column row)]
-             (->> (color [1 1 0] (single-plate c))
-                  (rotate (deg2rad rotation-for-keyhole) [0 0 1])
+             (->> (color [1 1 0] (single-plate c mirror-internals))
+                  ; (rotate (deg2rad rotation-for-keyhole) [0 0 1])
                   (key-place c column row))))))
 
 (defn caps [c]
@@ -512,10 +512,10 @@
                        (thumb-place c 1  1        (thumb-br 1))
                        (thumb-place c 1  1        (thumb-tr 1)))))))
 
-(defn thumb [c]
+(defn thumb [c mirror-internals]
   (let [thumb-count (get c :configuration-thumb-count)]
     (union
-     (thumb-layout c (rotate (/ Math/PI 2) [0 0 1] (single-plate c)))
+     (thumb-layout c (rotate (/ Math/PI 2) [0 0 1] (single-plate c mirror-internals)))
      (color [1 0 0] (thumb-connectors c))
 
      #_(case thumb-count
@@ -1074,13 +1074,13 @@
 ;;Final Export ;;
 ;;;;;;;;;;;;;;;;;;
 
-(defn dactyl-top-right [c]
+(defn dactyl-top [c mirror-internals]
   (let [use-external-holder? (get c :configuration-use-external-holder?)
         use-screw-inserts? (get c :configuration-use-screw-inserts?)]
     (difference
-     (union (key-holes c)
+     (union (key-holes c mirror-internals)
             (connectors c)
-            (thumb c)
+            (thumb c mirror-internals)
             (difference (union (new-case c)
                                (if use-screw-inserts? (screw-insert-outers screw-placement c) ())
                                (if-not use-external-holder? (usb-holder fusb-holder-position c) ()))
@@ -1093,8 +1093,10 @@
             (if-not use-external-holder? (rj9-holder frj9-start c) ()))
      (translate [0 0 -60] (cube 350 350 120)))))
 
+(defn dactyl-top-right [c]
+  (dactyl-top c false))
 (defn dactyl-top-left [c]
-  (mirror [-1 0 0] (dactyl-top-right c)))
+  (mirror [-1 0 0] (dactyl-top c true)))
 
 (defn dactyl-plate-right [c]
   (let [use-screw-inserts? (get c :configuration-use-screw-inserts?)]
@@ -1108,11 +1110,12 @@
   (mirror [-1 0 0] (dactyl-plate-right c)))
 
 (def c {:configuration-ncols                6
-        :configuration-use-numrow?          false
+        :configuration-use-numrow?          true
         :configuration-use-lastrow?         true
         :configuration-thumb-count          :six
         :configuration-switch-type          :box
-        :configuration-use-wide-pinky?      true
+        :configuration-north-facing?        true
+        :configuration-use-wide-pinky?      false
         :configuration-hide-last-pinky?     false
 
         :configuration-alpha                (/ pi 12)
@@ -1122,9 +1125,9 @@
         :configuration-thumb-beta           (/ pi 36)
         :configuration-thumb-tenting-angle  (/ pi 12)
 
-        :configuration-use-external-holder? false
+        :configuration-use-external-holder? true
 
-        :configuration-use-hotswap?         false
+        :configuration-use-hotswap?         true
         :configuration-thumb-offset-x       -54
         :configuration-thumb-offset-y       -45
         :configuration-thumb-offset-z       23
@@ -1134,10 +1137,15 @@
         :configuration-thick-wall?          false
 
         :configuration-use-screw-inserts?   false
-        :configuration-show-caps?           true})
+        :configuration-show-caps?           false})
+
+(spit "things/switch-plate.scad"
+      (write-scad (single-plate c false)))
 
 #_(spit "things/lightcycle-cherry-top-right.scad"
         (write-scad (dactyl-top-right c)))
+(spit "things/lightcycle-cherry-top-left.scad"
+        (write-scad (dactyl-top-left c)))
 
 #_(spit "things/light-cycle-plate-right.scad"
         (write-scad (dactyl-plate-right c)))
