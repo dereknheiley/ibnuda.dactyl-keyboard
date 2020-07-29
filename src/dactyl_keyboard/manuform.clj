@@ -1415,10 +1415,12 @@
 
         :configuration-use-hotswap?           true
         :configuration-stagger?               true
-        :configuration-stagger-index          [0 0 0]
+        :configuration-stagger-inner-index    [0 -4 0]
+        :configuration-stagger-index          [0 -2 0]
         :configuration-stagger-middle         [0 2.8 -6.5]
         :configuration-stagger-ring           [0 0 0]
-        :configuration-stagger-pinky          [0 -13 6]
+        :configuration-stagger-pinky          [0 -16 6]
+        :configuration-stagger-outside-pinky  [0 -18 6]
         :configuration-use-wide-pinky?        false
         :configuration-z-offset               6
         :configuration-use-wire-post?         false

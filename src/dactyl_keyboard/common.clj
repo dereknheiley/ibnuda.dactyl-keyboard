@@ -57,12 +57,17 @@
         stagger-index  (get c :configuration-stagger-index)
         stagger-middle (get c :configuration-stagger-middle)
         stagger-ring   (get c :configuration-stagger-ring)
-        stagger-pinky  (get c :configuration-stagger-pinky)]
+        stagger-pinky  (get c :configuration-stagger-pinky)
+        stagger-inner-index    (get c :configuration-stagger-inner-index)
+        stagger-outside-pinky  (get c :configuration-stagger-outside-pinky)
+        ]
     (if stagger?
-      (cond (= column 2) stagger-middle
+      (cond (= column 1) stagger-index
+            (= column 2) stagger-middle
             (= column 3) stagger-ring
-            (>= column 4) stagger-pinky
-            :else stagger-index)
+            (= column 4) stagger-pinky
+            (>= column 5) stagger-outside-pinky
+            :else stagger-inner-index)
       (cond (= column 2)  [0   0    -6.5]
             (>= column 4) [0   0     6]
             :else         [0   0     0]))))
