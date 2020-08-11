@@ -8,10 +8,10 @@
 
 (def extra-width
   "extra width between two keys in a row."
-  2.5)
+  2.0)
 (def extra-height
   "extra height between two keys in a column."
-  1.0)
+  0.5)
 
 (def keyswitch-height
   "the y dimension of an mx style keyswitch, in millimeter."
@@ -31,13 +31,13 @@
   "the y dimension of an alps style keyswitch, in millimeter."
   13)
 
-(def sa-profile-key-height 12.7)
+(def sa-profile-key-height 12.0)
 
 (def plate-thickness 5)
 (def mount-width (+ keyswitch-width 3.5))
 (def mount-height (+ keyswitch-height 3.5))
 
-(def cap-top-height (+ plate-thickness sa-profile-key-height))
+(def cap-top-height sa-profile-key-height)
 
 ;;;;;;;;;;;;;;;;;
 ;; placement function ;;
