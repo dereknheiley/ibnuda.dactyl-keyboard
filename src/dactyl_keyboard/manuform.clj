@@ -12,7 +12,11 @@
 ; the higher x axis value is, the closer it to the pinky.
 ; the higher y axis value is, the closer it to the alphas.
 ; the higher z axis value is, the higher it is.
-(def thumb-offsets [6 -3 7])
+(defn thumb-offsets [c]
+    (let [thumb-count (get c :configuration-thumb-count)]
+         (if (= thumb-count :five) [10 0 7] [6 -3 7])
+    )
+)
 
 ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 ;(def keyboard-z-offset 4)
@@ -284,14 +288,14 @@
 (defn thumborigin [c]
   (let [cornerrow (fcornerrow (get c :configuration-nrows))]
     (map + (key-position c 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0])
-         thumb-offsets)))
+         (thumb-offsets c))))
 
 (defn thumb-tr-place [c shape]
   (let [thumb-count (get c :configuration-thumb-count)
         x-rotation  (if (= thumb-count :five) 14 10)
-        y-rotation  (if (= thumb-count :five) -15 -23)
+        y-rotation  (if (= thumb-count :five) 5 -23)
         z-rotation  (if (= thumb-count :five) 10 10)
-        movement    (if (= thumb-count :five) [-15 -10 5] [-12 -16 3])]
+        movement    (if (= thumb-count :five) [-15 -10 1] [-12 -16 3])]
     (->> shape
          (rotate (deg2rad x-rotation) [1 0 0])
          (rotate (deg2rad y-rotation) [0 1 0])
