@@ -205,8 +205,8 @@
 
 (def web-thickness 8)
 (def holder-x mount-width)
-(def holder-y            (+ keyswitch-height (* holder-thickness 2)))
 (def holder-thickness    (/ (- holder-x keyswitch-width) 2))
+(def holder-y            (+ keyswitch-height (* holder-thickness 2)))
 
 (def switch-teeth-cutout
   (let [
