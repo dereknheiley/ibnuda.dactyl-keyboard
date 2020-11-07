@@ -1,14 +1,19 @@
-# Fokred version of Generator for Dactyl & Dactyl Manuform Keyboards
+# Forked version of Generator for Dactyl & Dactyl Manuform Keyboards
 
-This is a fork of [the ibnuba fork](https://github.com/ibnuda/dactyl-keyboard) which is a fork of [the tshort fork](https://github.com/tshort/dactyl-keyboard) which is a form of the [Dactyl](https://github.com/adereth/dactyl-keyboard), a parameterized, split-hand, concave, columnar, ergonomic keyboard.
+This is a fork of [the ibnuba fork](https://github.com/ibnuda/dactyl-keyboard) of the [tshort fork](https://github.com/tshort/dactyl-keyboard) of the [Dactyl](https://github.com/adereth/dactyl-keyboard), a parameterized, split-hand, concave, columnar, ergonomic keyboard.
 
 If you want to read the old ibnuba `README.md`, go [here](README.ibnuba.md).
+
 If you want to read the old old tshort `README.md`, go [here](README.keyboard.md).
 
-## Development
+## Goals
+1. Improve strength of kailh hotswap holder
+2. Add Support for glueing LED strips to provide per-key LED RGB backlighting
+3. Tweak row, and column curvatures for smaller hands.
 
 ![Glamour Shot](/resources/hobbit_column_curve.jpg)
 
+## Development
 To tinker around follow these "old" steps:
 
 1. Install JDK and [leiningen](https://leiningen.org/#install).
