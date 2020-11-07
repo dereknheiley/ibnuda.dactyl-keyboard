@@ -8,10 +8,10 @@
 
 (def extra-width
   "extra width between two keys in a row."
-  2.0)
+  1.5)
 (def extra-height
   "extra height between two keys in a column."
-  0.5)
+  1.0)
 
 (def keyswitch-height
   "the y dimension of an mx style keyswitch, in millimeter."
@@ -178,8 +178,8 @@
     [(- (Math/sin angle)) 0 (Math/cos angle)]]
    position))
 
-(def left-wall-x-offset 10)
-(def left-wall-z-offset  3)
+(def left-wall-x-offset 5)
+(def left-wall-z-offset 5)
 
 (defn key-position
   "determines the position of a key based on the

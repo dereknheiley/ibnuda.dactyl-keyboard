@@ -1498,21 +1498,21 @@
 
 (def c {:configuration-nrows                  5
         :configuration-ncols                  6
-        :configuration-thumb-count            :six
+        :configuration-thumb-count            :five
         :configuration-last-row-count         :two
         :configuration-switch-type            :box
         :configuration-north-facing?          true
         :configuration-use-inner-column?      false
 
         :configuration-alpha                  (/ pi 12)
-        :configuration-pinky-alpha            (/ pi 12)
-        :configuration-beta                   (/ pi 36)
+        :configuration-pinky-alpha            (/ pi 10)
+        :configuration-beta                   (/ pi 50000)
         :configuration-centercol              4
-        :configuration-tenting-angle          (/ pi 12)
+        :configuration-tenting-angle          (/ pi 6)
 
         :configuration-use-promicro-usb-hole? false
         :configuration-use-trrs?              false
-        :configuration-use-external-holder?   false
+        :configuration-use-external-holder?   true
 
         :configuration-use-hotswap?           true
         :configuration-stagger?               true
@@ -1523,7 +1523,7 @@
         :configuration-stagger-pinky          [0 -16 6]
         :configuration-stagger-outside-pinky  [0 -18 6]
         :configuration-use-wide-pinky?        false
-        :configuration-z-offset               6
+        :configuration-z-offset               12
         :configuration-use-wire-post?         false
         :configuration-use-screw-inserts?     false
 
