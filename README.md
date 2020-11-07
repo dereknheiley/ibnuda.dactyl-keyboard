@@ -29,7 +29,7 @@ Here is a preview of the keyboard in a 3d printer slicing software (IdeaMaker).
 ![Fancy Wire Diagram](/resources/fancy-wiring-diagram.png)
 
 ## Timelapse Video
-[![Dactyl Timelapse Video](https://www.youtube-nocookie.com/embed/jucJIm_TujM)](https://youtu.be/jucJIm_TujM)
+[![Dactyl Timelapse Video](/resources/timelapse-screenshot.png)](https://youtu.be/jucJIm_TujM)
 
 ## License
 Copyright © 2015-2020 Matthew Adereth, Tom Short, Ibnu D. Aji, Derek Nheiley et. al.
