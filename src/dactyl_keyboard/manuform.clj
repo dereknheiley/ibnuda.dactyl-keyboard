@@ -118,10 +118,10 @@
                       (fn [angle obj] (rotate angle [0 1 0] obj))
                       column row shape))
 
-(defn inner-key-holes [c]
+(defn inner-key-holes [c mirror-internals]
   (let [nrows (get c :configuration-nrows)]
     (apply union (for [row (inner-rows nrows)]
-                   (->> (single-plate c)
+                   (->> (single-plate c mirror-internals)
                         (key-inner-place c -1 row))))))
 
 (defn caps [c]

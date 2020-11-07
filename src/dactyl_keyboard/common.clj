@@ -203,10 +203,13 @@
        (key-position c 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0])
        [left-wall-x-offset 0 left-wall-z-offset]))
 
-(def web-thickness 8)
 (def holder-x mount-width)
 (def holder-thickness    (/ (- holder-x keyswitch-width) 2))
 (def holder-y            (+ keyswitch-height (* holder-thickness 2)))
+(def swap-z              3)
+(def web-thickness (+ plate-thickness swap-z))
+(def LED-holder true)
+(def square-led-size     6)
 
 (def switch-teeth-cutout
   (let [
@@ -229,18 +232,17 @@
   (let [
         ; irregularly shaped hot swap holder
         ; ___________
-        ;|___________|  hotswap offset from out edge of holder
+        ;| |_______| |  hotswap offset from out edge of holder with room to solder
         ;|_|_O__  \  |  hotswap pin
         ;|      \O_|_|  hotswap pin
         ;|  o  O  o  |  fully supported friction holes
         ;| _________ |   
-        ;||_________||  space for LED  
+        ;||_________||  space for LED under SMD or transparent switches
         ;
         ; can be be described as having two sizes in the y dimension depending on the x coordinate        
         swap-x              holder-x
-        swap-y              11.5 ; should be less than or equal to holder-y
-        swap-z-calc         (-  web-thickness plate-thickness)
-        swap-z              3; (if (> swap-z-calc 1) swap-z-calc 3)
+        swap-y              (if (or (> 11.5 holder-y) LED-holder) holder-y 11.5) ; should be less than or equal to holder-y
+        
         swap-offset-x       0
         swap-offset-y       (/ (- holder-y swap-y) 2)
         swap-offset-z       (* (/ swap-z 2) -1) ; the bottom of the hole. 
@@ -248,15 +250,21 @@
                                  (translate [swap-offset-x 
                                              swap-offset-y
                                              swap-offset-z]))
-        hotswap-x           holder-x
+        hotswap-x           holder-x ;cutout full width of holder instead of only 14.5mm
         hotswap-x2          (* (/ holder-x 3) 1.95)
-        hotswap-y1          4.3
-        hotswap-y2          6.2
-        hotswap-z           3.5
+        hotswap-x3          (/ holder-x 4)
+        hotswap-y1          4.3 ;first y-size of kailh hotswap holder
+        hotswap-y2          6.2 ;second y-size of kailh hotswap holder
+        hotswap-z           (+ swap-z 0.5) ;thickness of kailn hotswap holder + some margin of printing error (0.5mm)
         hotswap-cutout-1-x-offset 0.01
         hotswap-cutout-2-x-offset (* (/ holder-x 4.5) -1)
+        hotswap-cutout-3-x-offset (- (/ holder-x 2) (/ hotswap-x3 2))
+        hotswap-cutout-4-x-offset (- (/ hotswap-x3 2) (/ holder-x 2))
+        hotswap-cutout-led-x-offset 0
         hotswap-cutout-1-y-offset 4.95
         hotswap-cutout-2-y-offset 4
+        hotswap-cutout-3-y-offset (/ holder-y 2)
+        hotswap-cutout-led-y-offset -6
         hotswap-cutout-z-offset -2.6
         hotswap-cutout-1    (->> (cube hotswap-x hotswap-y1 hotswap-z)
                                  (translate [hotswap-cutout-1-x-offset 
@@ -266,7 +274,18 @@
                                  (translate [hotswap-cutout-2-x-offset 
                                              hotswap-cutout-2-y-offset 
                                              hotswap-cutout-z-offset]))
-
+        hotswap-cutout-3    (->> (cube hotswap-x3 hotswap-y1 hotswap-z)
+                                 (translate [ hotswap-cutout-3-x-offset
+                                              hotswap-cutout-3-y-offset
+                                              hotswap-cutout-z-offset]))
+        hotswap-cutout-4    (->> (cube hotswap-x3 hotswap-y1 hotswap-z)
+                                 (translate [ hotswap-cutout-4-x-offset
+                                              hotswap-cutout-3-y-offset
+                                              hotswap-cutout-z-offset]))
+        hotswap-led-cutout  (->> (cube square-led-size square-led-size 10)
+                                 (translate [ hotswap-cutout-led-x-offset
+                                              hotswap-cutout-led-y-offset
+                                              hotswap-cutout-z-offset]))
         ; for the main axis
         main-axis-hole      (->> (cylinder (/ 4.1 2) 10)
                                  (with-fn 12))
@@ -276,7 +295,7 @@
         minus-hole          (->> (cylinder (/ 3.3 2) 10)
                                  (with-fn 8)
                                  (translate [2.54 5.08 0]))
-        friction-hole       (->> (cylinder (/ 1.8 2) 10)
+        friction-hole       (->> (cylinder (/ 1.95 2) 10)
                                  (with-fn 8))
         friction-hole-right (translate [5 0 0] friction-hole)
         friction-hole-left  (translate [-5 0 0] friction-hole)
@@ -288,7 +307,10 @@
                   friction-hole-left
                   friction-hole-right
                   hotswap-cutout-1
-                  hotswap-cutout-2)
+                  hotswap-cutout-2
+                  hotswap-cutout-3
+                  hotswap-cutout-4
+                  hotswap-led-cutout)
   )
 )
 
