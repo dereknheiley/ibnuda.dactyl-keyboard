@@ -468,7 +468,7 @@
        (translate [0 0 (+ (/ web-thickness -2)
                           plate-thickness)])))
 
-(def post-adj (/ post-size 2))
+(def post-adj (/ post-size 2)) ;(def post-adj (* post-size -6))
 (def web-post-tr (translate [(- (/ mount-width 2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
 (def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
 (def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))

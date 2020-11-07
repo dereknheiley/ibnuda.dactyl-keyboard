@@ -14,7 +14,10 @@
 ; the higher z axis value is, the higher it is.
 (defn thumb-offsets [c]
     (let [thumb-count (get c :configuration-thumb-count)]
-         (if (= thumb-count :five) [10 0 7] [6 -3 7])
+      (cond (= thumb-count :hackfive) [8 0 7]
+            (= thumb-count :hackfour) [6 -2 10]
+            :else [6 -3 7]
+      )
     )
 )
 
@@ -293,9 +296,13 @@
 (defn thumb-tr-place [c shape]
   (let [thumb-count (get c :configuration-thumb-count)
         x-rotation  (if (= thumb-count :five) 14 10)
-        y-rotation  (if (= thumb-count :five) 5 -23)
-        z-rotation  (if (= thumb-count :five) 10 10)
-        movement    (if (= thumb-count :five) [-15 -10 1] [-12 -16 3])]
+        y-rotation  (case thumb-count :five -15 :hack:five 5 :else -23)
+        z-rotation  (if (= thumb-count :five) 5 10)
+        movement    (case thumb-count :five [-15 -10 5] 
+                                      :hackfive [-15 -10 1] 
+                                      :hackfour [-15 -15 1] 
+                                      [-12 -16 3])
+       ]
     (->> shape
          (rotate (deg2rad x-rotation) [1 0 0])
          (rotate (deg2rad y-rotation) [0 1 0])
@@ -307,8 +314,9 @@
   (let [thumb-count (get c :configuration-thumb-count)
         x-rotation  (if (= thumb-count :five) 10 10)
         y-rotation  (if (= thumb-count :five) -23 -23)
-        z-rotation  (case thumb-count :three 20 :five 25 10)
-        movement    (case thumb-count :five [-35 -16 -2] [-35 -15 -2])]
+        z-rotation  (case thumb-count :three 20 :five 25 :hackfour 15 10)
+        movement    (case thumb-count :five [-35 -16 -2] :hackfour [-35 -13 2] [-35 -15 -2])
+       ]
     (->> shape
          (rotate (deg2rad x-rotation) [1 0 0])
          (rotate (deg2rad y-rotation) [0 1 0])
@@ -371,6 +379,8 @@
       :two ()
       :three ()
       :four (union (thumb-ml-place c shape)
+                   (thumb-mr-place c shape))
+      :hackfour (union (thumb-ml-place c shape)
                    (thumb-mr-place c shape))
       :five (union (thumb-tr-place c shape)
                    (thumb-tl-place c shape)
@@ -685,12 +695,70 @@
             (key-place c 2 cornerrow web-post-br)
             (key-place c 3 cornerrow web-post-bl)))))
 
+(defn thumb-connector-hackfour [c]
+  (let [row-count (get c :configuration-last-row-count)
+        lastrow (flastrow (get c :configuration-nrows))
+        cornerrow (fcornerrow (get c :configuration-nrows))
+       ]
+    (union 
+           (triangle-hulls
+            (thumb-tl-place c thumb-post-tr)
+            (thumb-tl-place c thumb-post-br)
+            (thumb-tr-place c thumb-post-tl)
+            (thumb-tr-place c thumb-post-bl)
+           )
+           (triangle-hulls
+            (thumb-mr-place c web-post-tl)
+            (thumb-ml-place c web-post-bl)
+            (thumb-mr-place c web-post-tr)
+            (thumb-ml-place c web-post-br)
+           )
+           (triangle-hulls    ; top two to the middle two, starting on the left
+            (thumb-tl-place c thumb-post-tl)
+            (thumb-ml-place c web-post-tr)
+            (thumb-tl-place c thumb-post-bl)
+            (thumb-ml-place c web-post-br)
+            (thumb-tl-place c thumb-post-br)
+            (thumb-mr-place c web-post-tr)
+            (thumb-tr-place c thumb-post-bl)
+            (thumb-mr-place c web-post-br)
+            (thumb-tr-place c thumb-post-br))
+           (triangle-hulls    ; top two to the main keyboard, starting on the left
+            (thumb-tl-place c thumb-post-tl)
+            (key-place c 0 cornerrow web-post-bl)
+            (thumb-tl-place c thumb-post-tr)
+            (key-place c 0 cornerrow web-post-br)
+            (thumb-tr-place c thumb-post-tl)
+            (key-place c 1 cornerrow web-post-bl)
+            (thumb-tr-place c thumb-post-tr)
+            (key-place c 1 cornerrow web-post-br)
+            (thumb-tr-place c thumb-post-br)
+            (key-place c 2 cornerrow web-post-bl)
+            (case row-count
+              :zero ()
+              (key-place c 2 lastrow web-post-bl))
+            (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-bl)
+            (key-place c 2 (case row-count :zero cornerrow lastrow) web-post-br)
+            (thumb-tr-place c thumb-post-br)
+            (key-place c 3 (case row-count :zero cornerrow lastrow) web-post-bl))
+           (triangle-hulls
+            (key-place c 1 cornerrow web-post-br)
+            (key-place c 2 lastrow web-post-tl)
+            (key-place c 2 cornerrow web-post-bl)
+            (key-place c 2 lastrow web-post-tr)
+            (key-place c 2 cornerrow web-post-br)
+            (key-place c 3 cornerrow web-post-bl))
+           )
+  )
+)
+
 (defn thumb-connectors [c]
   (let [thumb-count (get c :configuration-thumb-count)]
     (case thumb-count
       :two (thumb-connector-two c)
       :three (thumb-connector-three c)
       :four (thumb-connector-four c)
+      :hackfour (thumb-connector-hackfour c)
       :five (thumb-connector-five c)
       (thumb-connector-six c))))
 
@@ -972,6 +1040,27 @@
          (wall-brace (partial thumb-ml-place c)  0  1 web-post-tl
                      (partial thumb-ml-place c)  0  1 web-post-tr)))
 
+(defn thumb-wall-hackfour [c]
+  (union 
+         ; (wall-brace (partial thumb-tr-place c)  0 -1 thumb-post-br
+         ;             (partial thumb-mr-place c)  0 -1 web-post-br)
+         ; (wall-brace (partial thumb-mr-place c)  0 -1 web-post-br  
+         ;             (partial thumb-mr-place c)  0 -1 web-post-bl)
+         ; (wall-brace (partial thumb-mr-place c)  0 -1 web-post-bl
+         ;             (partial thumb-mr-place c) -1  0 web-post-bl)
+         (wall-brace (partial thumb-mr-place c) -1  0 web-post-bl
+                     (partial thumb-mr-place c) -1  0 web-post-tl)
+         (wall-brace (partial thumb-mr-place c) -1  0 web-post-tl
+                     (partial thumb-ml-place c) -1  0 web-post-bl)
+         (wall-brace (partial thumb-ml-place c) -1  0 web-post-bl
+                     (partial thumb-ml-place c) -1  0 web-post-tl)
+         (wall-brace (partial thumb-ml-place c) -1  0 web-post-tl
+                     (partial thumb-ml-place c)  0  1 web-post-tl)
+         (wall-brace (partial thumb-ml-place c)  0  1 web-post-tl
+                     (partial thumb-ml-place c)  0  1 web-post-tr)
+  )
+)
+
 (defn thumb-wall-five [c]
   (union (wall-brace (partial thumb-tr-place c)  0  -1 web-post-br
                      (partial thumb-mr-place c)  0  -1 web-post-br)
@@ -1018,7 +1107,9 @@
          (wall-brace (partial thumb-bl-place c) -1.1  1 web-post-tr
                      (partial thumb-ml-place c) -1.1  1 web-post-tl)
          (wall-brace (partial thumb-ml-place c) -1.1  1 web-post-tl
-                     (partial thumb-ml-place c)  0  1 web-post-tr)))
+                     (partial thumb-ml-place c)  0  1 web-post-tr)
+  )
+)
 
 (defn thumb-wall [c]
   (let [thumb-count (get c :configuration-thumb-count)]
@@ -1026,6 +1117,7 @@
       :two (thumb-wall-two c)
       :three (thumb-wall-three c)
       :four (thumb-wall-four c)
+      :hackfour (thumb-wall-hackfour c)
       :five (thumb-wall-five c)
       (thumb-wall-six c))))
 
@@ -1038,12 +1130,16 @@
         body-gap-default  (bottom-hull
                            (if use-inner-column?
                              (inner-key-place c middlerow -1 (translate (wall-locate2 -1 0) web-post))
-                             (left-key-place  c cornerrow -1 (translate (wall-locate2 -1 0) web-post)))
+                             (left-key-place  c cornerrow -1 (translate (wall-locate2 -1 0) web-post))
+                           )
                            (if use-inner-column?
                              (inner-key-place c middlerow -1 (translate (wall-locate3 -1 0) web-post))
-                             (left-key-place  c cornerrow -1 (translate (wall-locate3 -1 0) web-post)))
+                             (left-key-place  c cornerrow -1 (translate (wall-locate3 -1 0) web-post))
+                           )
                            (thumb-ml-place c (translate (wall-locate2 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr)))
-                           (thumb-ml-place c (translate (wall-locate3 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr))))
+                           (thumb-ml-place c (translate (wall-locate3 -0.3 1) (if (= thumb-count :three) thumb-post-tr web-post-tr)))
+                          )
+        body-gap-hackfour  ()
         body-gap-two      (bottom-hull
                            (if use-inner-column?
                              (inner-key-place c middlerow -1 (translate (wall-locate2 -1 0) web-post))
@@ -1066,6 +1162,7 @@
      (case thumb-count
        :two body-gap-two
        :five body-gap-five
+       :hackfour body-gap-hackfour
        body-gap-default)
      (if (= thumb-count :five)
        (hull (key-place c 0 cornerrow web-post-bl)
