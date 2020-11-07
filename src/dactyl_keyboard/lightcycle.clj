@@ -848,7 +848,7 @@
 
 (defn thumb-back-wall [c]
   (let [thumb-count                      (get c :configuration-thumb-count)
-        use-border?                      (get c :configuration-use-border?)
+        use-border?                      true
         thick-wall?                      (get c :configuration-thick-wall?)
         step                             wall-step
         local-back-y                     (thumb-back-y c)
@@ -887,7 +887,7 @@
 
 (defn thumb-left-wall [c]
   (let [thumb-count      (get c :configuration-thumb-count)
-        use-border?      (get c :configuration-use-border?)
+        use-border?      true
         thick-wall?      (get c :configuration-thick-wall?)
         thumb-alpha      (get c :configuration-thumb-alpha)
         step             wall-step
@@ -936,7 +936,7 @@
 (defn thumb-front-wall [c]
   (let [thumb-count  (get c :configuration-thumb-count)
         use-lastrow? (get c :configuration-use-lastrow?)
-        use-border?  (get c :configuration-use-border?)
+        use-border?  true
         thick-wall?  (get c :configuration-thick-wall?)
         cornerrow    (fcornerrow-lightcycle use-lastrow?)
         step         wall-step ;;0.1
@@ -1118,8 +1118,8 @@
         :configuration-use-wide-pinky?      false
         :configuration-hide-last-pinky?     false
 
-        :configuration-alpha                (/ pi 12)
-        :configuration-beta                 (/ pi 24)
+        :configuration-alpha                (/ pi 14)
+        :configuration-beta                 (/ pi 50)
         :configuration-tenting-angle        (/ pi 12)
         :configuration-thumb-alpha          (/ pi 12)
         :configuration-thumb-beta           (/ pi 36)
@@ -1128,13 +1128,13 @@
         :configuration-use-external-holder? true
 
         :configuration-use-hotswap?         true
-        :configuration-thumb-offset-x       -54
-        :configuration-thumb-offset-y       -45
+        :configuration-thumb-offset-x       -52
+        :configuration-thumb-offset-y       -43
         :configuration-thumb-offset-z       23
         :configuration-z-offset             18
         :configuration-manuform-offset?     true
-        :configuration-use-border?          true
-        :configuration-thick-wall?          false
+        :configuration-use-border?          false
+        :configuration-thick-wall?          true
 
         :configuration-use-screw-inserts?   false
         :configuration-show-caps?           false})
@@ -1142,10 +1142,10 @@
 (spit "things/switch-plate.scad"
       (write-scad (single-plate c false)))
 
-#_(spit "things/lightcycle-cherry-top-right.scad"
+(spit "things/lightcycle-cherry-top-right.scad"
         (write-scad (dactyl-top-right c)))
 (spit "things/lightcycle-cherry-top-left.scad"
         (write-scad (dactyl-top-left c)))
 
-#_(spit "things/light-cycle-plate-right.scad"
+(spit "things/light-cycle-plate-right.scad"
         (write-scad (dactyl-plate-right c)))
