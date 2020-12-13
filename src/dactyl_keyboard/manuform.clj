@@ -1381,7 +1381,7 @@
 (defn external-holder-position [c]
   (map + [(+ 18.8 (external-holder-offset c)) 18.7 1.3] [(first (external-holder-ref c)) (second (external-holder-ref c)) 2]))
 (def external-holder-cube
-  (cube 29.166 30 12.6))
+  (cube 29.166 (* 15 wall-thickness) 12.6))
 (defn external-holder-space [c]
   (translate (map + (external-holder-position c) [-1.5 (* -1 wall-thickness) 3]) external-holder-cube))
 
