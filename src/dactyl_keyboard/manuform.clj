@@ -219,27 +219,27 @@
                         (key-place c lastcol lastrow web-post-bl))
         ())
       (concat
-      ;; Row connections
-       (for [column (range (if use-inner-column? -1 0) (dec ncols))
-             row    (range 0 (inc lastrow))
-             :when  (case last-row-count
-                      :zero (or (not= row lastrow)
-                                (and (= row cornerrow)
-                                     (= column -1)))
-                      :two (or (.contains [2] column)
-                               (not= row lastrow))
-                      :full (not (and (= row lastrow)
-                                      (.contains [-1 0 1] column))))]
-         (triangle-hulls
-          (key-place c (inc column) row web-post-tl)
-          (key-place c column row web-post-tr)
-          (key-place c (inc column) row web-post-bl)
-          (if (not (and (= column -1)
-                        (= row cornerrow)))
-            (key-place c column row web-post-br)
-            ())))
+      ;; Row connections between switches
+       ; (for [column (range (if use-inner-column? -1 0) (dec ncols))
+       ;       row    (range 0 (inc lastrow))
+       ;       :when  (case last-row-count
+       ;                :zero (or (not= row lastrow)
+       ;                          (and (= row cornerrow)
+       ;                               (= column -1)))
+       ;                :two (or (.contains [2] column)
+       ;                         (not= row lastrow))
+       ;                :full (not (and (= row lastrow)
+       ;                                (.contains [-1 0 1] column))))]
+       ;   (triangle-hulls
+       ;    (key-place c (inc column) row web-post-tl)
+       ;    (key-place c column row web-post-tr)
+       ;    (key-place c (inc column) row web-post-bl)
+       ;    (if (not (and (= column -1)
+       ;                  (= row cornerrow)))
+       ;      (key-place c column row web-post-br)
+       ;      ())))
 
-      ;; Column connections
+      ;; Column connections between switches
        (for [column (if use-inner-column? (inner-columns ncols) (columns ncols))
              row    (range 0 lastrow)
              :when  (case last-row-count
@@ -256,20 +256,21 @@
             (key-place c column (inc row) web-post-tl)
             ())))
 
-      ;; Diagonal connections
-       (for [column (range (if use-inner-column? -1 0) (dec ncols))
-             row    (range 0 lastrow)
-             :when  (case last-row-count
-                      :full (not (or (and (= row lastrow)
-                                          (.contains [-1 0 1] column))
-                                     (and (= row cornerrow)
-                                          (.contains [-1 0 1] column))))
-                      (or (not= row cornerrow)))]
-         (triangle-hulls
-          (key-place c column row web-post-br)
-          (key-place c column (inc row) web-post-tr)
-          (key-place c (inc column) row web-post-bl)
-          (key-place c (inc column) (inc row) web-post-tl)))))
+      ;; Diagonal Row connections between switches
+       ; (for [column (range (if use-inner-column? -1 0) (dec ncols))
+       ;       row    (range 0 lastrow)
+       ;       :when  (case last-row-count
+       ;                :full (not (or (and (= row lastrow)
+       ;                                    (.contains [-1 0 1] column))
+       ;                               (and (= row cornerrow)
+       ;                                    (.contains [-1 0 1] column))))
+       ;                (or (not= row cornerrow)))]
+       ;   (triangle-hulls
+       ;    (key-place c column row web-post-br)
+       ;    (key-place c column (inc row) web-post-tr)
+       ;    (key-place c (inc column) row web-post-bl)
+       ;    (key-place c (inc column) (inc row) web-post-tl)))
+       ))
      (case last-row-count
        :two (triangle-hulls (key-place c 2 lastrow   web-post-tr)
                             (key-place c 3 cornerrow web-post-bl)
