@@ -14,7 +14,8 @@ pom.xml.asc
 .nrepl-port
 .nrepl-history
 .cpcache/
-.clj-kondo/.cache/
+.clj-kondo/*
+.lsp/*
 
 ### VS Code ###
 .vscode/*

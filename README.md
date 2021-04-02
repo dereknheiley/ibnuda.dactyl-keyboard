@@ -11,30 +11,37 @@ If you want to read the old old tshort `README.md`, go [here](README.keyboard.md
 2. Add Support for glueing LED strips to provide per-key LED RGB backlighting
 3. Tweak row, and column curvatures for smaller hands.
 
-![Glamour Shot](/resources/hobbit_column_curve.jpg)
+![Column Curvature](/resources/hobbit_column_curve.jpg)
 
-## Development
-To tinker around follow these "old" steps:
+![Glamour Shot](/resources/hobbit_glamour_shot.jpg)
 
-1. Install JDK and [leiningen](https://leiningen.org/#install).
-2. Change directory to this repository.
-3. Edit and save something in `src/dactyl_keyboard/common.clj` etc..
-4. Run `lein repl`.
-5. Run `(load-file "src/dactyl_keyboard/common.clj") (load-file "src/dactyl_keyboard/manuform.clj")`
-6. Open / wait for SCAD files to update.
-7. Render in SCAD
-8. Export to STL
-9. Slice STL file using 3d printer software.
-10. print and assemble your keyboard!
+![Hand Position](/resources/hobbit_hand_position.jpg)
 
-Here is a preview of the keyboard in a 3d printer slicing software (IdeaMaker).
-![3D Printing](/resources/3dprintingsupports.png)
+![Pinky Reach](/resources/hobbit_pinky_reach.jpg)
 
-## Updated Wiring Diagram
-![Fancy Wire Diagram](/resources/fancy-wiring-diagram.png)
+![Clear Bottom](/resources/hobbit_clear_bottom.jpg)
 
-## Timelapse Video
-[![Dactyl Timelapse Video](/resources/timelapse-screenshot.png)](https://youtu.be/jucJIm_TujM)
+# Generate OpenSCAD and STL models
+
+## OLD
+* Run `lein repl`
+* In the repl run `(load-file "src/dactyl_keyboard/common.clj") (load-file "src/dactyl_keyboard/manuform.clj")`
+* This will regenerate the `things/*.scad` files
+* Use OpenSCAD to open a `.scad` file.
+* Make changes to design, repeat `load-file`, OpenSCAD will watch for changes and rerender.
+* When done, use OpenSCAD to render, then export model STL files which can be printed by 3d printer slicing software.
+
+## NEW (faster)
+* Run `lein auto generate`
+* This will regenerate the `things/*.scad` files whenever the .clr file is saved
+* Use OpenSCAD to open a `.scad` file.
+* Make changes to design in `src/dactyl_keyboard/dactyl.clj`, open scad files will auto regenerate, OpenSCAD will rerender.
+* When done, use OpenSCAD to render, then export model STL files which can be printed by 3d printer slicing software.
+
+## Batch (parallel) Processing
+* Edit the path for OpenSCAD in `create-models.sh` if needed
+* Change any other settings for which files you want to render
+* Wait for STL files to appear (this may take a minute or two) 
 
 ## License
 Copyright © 2015-2020 Matthew Adereth, Tom Short, Ibnu D. Aji, Derek Nheiley et. al.
