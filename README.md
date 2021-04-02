@@ -13,6 +13,7 @@ If you want to read the old old tshort `README.md`, go [here](README.keyboard.md
 
 ![Column Curvature](/resources/hobbit_column_curve.jpg)
 
+![Black Keycap Glamour Shot](/resources/hobbit_black_glamour_shot.jpg)
 ![Glamour Shot](/resources/hobbit_glamour_shot.jpg)
 
 ![Hand Position](/resources/hobbit_hand_position.jpg)
